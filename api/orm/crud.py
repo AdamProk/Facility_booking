@@ -296,7 +296,6 @@ def delete_state(db: Session, state_id: int):
 
 
 def add_address(db: Session, address: schemas.AddressCreate):
-
     cities = get_cities(db, name=address.city_name)
     states = get_states(db, name=address.state_name)
     if len(cities) < 1:
@@ -304,9 +303,9 @@ def add_address(db: Session, address: schemas.AddressCreate):
     if len(states) < 1:
         raise NoResultFound("No state with specified name in the database.")
 
-    address_dict = address.model_dump(exclude=['city_name', 'state_name'])
-    address_dict['id_city'] = cities[0].id_city
-    address_dict['id_state'] = states[0].id_state
+    address_dict = address.model_dump(exclude=["city_name", "state_name"])
+    address_dict["id_city"] = cities[0].id_city
+    address_dict["id_state"] = states[0].id_state
 
     new_obj = models.Address(**address_dict)
     db.add(new_obj)
@@ -332,7 +331,6 @@ def get_addresses(
             return []
         query_dict["id_city"] = results[0].id_city
 
-
     if state_name is not None:
         results = get_states(db, name=query_dict.pop("state_name"))
         if len(results) < 1:
@@ -355,3 +353,86 @@ def delete_address(db: Session, address_id: int):
 
 
 # endregion ADDRESSES
+
+
+# region DAYS
+
+
+def add_day(db: Session, day: schemas.DayCreate):
+    new_obj = models.Day(**day.model_dump())
+    db.add(new_obj)
+    db.commit()
+    db.refresh(new_obj)
+    return new_obj
+
+
+def get_days(
+    db=None,
+    id_day=None,
+    day=None,
+):
+    query_dict = {k: v for k, v in locals().items() if v is not None}
+
+    return dict_query_and(models.Day, query_dict)
+
+
+def delete_day(db: Session, day_id: int):
+    query = db.query(models.Day).filter(models.Day.id_day == day_id)
+    if query.first() is None:
+        raise NoResultFound(
+            "No occurence found with this id was found in the database."
+        )
+    query.delete()
+    db.commit()
+
+
+# endregion DAYS
+
+
+# region OPEN HOURS
+def add_open_hour(db: Session, open_hour: schemas.OpenHourCreate):
+    days = get_days(db, day=open_hour.day_name)
+    if len(days) < 1:
+        raise NoResultFound("No day with specified name in the database.")
+
+    open_hour_dict = open_hour.model_dump(exclude=["day_name"])
+    open_hour_dict["id_day"] = days[0].id_day
+
+    new_obj = models.OpenHour(**open_hour_dict)
+    db.add(new_obj)
+    db.commit()
+    db.refresh(new_obj)
+    return new_obj
+
+
+def get_open_hours(
+    db,
+    id_open_hour=None,
+    start_hour=None,
+    end_hour=None,
+    day_name=None,
+):
+    query_dict = {k: v for k, v in locals().items() if v is not None}
+
+    if day_name is not None:
+        results = get_days(db, day=query_dict.pop("day_name"))
+        if len(results) < 1:
+            return []
+        query_dict["id_day"] = results[0].id_day
+
+    return dict_query_and(models.OpenHour, query_dict)
+
+
+def delete_open_hour(db: Session, open_hour_id: int):
+    query = db.query(models.OpenHour).filter(
+        models.OpenHour.id_open_hour == open_hour_id
+    )
+    if query.first() is None:
+        raise NoResultFound(
+            "No occurence found with this id was found in the database."
+        )
+    query.delete()
+    db.commit()
+
+
+# endregion OPEN HOURS

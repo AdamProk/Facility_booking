@@ -403,7 +403,7 @@ def update_address(
     except IntegrityError:
         raise HTTPException(
             status_code=500,
-            detail="Incorrect user information. Unique constraint violated.",
+            detail="Incorrect information. Unique constraint violated.",
         )
     except NoResultFound:
         raise HTTPException(
@@ -414,6 +414,113 @@ def update_address(
 
 
 # endregion ADDRESSES
+
+
+# region DAYS 
+
+@app.post("/day/", response_model=schemas.Day, tags=["Days"])
+def add_day(day: schemas.DayCreate, db: Session = Depends(get_db)):
+    try:
+        response = crud.add_day(db, day)
+    except IntegrityError:
+        raise HTTPException(
+            status_code=500,
+            detail="Incorrect information. Unique constraint violated.",
+        )
+    return response
+
+
+@app.delete("/day/", tags=["Days"])
+def delete_day(day_id: int, db: Session = Depends(get_db)):
+    try:
+        crud.delete_day(db, day_id)
+    except NoResultFound as e:
+        raise HTTPException(status_code=404, detail=e.args[0])
+    return JSONResponse({"result": True})
+
+
+@app.get("/day/", response_model=list[schemas.Day], tags=["Days"])
+def get_days(
+    id_day: int = Query(None),
+    day: str = Query(None),
+    db: Session = Depends(get_db),
+):
+    try:
+        results = crud.get_days(**locals())
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No occurence found in the database."
+        )
+    return results
+
+
+# endregion DAYS
+
+
+# region OPEN HOURS
+
+@app.post("/open_hour/", response_model=schemas.OpenHour, tags=["Open Hours"])
+def add_open_hour(open_hour: schemas.OpenHourCreate, db: Session = Depends(get_db)):
+    try:
+        response = crud.add_open_hour(db, open_hour)
+    except IntegrityError:
+        raise HTTPException(
+            status_code=500,
+            detail="Incorrect information. Unique constraint violated.",
+        )
+    return response
+
+
+@app.delete("/open_hour/", tags=["Open Hours"])
+def delete_open_hour(open_hour_id: int, db: Session = Depends(get_db)):
+    try:
+        crud.delete_open_hour(db, open_hour_id)
+    except NoResultFound as e:
+        raise HTTPException(status_code=404, detail=e.args[0])
+    return JSONResponse({"result": True})
+
+
+@app.get("/open_hour/", response_model=list[schemas.OpenHour], tags=["Open Hours"])
+def get_open_houres(
+    id_open_hour: int = Query(None),
+    day_name: str = Query(None),
+    start_hour: str = Query(None),
+    end_hour: str = Query(None),
+    db: Session = Depends(get_db),
+):
+    try:
+        results = crud.get_open_hours(**locals())
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No occurence found in the database."
+        )
+    return results
+
+
+@app.put("/open_hour/", response_model=schemas.OpenHour, tags=["Open Hours"])
+def update_open_hour(
+    id_open_hour: int = Query(None),
+    day_name: str = Query(None),
+    start_hour: str = Query(None),
+    end_hour: str = Query(None),
+    db: Session = Depends(get_db),
+):
+    try:
+        results = crud.update_open_hour(**locals())
+    except IntegrityError:
+        raise HTTPException(
+            status_code=500,
+            detail="Incorrect information. Unique constraint violated.",
+        )
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No occurence found in the database."
+        )
+    return results
+
+
+# endregion OPEN HOURS
+
 
 if __name__ == "__main__":
     uvicorn.run("api:app", host="0.0.0.0", port=8000, reload=True, workers=1)

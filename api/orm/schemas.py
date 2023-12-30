@@ -1,5 +1,6 @@
 from pydantic import BaseModel, validator
 from typing import List, Optional, ForwardRef
+import datetime
 
 from pydantic import Field
 
@@ -86,3 +87,28 @@ class AddressCreate(BaseModel):
     street_name: str
     building_number: int
     postal_code: str
+
+
+class Day(BaseModel):
+    id_day: int
+    day: str
+
+
+class DayCreate(BaseModel):
+    day: str
+
+
+class OpenHour(BaseModel):
+    id_open_hours: int
+
+    day: Day
+
+    start_hour: datetime.time
+    end_hour: datetime.time
+
+
+class OpenHourCreate(BaseModel):
+    day_name: str
+
+    start_hour: datetime.time
+    end_hour: datetime.time

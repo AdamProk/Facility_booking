@@ -5,10 +5,9 @@ from sqlalchemy import (
     Integer,
     String,
     UniqueConstraint,
+    Time,
 )
 from sqlalchemy.orm import relationship
-
-
 from .database import Base, engine
 
 
@@ -76,7 +75,11 @@ class State(Base):
 
 class Address(Base):
     __tablename__ = "addresses"
-    __table_args__ = (UniqueConstraint("id_city", "id_state", "street_name", "building_number"),)
+    __table_args__ = (
+        UniqueConstraint(
+            "id_city", "id_state", "street_name", "building_number"
+        ),
+    )
 
     id_address = Column(Integer, primary_key=True)
 
@@ -89,3 +92,23 @@ class Address(Base):
     street_name = Column(String, nullable=False)
     building_number = Column(Integer, nullable=False)
     postal_code = Column(String, nullable=False)
+
+
+class Day(Base):
+    __tablename__ = "days"
+
+    id_day = Column(Integer, primary_key=True)
+    day = Column(String, nullable=False)
+    hours = relationship("OpenHour", back_populates="day")
+
+
+class OpenHour(Base):
+    __tablename__ = "open_hours"
+    __table_args__ = (UniqueConstraint("start_hour", "end_hour"),)
+
+    id_open_hours = Column(Integer, primary_key=True)
+    start_hour = Column(Time)
+    end_hour = Column(Time)
+
+    id_day = Column(Integer, ForeignKey("days.id_day"))
+    day = relationship("Day", back_populates="hours")
