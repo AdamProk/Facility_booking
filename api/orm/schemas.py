@@ -36,3 +36,12 @@ class ReservationStatus(BaseModel):
 
 class ReservationStatusCreate(BaseModel):
     status: str
+
+
+
+class FacilityType(BaseModel):
+    id_facility_type: int
+    name: str
+
+class FacilityTypeCreate(BaseModel):
+    name: str

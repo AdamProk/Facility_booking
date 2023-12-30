@@ -77,7 +77,7 @@ def get_user_roles(
         )
     except NoResultFound:
         raise HTTPException(
-            status_code=404, detail="No user found in the database."
+            status_code=404, detail="No occurence found in the database."
         )
     return results
 
@@ -135,7 +135,7 @@ def get_users(
         )
     except NoResultFound:
         raise HTTPException(
-            status_code=404, detail="No user found in the database."
+            status_code=404, detail="No occurence found in the database."
         )
     return results
 
@@ -168,7 +168,7 @@ def update_user(
         )
     except NoResultFound:
         raise HTTPException(
-            status_code=404, detail="No user found in the database."
+            status_code=404, detail="No occurence found in the database."
         )
     return results
 
@@ -210,12 +210,54 @@ def get_reservation_statuses(
         )
     except NoResultFound:
         raise HTTPException(
-            status_code=404, detail="No user found in the database."
+            status_code=404, detail="No occurence found in the database."
         )
     return results
 
 
 # endregion RESERVATION STATUSES
+
+
+# region FACILITY TYPES
+@app.post("/facility_type/", response_model=schemas.FacilityType, tags=["Facility Types"])
+def add_facility_type(
+    facility_type: schemas.FacilityTypeCreate, db: Session = Depends(get_db)
+):
+    return crud.add_facility_type(db, facility_type)
+
+
+@app.delete("/facility_type/", tags=['Facility Types'])
+def delete_facility_type(facility_type_id: int, db: Session = Depends(get_db)):
+    try:
+        crud.delete_facility_type(db, facility_type_id)
+    except NoResultFound as e:
+        raise HTTPException(status_code=404, detail=e.args[0])
+    return JSONResponse({"result": True})
+
+
+@app.get(
+    "/facility_type/", response_model=list[schemas.FacilityType], tags=["Facility Types"]
+)
+def get_facility_types(
+    id_facility_type: int = Query(None),
+    name: str = Query(None),
+    db: Session = Depends(get_db),
+):
+    try:
+        results = crud.get_facility_types(
+            db,
+            id_facility_type=id_facility_type,
+            name=name,
+        )
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No occurence found in the database."
+        )
+    return results
+
+
+# endregion FACILITY TYPES
+
 
 
 

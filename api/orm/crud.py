@@ -150,3 +150,37 @@ def delete_reservation_status(db: Session, reservation_status_id: int):
 
 
 # endregion RESERVATION STATUSES
+
+
+
+# region FACILITY TYPES 
+
+
+def add_facility_type(db: Session, facility_type: schemas.FacilityTypeCreate):
+    new_obj = models.FacilityType(**facility_type.model_dump())
+    db.add(new_obj)
+    db.commit()
+    db.refresh(new_obj)
+    return new_obj
+
+def get_facility_types(
+    db=None,
+    id_facility_type=None,
+    name=None,
+):
+    query_dict = {k: v for k, v in locals().items() if v is not None}
+    del query_dict["db"]
+
+    return dict_query_and(db, models.FacilityType, query_dict)
+
+def delete_facility_type(db: Session, facility_type_id: int):
+    query = db.query(models.FacilityType).filter(models.FacilityType.id_facility_type == facility_type_id)
+    if query.first() is None:
+        raise NoResultFound(
+            "No occurence found with this id was found in the database."
+        )
+    query.delete()
+    db.commit()
+
+
+# endregion FACILITY TYPE

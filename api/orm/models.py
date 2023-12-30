@@ -38,3 +38,13 @@ class ReservationStatus(Base):
     status = Column(String, nullable=False)
 
     # users = relationship('User', back_populates='user_role')
+
+
+
+class FacilityType(Base):
+    __tablename__ = "facility_types"
+
+    id_facility_type = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+
+    # users = relationship('User', back_populates='user_role')
