@@ -10,12 +10,15 @@ class UserRole(Base):
     id_user_role = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
 
+    users = relationship('User', back_populates='user_role')
+
+
 
 class User(Base):
     __tablename__ = "users"
 
     id_user = Column(Integer, primary_key=True, index=True)
-    user_role_id = Column(Integer, ForeignKey("user_roles.id_user_role"))
+    user_role_id = Column(Integer, ForeignKey("user_roles.id_user_role"), default=1)
 
     email = Column(String, unique=True)
     password = Column(String)

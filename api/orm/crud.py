@@ -3,6 +3,29 @@ from sqlalchemy.orm import Session
 from . import models, schemas
 
 
+class ElementNotFound(Exception):
+    pass
+
+
+def add_user(db: Session, user: schemas.UserCreate):
+    user_dict = user.dict()
+    user_dict["password"] = user.password + "notreallyhashed"
+    user_role_id = get_user_role_by_name(db, user_dict.pop("user_role_name")).id_user_role
+    if user_role_id is None:
+        user_role_id = 1
+    db_user = models.User(**user_dict)
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+
+def get_user_role_by_name(db, name):
+    return (
+        db.query(models.UserRole).filter(models.UserRole.name == name).first()
+    )
+
+
 # def get_user(db: Session, user_id: int):
 #     return db.query(models.User).filter(models.User.id == user_id).first()
 
