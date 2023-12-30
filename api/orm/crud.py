@@ -7,8 +7,18 @@ from . import models, schemas
 class ElementNotFound(Exception):
     pass
 
-def dict_query_and(db, model, query_dict):
-    if len(query_dict) > 0:  # If query contains any criteria
+
+class NoConnectionWithDB(Exception):
+    pass
+
+
+def dict_query_and(model, query_dict, db=None):
+    db = query_dict.pop("db", None)
+    if db is None:
+        raise NoConnectionWithDB(
+            "No connection with the database was provided"
+        )
+    if len(query_dict) > 1:  # If query contains any criteria
         q = db.query(model).filter(
             and_(
                 *(
@@ -19,10 +29,12 @@ def dict_query_and(db, model, query_dict):
         )
     else:  # If query is empty: return all users
         q = db.query(model)
-    
+
     return q.all()
 
+
 # region USER ROLES
+
 
 def add_user_role(db: Session, user_role: schemas.UserRoleCreate):
     db_user_role = models.UserRole(**user_role.model_dump())
@@ -31,24 +43,28 @@ def add_user_role(db: Session, user_role: schemas.UserRoleCreate):
     db.refresh(db_user_role)
     return db_user_role
 
+
 def get_user_roles(
     db=None,
     id_user_role=None,
     name=None,
 ):
     query_dict = {k: v for k, v in locals().items() if v is not None}
-    del query_dict["db"]
 
-    return dict_query_and(db, models.UserRole, query_dict)
+    return dict_query_and(models.UserRole, query_dict)
+
 
 def delete_user_role(db: Session, user_role_id: int):
-    query = db.query(models.UserRole).filter(models.UserRole.id_user_role == user_role_id)
+    query = db.query(models.UserRole).filter(
+        models.UserRole.id_user_role == user_role_id
+    )
     if query.first() is None:
         raise NoResultFound(
             "No occurence found with this id was found in the database."
         )
     query.delete()
     db.commit()
+
 
 # endregion USER ROLES
 
@@ -58,7 +74,9 @@ def delete_user_role(db: Session, user_role_id: int):
 def add_user(db: Session, user: schemas.UserCreate):
     user_dict = user.model_dump()
     user_dict["password"] = user.password + "notreallyhashed"
-    matching_user_roles = get_user_roles(db, name=user_dict.pop("user_role_name"))
+    matching_user_roles = get_user_roles(
+        db, name=user_dict.pop("user_role_name")
+    )
     if len(matching_user_roles) < 1:
         raise NoResultFound("User role not found.")
 
@@ -69,6 +87,7 @@ def add_user(db: Session, user: schemas.UserCreate):
     db.commit()
     db.refresh(db_user)
     return db_user
+
 
 def get_users(
     db=None,
@@ -81,15 +100,15 @@ def get_users(
     user_role_name=None,
 ):
     query_dict = {k: v for k, v in locals().items() if v is not None}
-    del query_dict["db"]
 
     if user_role_name:
-        role = get_user_role_by_name(db, query_dict.pop("user_role_name"))
-        if role is None:
+        roles = get_user_roles(db, name=query_dict.pop("user_role_name"))
+        if len(roles) < 1:
             return []
-        query_dict["user_role_id"] = role.id_user_role
+        query_dict["user_role_id"] = roles[0].id_user_role
 
-    return dict_query_and(db, models.User, query_dict)
+    return dict_query_and(models.User, query_dict)
+
 
 def delete_user(db: Session, user_id: int):
     query = db.query(models.User).filter(models.User.id_user == user_id)
@@ -100,14 +119,26 @@ def delete_user(db: Session, user_id: int):
     query.delete()
     db.commit()
 
-def update_user(db: Session, user_id: int, update_data: dict):
-    user = db.query(models.User).filter(models.User.id_user == user_id).first()
+
+def update_user(
+    db=None,
+    id_user=None,
+    email=None,
+    password=None,
+    name=None,
+    lastname=None,
+    phone_number=None,
+    user_role_name=None,
+):
+    user = db.query(models.User).filter(models.User.id_user == id_user).first()
 
     if user is None:
         raise NoResultFound("No user found with this id in the database.")
 
-    # Update the user attributes based on the provided data
-    for key, value in update_data.items():
+    update_dict = locals()
+    del update_dict["db"]
+
+    for key, value in update_dict.items():
         if value is not None:
             setattr(user, key, value)
 
@@ -115,19 +146,22 @@ def update_user(db: Session, user_id: int, update_data: dict):
 
     return user
 
-# endregion USERS
 
+# endregion USERS
 
 
 # region RESERVATION STATUSES
 
 
-def add_reservation_status(db: Session, reservation_status: schemas.ReservationStatusCreate):
+def add_reservation_status(
+    db: Session, reservation_status: schemas.ReservationStatusCreate
+):
     new_obj = models.ReservationStatus(**reservation_status.model_dump())
     db.add(new_obj)
     db.commit()
     db.refresh(new_obj)
     return new_obj
+
 
 def get_reservation_statuses(
     db=None,
@@ -135,12 +169,14 @@ def get_reservation_statuses(
     status=None,
 ):
     query_dict = {k: v for k, v in locals().items() if v is not None}
-    del query_dict["db"]
 
-    return dict_query_and(db, models.ReservationStatus, query_dict)
+    return dict_query_and(models.ReservationStatus, query_dict)
+
 
 def delete_reservation_status(db: Session, reservation_status_id: int):
-    query = db.query(models.ReservationStatus).filter(models.ReservationStatus.id_reservation_status == reservation_status_id)
+    query = db.query(models.ReservationStatus).filter(
+        models.ReservationStatus.id_reservation_status == reservation_status_id
+    )
     if query.first() is None:
         raise NoResultFound(
             "No occurence found with this id was found in the database."
@@ -152,8 +188,7 @@ def delete_reservation_status(db: Session, reservation_status_id: int):
 # endregion RESERVATION STATUSES
 
 
-
-# region FACILITY TYPES 
+# region FACILITY TYPES
 
 
 def add_facility_type(db: Session, facility_type: schemas.FacilityTypeCreate):
@@ -163,18 +198,21 @@ def add_facility_type(db: Session, facility_type: schemas.FacilityTypeCreate):
     db.refresh(new_obj)
     return new_obj
 
+
 def get_facility_types(
     db=None,
     id_facility_type=None,
     name=None,
 ):
     query_dict = {k: v for k, v in locals().items() if v is not None}
-    del query_dict["db"]
 
-    return dict_query_and(db, models.FacilityType, query_dict)
+    return dict_query_and(models.FacilityType, query_dict)
+
 
 def delete_facility_type(db: Session, facility_type_id: int):
-    query = db.query(models.FacilityType).filter(models.FacilityType.id_facility_type == facility_type_id)
+    query = db.query(models.FacilityType).filter(
+        models.FacilityType.id_facility_type == facility_type_id
+    )
     if query.first() is None:
         raise NoResultFound(
             "No occurence found with this id was found in the database."
@@ -184,8 +222,6 @@ def delete_facility_type(db: Session, facility_type_id: int):
 
 
 # endregion FACILITY TYPE
-
-
 
 
 # region CITIES
@@ -198,15 +234,16 @@ def add_city(db: Session, city: schemas.CityCreate):
     db.refresh(new_obj)
     return new_obj
 
+
 def get_cities(
-    db=None,
+    db,
     id_city=None,
     name=None,
 ):
     query_dict = {k: v for k, v in locals().items() if v is not None}
-    del query_dict["db"]
 
-    return dict_query_and(db, models.City, query_dict)
+    return dict_query_and(models.City, query_dict)
+
 
 def delete_city(db: Session, city_id: int):
     query = db.query(models.City).filter(models.City.id_city == city_id)
@@ -218,8 +255,7 @@ def delete_city(db: Session, city_id: int):
     db.commit()
 
 
-# endregion CITIES 
-
+# endregion CITIES
 
 
 # region STATES
@@ -232,15 +268,16 @@ def add_state(db: Session, state: schemas.StateCreate):
     db.refresh(new_obj)
     return new_obj
 
+
 def get_states(
     db=None,
     id_state=None,
     name=None,
 ):
     query_dict = {k: v for k, v in locals().items() if v is not None}
-    del query_dict["db"]
 
-    return dict_query_and(db, models.State, query_dict)
+    return dict_query_and(models.State, query_dict)
+
 
 def delete_state(db: Session, state_id: int):
     query = db.query(models.State).filter(models.State.id_state == state_id)
@@ -253,3 +290,68 @@ def delete_state(db: Session, state_id: int):
 
 
 # endregion STATES
+
+
+# region ADDRESSES
+
+
+def add_address(db: Session, address: schemas.AddressCreate):
+
+    cities = get_cities(db, name=address.city_name)
+    states = get_states(db, name=address.state_name)
+    if len(cities) < 1:
+        raise NoResultFound("No city with specified name in the database.")
+    if len(states) < 1:
+        raise NoResultFound("No state with specified name in the database.")
+
+    address_dict = address.model_dump(exclude=['city_name', 'state_name'])
+    address_dict['id_city'] = cities[0].id_city
+    address_dict['id_state'] = states[0].id_state
+
+    new_obj = models.Address(**address_dict)
+    db.add(new_obj)
+    db.commit()
+    db.refresh(new_obj)
+    return new_obj
+
+
+def get_addresses(
+    db,
+    id_address=None,
+    street_name=None,
+    building_number=None,
+    postal_code=None,
+    city_name=None,
+    state_name=None,
+):
+    query_dict = {k: v for k, v in locals().items() if v is not None}
+
+    if city_name is not None:
+        results = get_cities(db, name=query_dict.pop("city_name"))
+        if len(results) < 1:
+            return []
+        query_dict["id_city"] = results[0].id_city
+
+
+    if state_name is not None:
+        results = get_states(db, name=query_dict.pop("state_name"))
+        if len(results) < 1:
+            return []
+        query_dict["id_state"] = results[0].id_state
+
+    return dict_query_and(models.Address, query_dict)
+
+
+def delete_address(db: Session, address_id: int):
+    query = db.query(models.Address).filter(
+        models.Address.id_address == address_id
+    )
+    if query.first() is None:
+        raise NoResultFound(
+            "No occurence found with this id was found in the database."
+        )
+    query.delete()
+    db.commit()
+
+
+# endregion ADDRESSES

@@ -67,3 +67,22 @@ class State(BaseModel):
 
 class StateCreate(BaseModel):
     name: str
+
+
+class Address(BaseModel):
+    id_address: int
+
+    city: City
+
+    state: State
+    street_name: str
+    building_number: int
+    postal_code: str
+
+
+class AddressCreate(BaseModel):
+    city_name: str
+    state_name: str
+    street_name: str
+    building_number: int
+    postal_code: str

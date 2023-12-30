@@ -59,7 +59,7 @@ def add_user_role(
     return result
 
 
-@app.delete("/user_role/", tags=['User Roles'])
+@app.delete("/user_role/", tags=["User Roles"])
 def delete_user_role(user_role_id: int, db: Session = Depends(get_db)):
     try:
         crud.delete_user_role(db, user_role_id)
@@ -77,11 +77,7 @@ def get_user_roles(
     db: Session = Depends(get_db),
 ):
     try:
-        results = crud.get_user_roles(
-            db,
-            id_user_role=id_user_role,
-            name=name,
-        )
+        results = crud.get_user_roles(**locals())
     except NoResultFound:
         raise HTTPException(
             status_code=404, detail="No occurence found in the database."
@@ -130,16 +126,7 @@ def get_users(
     db: Session = Depends(get_db),
 ):
     try:
-        results = crud.get_users(
-            db,
-            id_user,
-            email,
-            password,
-            name,
-            lastname,
-            phone_number,
-            user_role_name,
-        )
+        results = crud.get_users(**locals())
     except NoResultFound:
         raise HTTPException(
             status_code=404, detail="No occurence found in the database."
@@ -158,16 +145,8 @@ def update_user(
     user_role_name: str = Query(None),
     db: Session = Depends(get_db),
 ):
-    update_data = {
-        "email": email,
-        "password": password,
-        "name": name,
-        "lastname": lastname,
-        "phone_number": phone_number,
-        "user_role_name": user_role_name,
-    }
     try:
-        results = crud.update_user(db, id_user, update_data)
+        results = crud.update_user(**locals())
     except IntegrityError:
         raise HTTPException(
             status_code=500,
@@ -182,12 +161,17 @@ def update_user(
 
 # endregion USER
 
-# region RESERVATION STATUSES
-@app.post("/reservation_status/", response_model=schemas.ReservationStatus, tags=["Reservation Statuses"])
-def add_reservation_status(
-    reservation_status: schemas.ReservationStatusCreate, db: Session = Depends(get_db)
-):
 
+# region RESERVATION STATUSES
+@app.post(
+    "/reservation_status/",
+    response_model=schemas.ReservationStatus,
+    tags=["Reservation Statuses"],
+)
+def add_reservation_status(
+    reservation_status: schemas.ReservationStatusCreate,
+    db: Session = Depends(get_db),
+):
     try:
         result = crud.add_reservation_status(db, reservation_status)
     except IntegrityError:
@@ -198,8 +182,10 @@ def add_reservation_status(
     return result
 
 
-@app.delete("/reservation_status/", tags=['Reservation Statuses'])
-def delete_reservation_status(reservation_status_id: int, db: Session = Depends(get_db)):
+@app.delete("/reservation_status/", tags=["Reservation Statuses"])
+def delete_reservation_status(
+    reservation_status_id: int, db: Session = Depends(get_db)
+):
     try:
         crud.delete_reservation_status(db, reservation_status_id)
     except NoResultFound as e:
@@ -208,7 +194,9 @@ def delete_reservation_status(reservation_status_id: int, db: Session = Depends(
 
 
 @app.get(
-    "/reservation_status/", response_model=list[schemas.ReservationStatus], tags=["Reservation Statuses"]
+    "/reservation_status/",
+    response_model=list[schemas.ReservationStatus],
+    tags=["Reservation Statuses"],
 )
 def get_reservation_statuses(
     id_reservation_status: int = Query(None),
@@ -216,11 +204,7 @@ def get_reservation_statuses(
     db: Session = Depends(get_db),
 ):
     try:
-        results = crud.get_reservation_statuses(
-            db,
-            id_reservation_status=id_reservation_status,
-            status=status,
-        )
+        results = crud.get_reservation_statuses(**locals())
     except NoResultFound:
         raise HTTPException(
             status_code=404, detail="No occurence found in the database."
@@ -232,11 +216,14 @@ def get_reservation_statuses(
 
 
 # region FACILITY TYPES
-@app.post("/facility_type/", response_model=schemas.FacilityType, tags=["Facility Types"])
+@app.post(
+    "/facility_type/",
+    response_model=schemas.FacilityType,
+    tags=["Facility Types"],
+)
 def add_facility_type(
     facility_type: schemas.FacilityTypeCreate, db: Session = Depends(get_db)
 ):
-
     try:
         response = crud.add_facility_type(db, facility_type)
     except IntegrityError:
@@ -247,7 +234,7 @@ def add_facility_type(
     return response
 
 
-@app.delete("/facility_type/", tags=['Facility Types'])
+@app.delete("/facility_type/", tags=["Facility Types"])
 def delete_facility_type(facility_type_id: int, db: Session = Depends(get_db)):
     try:
         crud.delete_facility_type(db, facility_type_id)
@@ -257,7 +244,9 @@ def delete_facility_type(facility_type_id: int, db: Session = Depends(get_db)):
 
 
 @app.get(
-    "/facility_type/", response_model=list[schemas.FacilityType], tags=["Facility Types"]
+    "/facility_type/",
+    response_model=list[schemas.FacilityType],
+    tags=["Facility Types"],
 )
 def get_facility_types(
     id_facility_type: int = Query(None),
@@ -265,11 +254,7 @@ def get_facility_types(
     db: Session = Depends(get_db),
 ):
     try:
-        results = crud.get_facility_types(
-            db,
-            id_facility_type=id_facility_type,
-            name=name,
-        )
+        results = crud.get_facility_types(**locals())
     except NoResultFound:
         raise HTTPException(
             status_code=404, detail="No occurence found in the database."
@@ -282,9 +267,7 @@ def get_facility_types(
 
 # region CITIES
 @app.post("/city/", response_model=schemas.City, tags=["Cities"])
-def add_city(
-    city: schemas.CityCreate, db: Session = Depends(get_db)
-):
+def add_city(city: schemas.CityCreate, db: Session = Depends(get_db)):
     try:
         response = crud.add_city(db, city)
     except IntegrityError:
@@ -295,7 +278,7 @@ def add_city(
     return response
 
 
-@app.delete("/city/", tags=['Cities'])
+@app.delete("/city/", tags=["Cities"])
 def delete_city(city_id: int, db: Session = Depends(get_db)):
     try:
         crud.delete_city(db, city_id)
@@ -304,20 +287,14 @@ def delete_city(city_id: int, db: Session = Depends(get_db)):
     return JSONResponse({"result": True})
 
 
-@app.get(
-    "/city/", response_model=list[schemas.City], tags=["Cities"]
-)
+@app.get("/city/", response_model=list[schemas.City], tags=["Cities"])
 def get_cities(
     id_city: int = Query(None),
     name: str = Query(None),
     db: Session = Depends(get_db),
 ):
     try:
-        results = crud.get_cities(
-            db,
-            id_city=id_city,
-            name=name,
-        )
+        results = crud.get_cities(**locals())
     except NoResultFound:
         raise HTTPException(
             status_code=404, detail="No occurence found in the database."
@@ -330,10 +307,7 @@ def get_cities(
 
 # region STATES
 @app.post("/state/", response_model=schemas.State, tags=["States"])
-def add_state(
-    state: schemas.StateCreate, db: Session = Depends(get_db)
-):
-
+def add_state(state: schemas.StateCreate, db: Session = Depends(get_db)):
     try:
         response = crud.add_state(db, state)
     except IntegrityError:
@@ -344,7 +318,7 @@ def add_state(
     return response
 
 
-@app.delete("/state/", tags=['States'])
+@app.delete("/state/", tags=["States"])
 def delete_state(state_id: int, db: Session = Depends(get_db)):
     try:
         crud.delete_state(db, state_id)
@@ -353,20 +327,14 @@ def delete_state(state_id: int, db: Session = Depends(get_db)):
     return JSONResponse({"result": True})
 
 
-@app.get(
-    "/state/", response_model=list[schemas.State], tags=["States"]
-)
+@app.get("/state/", response_model=list[schemas.State], tags=["States"])
 def get_states(
     id_state: int = Query(None),
     name: str = Query(None),
     db: Session = Depends(get_db),
 ):
     try:
-        results = crud.get_states(
-            db,
-            id_state=id_state,
-            name=name,
-        )
+        results = crud.get_states(**locals())
     except NoResultFound:
         raise HTTPException(
             status_code=404, detail="No occurence found in the database."
@@ -375,6 +343,77 @@ def get_states(
 
 
 # endregion STATES
+
+
+# region ADRESSES
+
+
+@app.post("/address/", response_model=schemas.Address, tags=["Addresses"])
+def add_address(address: schemas.AddressCreate, db: Session = Depends(get_db)):
+    try:
+        response = crud.add_address(db, address)
+    except IntegrityError:
+        raise HTTPException(
+            status_code=500,
+            detail="Incorrect information. Unique constraint violated.",
+        )
+    return response
+
+
+@app.delete("/address/", tags=["Addresses"])
+def delete_address(address_id: int, db: Session = Depends(get_db)):
+    try:
+        crud.delete_address(db, address_id)
+    except NoResultFound as e:
+        raise HTTPException(status_code=404, detail=e.args[0])
+    return JSONResponse({"result": True})
+
+
+@app.get("/address/", response_model=list[schemas.Address], tags=["Addresses"])
+def get_addresses(
+    id_address: int = Query(None),
+    street_name: str = Query(None),
+    building_number: int = Query(None),
+    postal_code: str = Query(None),
+    city_name: str = Query(None),
+    state_name: str = Query(None),
+    db: Session = Depends(get_db),
+):
+    try:
+        results = crud.get_addresses(**locals())
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No occurence found in the database."
+        )
+    return results
+
+
+@app.put("/address/", response_model=schemas.Address, tags=["Addresses"])
+def update_address(
+    id_address: int = Query(None),
+    street_name: str = Query(None),
+    building_number: int = Query(None),
+    postal_code: str = Query(None),
+    city_name: str = Query(None),
+    state_name: str = Query(None),
+    db: Session = Depends(get_db),
+):
+    try:
+        results = crud.update_address(**locals())
+    except IntegrityError:
+        raise HTTPException(
+            status_code=500,
+            detail="Incorrect user information. Unique constraint violated.",
+        )
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No occurence found in the database."
+        )
+    return results
+
+
+
+# endregion ADDRESSES
 
 if __name__ == "__main__":
     uvicorn.run("api:app", host="0.0.0.0", port=8000, reload=True, workers=1)
