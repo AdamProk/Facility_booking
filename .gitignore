@@ -3,3 +3,7 @@ api/facility_db_api_venv/
 __pycache__
 
 api/scripts/
+
+api/erd.png
+
+.vscode/

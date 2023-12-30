@@ -4,6 +4,8 @@ import uvicorn
 from orm import crud, models, schemas
 from orm.database import SessionLocal, engine
 
+models.Base.metadata.create_all(bind=engine)
+
 
 app = FastAPI()
 
