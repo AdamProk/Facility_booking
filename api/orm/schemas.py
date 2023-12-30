@@ -25,3 +25,4 @@ class UserCreate(BaseModel):
     lastname: str
     phone_number: str
     user_role_name: str
+

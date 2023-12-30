@@ -1,8 +1,9 @@
-from fastapi import Depends, FastAPI, HTTPException, Response, Request
+from fastapi import Depends, FastAPI, HTTPException, Response, Request, Query
 from sqlalchemy.orm import Session
 import uvicorn
 from orm import crud, models, schemas
 from orm.database import SessionLocal, engine
+from sqlalchemy.exc import IntegrityError, NoResultFound
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -26,12 +27,50 @@ def get_db(request: Request):
     return request.state.db
 
 
+# region USER
+
+
 @app.post("/user/", response_model=schemas.User)
 def add_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    # db_user = crud.get_user_by_email(db, email=user.email)
-    # if db_user:
-        # raise HTTPException(status_code=400, detail="Email already registered")
-    return crud.add_user(db, user)
+    try:
+        response = crud.add_user(db, user)
+    except IntegrityError:
+        raise HTTPException(
+            status_code=500, detail="Incorrect user information."
+        )
+    return response
+
+
+@app.get("/user/", response_model=list[schemas.User])
+def get_users(
+    id_user: int = Query(None),
+    email: str = Query(None),
+    password: str = Query(None),
+    name: str = Query(None),
+    lastname: str = Query(None),
+    phone_number: str = Query(None),
+    user_role_name: int = Query(None),
+    db: Session = Depends(get_db),
+):
+    try:
+        results = crud.get_users(
+            db,
+            id_user,
+            email,
+            password,
+            name,
+            lastname,
+            phone_number,
+            user_role_name,
+        )
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No user found in the database."
+        )
+    return results
+
+
+# endregion USER
 
 
 # @app.get("/users/", response_model=list[schemas.User])

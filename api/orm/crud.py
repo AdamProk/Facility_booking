@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
-
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy import and_, or_
 from . import models, schemas
 
 
@@ -10,9 +11,9 @@ class ElementNotFound(Exception):
 def add_user(db: Session, user: schemas.UserCreate):
     user_dict = user.dict()
     user_dict["password"] = user.password + "notreallyhashed"
-    user_role_id = get_user_role_by_name(db, user_dict.pop("user_role_name")).id_user_role
-    if user_role_id is None:
-        user_role_id = 1
+    user_role_id = get_user_role_by_name(
+        db, user_dict.pop("user_role_name")
+    ).id_user_role
     db_user = models.User(**user_dict)
     db.add(db_user)
     db.commit()
@@ -24,6 +25,30 @@ def get_user_role_by_name(db, name):
     return (
         db.query(models.UserRole).filter(models.UserRole.name == name).first()
     )
+
+
+def get_users(
+    db=None,
+    id_user=None,
+    email=None,
+    password=None,
+    name=None,
+    lastname=None,
+    phone_number=None,
+    user_role_name=None,
+):
+    query_dict = { k: v for k,v in locals().items() if v is not None }
+    del query_dict['db']
+
+    q = db.query(models.User).filter(
+        and_(
+            *(
+                getattr(models.User, key) == value
+                for key, value in query_dict.items()
+            )
+        )
+    )
+    return q.all()
 
 
 # def get_user(db: Session, user_id: int):
