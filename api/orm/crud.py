@@ -118,3 +118,35 @@ def update_user(db: Session, user_id: int, update_data: dict):
 # endregion USERS
 
 
+
+# region RESERVATION STATUSES
+
+
+def add_reservation_status(db: Session, reservation_status: schemas.ReservationStatusCreate):
+    new_obj = models.ReservationStatus(**reservation_status.model_dump())
+    db.add(new_obj)
+    db.commit()
+    db.refresh(new_obj)
+    return new_obj
+
+def get_reservation_statuses(
+    db=None,
+    id_reservation_status=None,
+    status=None,
+):
+    query_dict = {k: v for k, v in locals().items() if v is not None}
+    del query_dict["db"]
+
+    return dict_query_and(db, models.ReservationStatus, query_dict)
+
+def delete_reservation_status(db: Session, reservation_status_id: int):
+    query = db.query(models.ReservationStatus).filter(models.ReservationStatus.id_reservation_status == reservation_status_id)
+    if query.first() is None:
+        raise NoResultFound(
+            "No occurence found with this id was found in the database."
+        )
+    query.delete()
+    db.commit()
+
+
+# endregion RESERVATION STATUSES

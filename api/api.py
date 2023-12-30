@@ -175,36 +175,48 @@ def update_user(
 
 # endregion USER
 
-# region RESERVATIONS
 
 
-# endregion RESERVATIONS
-
-# @app.get("/users/", response_model=list[schemas.User])
-# def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-#     users = crud.get_users(db, skip=skip, limit=limit)
-#     return users
-
-
-# @app.get("/users/{user_id}", response_model=schemas.User)
-# def read_user(user_id: int, db: Session = Depends(get_db)):
-#     db_user = crud.get_user(db, user_id=user_id)
-#     if db_user is None:
-#         raise HTTPException(status_code=404, detail="User not found")
-#     return db_user
+# region RESERVATION STATUSES
+@app.post("/reservation_status/", response_model=schemas.ReservationStatus, tags=["Reservation Statuses"])
+def add_reservation_status(
+    reservation_status: schemas.ReservationStatusCreate, db: Session = Depends(get_db)
+):
+    return crud.add_reservation_status(db, reservation_status)
 
 
-# @app.post("/users/{user_id}/items/", response_model=schemas.Item)
-# def create_item_for_user(
-#     user_id: int, item: schemas.ItemCreate, db: Session = Depends(get_db)
-# ):
-#     return crud.create_user_item(db=db, item=item, user_id=user_id)
+@app.delete("/reservation_status/", tags=['Reservation Statuses'])
+def delete_reservation_status(reservation_status_id: int, db: Session = Depends(get_db)):
+    try:
+        crud.delete_reservation_status(db, reservation_status_id)
+    except NoResultFound as e:
+        raise HTTPException(status_code=404, detail=e.args[0])
+    return JSONResponse({"result": True})
 
 
-# @app.get("/items/", response_model=list[schemas.Item])
-# def read_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-#     items = crud.get_items(db, skip=skip, limit=limit)
-#     return items
+@app.get(
+    "/reservation_status/", response_model=list[schemas.ReservationStatus], tags=["Reservation Statuses"]
+)
+def get_reservation_statuses(
+    id_reservation_status: int = Query(None),
+    status: str = Query(None),
+    db: Session = Depends(get_db),
+):
+    try:
+        results = crud.get_reservation_statuses(
+            db,
+            id_reservation_status=id_reservation_status,
+            status=status,
+        )
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No user found in the database."
+        )
+    return results
+
+
+# endregion RESERVATION STATUSES
+
 
 
 if __name__ == "__main__":

@@ -29,3 +29,10 @@ class UserCreate(BaseModel):
     phone_number: str
     user_role_name: str
 
+
+class ReservationStatus(BaseModel):
+    id_reservation_status: int
+    status: str
+
+class ReservationStatusCreate(BaseModel):
+    status: str
