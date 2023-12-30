@@ -66,6 +66,32 @@ def delete_user_role(db: Session, user_role_id: int):
     db.commit()
 
 
+def update_user_role(
+    db,
+    id_user_role=None,
+    name=None,
+):
+    user_role = (
+        db.query(models.UserRole)
+        .filter(models.UserRole.id_user_role == id_user_role)
+        .first()
+    )
+
+    if user_role is None:
+        raise NoResultFound("No user_role found with this id in the database.")
+
+    update_dict = locals()
+    del update_dict["db"]
+
+    for key, value in update_dict.items():
+        if value is not None:
+            setattr(user_role, key, value)
+
+    db.commit()
+
+    return user_role
+
+
 # endregion USER ROLES
 
 # region USERS
@@ -164,7 +190,7 @@ def add_reservation_status(
 
 
 def get_reservation_statuses(
-    db=None,
+    db,
     id_reservation_status=None,
     status=None,
 ):
@@ -183,6 +209,37 @@ def delete_reservation_status(db: Session, reservation_status_id: int):
         )
     query.delete()
     db.commit()
+
+
+def update_reservation_status(
+    db,
+    id_reservation_status=None,
+    status=None,
+):
+    reservation_status = (
+        db.query(models.ReservationStatus)
+        .filter(
+            models.ReservationStatus.id_reservation_status
+            == id_reservation_status
+        )
+        .first()
+    )
+
+    if reservation_status is None:
+        raise NoResultFound(
+            "No reservation_status found with this id in the database."
+        )
+
+    update_dict = locals()
+    del update_dict["db"]
+
+    for key, value in update_dict.items():
+        if value is not None:
+            setattr(reservation_status, key, value)
+
+    db.commit()
+
+    return reservation_status
 
 
 # endregion RESERVATION STATUSES
@@ -221,6 +278,34 @@ def delete_facility_type(db: Session, facility_type_id: int):
     db.commit()
 
 
+def update_facility_type(
+    db,
+    id_facility_type=None,
+    name=None,
+):
+    facility_type = (
+        db.query(models.FacilityType)
+        .filter(models.FacilityType.id_facility_type == id_facility_type)
+        .first()
+    )
+
+    if facility_type is None:
+        raise NoResultFound(
+            "No facility_type found with this id in the database."
+        )
+
+    update_dict = locals()
+    del update_dict["db"]
+
+    for key, value in update_dict.items():
+        if value is not None:
+            setattr(facility_type, key, value)
+
+    db.commit()
+
+    return facility_type
+
+
 # endregion FACILITY TYPE
 
 
@@ -255,6 +340,28 @@ def delete_city(db: Session, city_id: int):
     db.commit()
 
 
+def update_city(
+    db,
+    id_city=None,
+    name=None,
+):
+    city = db.query(models.City).filter(models.City.id_city == id_city).first()
+
+    if city is None:
+        raise NoResultFound("No city found with this id in the database.")
+
+    update_dict = locals()
+    del update_dict["db"]
+
+    for key, value in update_dict.items():
+        if value is not None:
+            setattr(city, key, value)
+
+    db.commit()
+
+    return city
+
+
 # endregion CITIES
 
 
@@ -287,6 +394,32 @@ def delete_state(db: Session, state_id: int):
         )
     query.delete()
     db.commit()
+
+
+def update_state(
+    db,
+    id_state=None,
+    name=None,
+):
+    state = (
+        db.query(models.State)
+        .filter(models.State.id_state == id_state)
+        .first()
+    )
+
+    if state is None:
+        raise NoResultFound("No state found with this id in the database.")
+
+    update_dict = locals()
+    del update_dict["db"]
+
+    for key, value in update_dict.items():
+        if value is not None:
+            setattr(state, key, value)
+
+    db.commit()
+
+    return state
 
 
 # endregion STATES
@@ -352,6 +485,36 @@ def delete_address(db: Session, address_id: int):
     db.commit()
 
 
+def update_address(
+    db,
+    id_address=None,
+    street_name=None,
+    building_number=None,
+    postal_code=None,
+    city_name=None,
+    state_name=None,
+):
+    address = (
+        db.query(models.Address)
+        .filter(models.Address.id_address == id_address)
+        .first()
+    )
+
+    if address is None:
+        raise NoResultFound("No address found with this id in the database.")
+
+    update_dict = locals()
+    del update_dict["db"]
+
+    for key, value in update_dict.items():
+        if value is not None:
+            setattr(address, key, value)
+
+    db.commit()
+
+    return address
+
+
 # endregion ADDRESSES
 
 
@@ -384,6 +547,28 @@ def delete_day(db: Session, day_id: int):
         )
     query.delete()
     db.commit()
+
+
+def update_day(
+    db,
+    id_day=None,
+    day=None,
+):
+    day = db.query(models.Day).filter(models.Day.id_day == id_day).first()
+
+    if day is None:
+        raise NoResultFound("No day found with this id in the database.")
+
+    update_dict = locals()
+    del update_dict["db"]
+
+    for key, value in update_dict.items():
+        if value is not None:
+            setattr(day, key, value)
+
+    db.commit()
+
+    return day
 
 
 # endregion DAYS
@@ -435,6 +620,34 @@ def delete_open_hour(db: Session, open_hour_id: int):
     db.commit()
 
 
+def update_open_hour(
+    db,
+    id_open_hour=None,
+    start_hour=None,
+    end_hour=None,
+    day_name=None,
+):
+    open_hour = (
+        db.query(models.OpenHour)
+        .filter(models.OpenHour.id_open_hour == id_open_hour)
+        .first()
+    )
+
+    if open_hour is None:
+        raise NoResultFound("No open_hour found with this id in the database.")
+
+    update_dict = locals()
+    del update_dict["db"]
+
+    for key, value in update_dict.items():
+        if value is not None:
+            setattr(open_hour, key, value)
+
+    db.commit()
+
+    return open_hour
+
+
 # endregion OPEN HOURS
 
 
@@ -445,7 +658,6 @@ def add_company(db: Session, company: schemas.CompanyCreate):
     addresses = get_addresses(db, id_address=company.id_address)
     if len(addresses) < 1:
         raise NoResultFound("No such address in the database.")
-
 
     new_obj = models.Company(**company.model_dump())
     db.add(new_obj)
@@ -478,11 +690,39 @@ def delete_company(db: Session, company_id: int):
     db.commit()
 
 
+def update_company(
+    db,
+    id_company=None,
+    name=None,
+    nip=None,
+    phone_number=None,
+    id_address=None,
+):
+    company = (
+        db.query(models.Company)
+        .filter(models.Company.id_company == id_company)
+        .first()
+    )
+
+    if company is None:
+        raise NoResultFound("No company found with this id in the database.")
+
+    update_dict = locals()
+    del update_dict["db"]
+
+    for key, value in update_dict.items():
+        if value is not None:
+            setattr(company, key, value)
+
+    db.commit()
+
+    return company
+
+
 # endregion COMPANIES
 
-
-
 # region IMAGES
+
 
 def add_image(db: Session, image: schemas.ImageCreate):
     new_obj = models.Image(**image.model_dump())
@@ -511,4 +751,119 @@ def delete_image(db: Session, image_id: int):
     query.delete()
     db.commit()
 
+
+def update_image(
+    db,
+    id_image=None,
+    name=None,
+    nip=None,
+    phone_number=None,
+    id_address=None,
+):
+    image = (
+        db.query(models.Image)
+        .filter(models.Image.id_image == id_image)
+        .first()
+    )
+
+    if image is None:
+        raise NoResultFound("No image found with this id in the database.")
+
+    update_dict = locals()
+    del update_dict["db"]
+
+    for key, value in update_dict.items():
+        if value is not None:
+            setattr(image, key, value)
+
+    db.commit()
+
+    return image
+
+
 # endregion IMAGES
+
+# region FACILITIES
+
+
+def add_facility(db: Session, facility: schemas.FacilityCreate):
+    addresses = get_addresses(db, id_address=facility.id_address)
+    facility_types = get_facility_types(
+        db, id_facility_type=facility.id_facility_type
+    )
+    companies = get_companies(db, id_company=facility.id_company)
+    if len(addresses) < 1:
+        raise NoResultFound("No address with specified name in the database.")
+    if len(facility_types) < 1:
+        raise NoResultFound(
+            "No facility type with specified name in the database."
+        )
+    if len(companies) < 1:
+        raise NoResultFound("No company with specified name in the database.")
+
+    new_obj = models.Facility(**facility.model_dump())
+    db.add(new_obj)
+    db.commit()
+    db.refresh(new_obj)
+    return new_obj
+
+
+def get_facilities(
+    db,
+    id_facility=None,
+    name=None,
+    description=None,
+    price_hourly=None,
+    id_facility_type=None,
+    id_address=None,
+    id_company=None,
+):
+    query_dict = {k: v for k, v in locals().items() if v is not None}
+
+    return dict_query_and(models.Facility, query_dict)
+
+
+def delete_facility(db: Session, facility_id: int):
+    query = db.query(models.Facility).filter(
+        models.Facility.id_facility == facility_id
+    )
+    if query.first() is None:
+        raise NoResultFound(
+            "No occurence found with this id was found in the database."
+        )
+    query.delete()
+    db.commit()
+
+
+def update_facility(
+    db,
+    id_facility=None,
+    name=None,
+    description=None,
+    price_hourly=None,
+    id_facility_type=None,
+    id_address=None,
+    id_company=None,
+):
+    facility = (
+        db.query(models.Facility)
+        .filter(models.Facility.id_facility == id_facility)
+        .first()
+    )
+
+    if facility is None:
+        raise NoResultFound("No facility found with this id in the database.")
+
+    update_dict = locals()
+    del update_dict["db"]
+
+    for key, value in update_dict.items():
+        if value is not None:
+            setattr(facility, key, value)
+
+    db.commit()
+
+    return facility
+
+
+# endregion FACILITIES

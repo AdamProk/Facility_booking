@@ -85,6 +85,26 @@ def get_user_roles(
     return results
 
 
+@app.put("/user_role/", response_model=schemas.UserRole, tags=["User Roles"])
+def update_user_role(
+    id_user_role: int = Query(None),
+    name: str = Query(None),
+    db: Session = Depends(get_db),
+):
+    try:
+        results = crud.update_user_role(**locals())
+    except IntegrityError:
+        raise HTTPException(
+            status_code=500,
+            detail="Incorrect user_role information. Unique constraint violated.",
+        )
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No occurence found in the database."
+        )
+    return results
+
+
 # endregion USER ROLES
 
 # region USER
@@ -212,6 +232,30 @@ def get_reservation_statuses(
     return results
 
 
+@app.put(
+    "/reservation_status/",
+    response_model=schemas.ReservationStatus,
+    tags=["Reservation Statuses"],
+)
+def update_reservation_status(
+    id_reservation_status: int = Query(None),
+    status: str = Query(None),
+    db: Session = Depends(get_db),
+):
+    try:
+        results = crud.update_reservation_status(**locals())
+    except IntegrityError:
+        raise HTTPException(
+            status_code=500,
+            detail="Incorrect reservation_status information. Unique constraint violated.",
+        )
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No occurence found in the database."
+        )
+    return results
+
+
 # endregion RESERVATION STATUSES
 
 
@@ -262,6 +306,30 @@ def get_facility_types(
     return results
 
 
+@app.put(
+    "/facility_type/",
+    response_model=schemas.FacilityType,
+    tags=["Facility Types"],
+)
+def update_facility_type(
+    id_facility_type: int = Query(None),
+    name: str = Query(None),
+    db: Session = Depends(get_db),
+):
+    try:
+        results = crud.update_facility_type(**locals())
+    except IntegrityError:
+        raise HTTPException(
+            status_code=500,
+            detail="Incorrect facility_type information. Unique constraint violated.",
+        )
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No occurence found in the database."
+        )
+    return results
+
+
 # endregion FACILITY TYPES
 
 
@@ -302,6 +370,26 @@ def get_cities(
     return results
 
 
+@app.put("/city/", response_model=schemas.City, tags=["Cities"])
+def update_city(
+    id_city: int = Query(None),
+    name: str = Query(None),
+    db: Session = Depends(get_db),
+):
+    try:
+        results = crud.update_city(**locals())
+    except IntegrityError:
+        raise HTTPException(
+            status_code=500,
+            detail="Incorrect city information. Unique constraint violated.",
+        )
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No occurence found in the database."
+        )
+    return results
+
+
 # endregion CITIES
 
 
@@ -335,6 +423,26 @@ def get_states(
 ):
     try:
         results = crud.get_states(**locals())
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No occurence found in the database."
+        )
+    return results
+
+
+@app.put("/state/", response_model=schemas.State, tags=["States"])
+def update_state(
+    id_state: int = Query(None),
+    name: str = Query(None),
+    db: Session = Depends(get_db),
+):
+    try:
+        results = crud.update_state(**locals())
+    except IntegrityError:
+        raise HTTPException(
+            status_code=500,
+            detail="Incorrect state information. Unique constraint violated.",
+        )
     except NoResultFound:
         raise HTTPException(
             status_code=404, detail="No occurence found in the database."
@@ -447,6 +555,26 @@ def get_days(
 ):
     try:
         results = crud.get_days(**locals())
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No occurence found in the database."
+        )
+    return results
+
+
+@app.put("/day/", response_model=schemas.Day, tags=["Days"])
+def update_day(
+    id_day: int = Query(None),
+    day: str = Query(None),
+    db: Session = Depends(get_db),
+):
+    try:
+        results = crud.update_day(**locals())
+    except IntegrityError:
+        raise HTTPException(
+            status_code=500,
+            detail="Incorrect day information. Unique constraint violated.",
+        )
     except NoResultFound:
         raise HTTPException(
             status_code=404, detail="No occurence found in the database."
@@ -595,7 +723,6 @@ def update_company(
 # endregion ADDRESSES
 
 
-
 # region IMAGES
 @app.post("/image/", response_model=schemas.Image, tags=["Images"])
 def add_image(image: schemas.ImageCreate, db: Session = Depends(get_db)):
@@ -633,9 +760,102 @@ def get_images(
     return results
 
 
+@app.put("/image/", response_model=schemas.Image, tags=["Images"])
+def update_image(
+    id_image: int = Query(None),
+    image_path: str = Query(None),
+    db: Session = Depends(get_db),
+):
+    try:
+        results = crud.update_image(**locals())
+    except IntegrityError:
+        raise HTTPException(
+            status_code=500,
+            detail="Incorrect image information. Unique constraint violated.",
+        )
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No occurence found in the database."
+        )
+    return results
+
+
 # endregion IMAGES
 
+# region FACILITIES
 
+
+@app.post("/facility/", response_model=schemas.Facility, tags=["Facilities"])
+def add_facility(
+    facility: schemas.FacilityCreate, db: Session = Depends(get_db)
+):
+    try:
+        response = crud.add_facility(db, facility)
+    except IntegrityError:
+        raise HTTPException(
+            status_code=500,
+            detail="Incorrect information. Unique constraint violated.",
+        )
+    return response
+
+
+@app.delete("/facility/", tags=["Facilities"])
+def delete_facility(facility_id: int, db: Session = Depends(get_db)):
+    try:
+        crud.delete_facility(db, facility_id)
+    except NoResultFound as e:
+        raise HTTPException(status_code=404, detail=e.args[0])
+    return JSONResponse({"result": True})
+
+
+@app.get(
+    "/facility/", response_model=list[schemas.Facility], tags=["Facilities"]
+)
+def get_facilities(
+    id_facility: int = Query(None),
+    name: str = Query(None),
+    description: str = Query(None),
+    price_hourly: float = Query(None),
+    id_facility_type: int = Query(None),
+    id_address: int = Query(None),
+    id_company: int = Query(None),
+    db: Session = Depends(get_db)
+):
+    try:
+        results = crud.get_facilities(**locals())
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No occurence found in the database."
+        )
+    return results
+
+
+@app.put("/facility/", response_model=schemas.Facility, tags=["Facilities"])
+def update_facility(
+    id_facility: int = Query(None),
+    name: str = Query(None),
+    description: str = Query(None),
+    price_hourly: float = Query(None),
+    id_facility_type: int = Query(None),
+    id_address: int = Query(None),
+    id_company: int = Query(None),
+    db: Session = Depends(get_db)
+):
+    try:
+        results = crud.update_facility(**locals())
+    except IntegrityError:
+        raise HTTPException(
+            status_code=500,
+            detail="Incorrect information. Unique constraint violated.",
+        )
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No occurence found in the database."
+        )
+    return results
+
+
+# endregion FACILITIES
 
 if __name__ == "__main__":
     uvicorn.run("api:app", host="0.0.0.0", port=8000, reload=True, workers=1)

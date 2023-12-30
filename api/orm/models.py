@@ -1,5 +1,7 @@
 from sqlalchemy import (
     Boolean,
+    Text,
+    Float,
     Column,
     ForeignKey,
     Integer,
@@ -52,7 +54,7 @@ class FacilityType(Base):
     id_facility_type = Column(Integer, primary_key=True)
     name = Column(String, nullable=False, unique=True)
 
-    # users = relationship('User', back_populates='user_role')
+    facilities = relationship("Facility", back_populates="facility_type")
 
 
 class City(Base):
@@ -85,6 +87,8 @@ class Company(Base):
     nip = Column(String, nullable=False, unique=True)
     phone_number = Column(String, nullable=False)
 
+    facilities = relationship("Facility", back_populates="company")
+
 
 class Address(Base):
     __tablename__ = "addresses"
@@ -107,6 +111,7 @@ class Address(Base):
     postal_code = Column(String, nullable=False)
 
     company = relationship("Company", back_populates="address")
+    facilities = relationship("Facility", back_populates="address")
 
 
 class Day(Base):
@@ -128,8 +133,42 @@ class OpenHour(Base):
     id_day = Column(Integer, ForeignKey("days.id_day"))
     day = relationship("Day", back_populates="hours")
 
+
 class Image(Base):
     __tablename__ = "images"
 
     id_image = Column(Integer, primary_key=True)
     image_path = Column(String, nullable=False, unique=True)
+
+
+class Facility(Base):
+    __tablename__ = "facilities"
+
+    id_facility = Column(Integer, primary_key=True)
+
+    name = Column(String, nullable=False, unique=True)
+    description = Column(Text, nullable=False, unique=True)
+    price_hourly = Column(Float)
+
+    id_facility_type = Column(
+        Integer, ForeignKey("facility_types.id_facility_type")
+    )
+    facility_type = relationship("FacilityType", back_populates="facilities")
+
+    id_address = Column(Integer, ForeignKey("addresses.id_address"))
+    address = relationship("Address", back_populates="facilities")
+
+    id_company = Column(Integer, ForeignKey("companies.id_company"))
+    company = relationship("Company", back_populates="facilities")
+
+
+# class FacilityImages:
+#     __tablename__ = "facility_images"
+
+#     id_facility_image = Column(Integer, primary_key=True)
+
+#     id_image = Column(Integer, ForeignKey("images.id_image"))
+#     image = relationship("Image", back_populates="facility_images")
+
+#     id_facility = Column(Integer, ForeignKey("facilities.id_facility"))
+#     facility = relationship("Facility", back_populates="facility_images")

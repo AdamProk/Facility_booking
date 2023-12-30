@@ -133,5 +133,29 @@ class Image(BaseModel):
     id_image: int
     image_path: str
 
+
 class ImageCreate(BaseModel):
     image_path: str
+
+
+class Facility(BaseModel):
+    id_facility: int
+
+    name: str
+    description: str
+    price_hourly: float
+
+    facility_type: FacilityType
+
+    address: Address
+
+    company: Company
+
+class FacilityCreate(BaseModel):
+    name: str
+    description: str
+    price_hourly: float
+
+    id_facility_type: int
+    id_address: int
+    id_company: int
