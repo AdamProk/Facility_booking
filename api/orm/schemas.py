@@ -7,6 +7,9 @@ class UserRole(BaseModel):
     id_user_role: int
     name: str
 
+class UserRoleCreate(BaseModel):
+    name: str
+
 class User(BaseModel):
     id_user: int
     email: str
