@@ -18,7 +18,7 @@ def dict_query_and(model, query_dict, db=None):
         raise NoConnectionWithDB(
             "No connection with the database was provided"
         )
-    if len(query_dict) > 1:  # If query contains any criteria
+    if len(query_dict) > 0:  # If query contains any criteria
         q = db.query(model).filter(
             and_(
                 *(
@@ -592,7 +592,7 @@ def add_open_hour(db: Session, open_hour: schemas.OpenHourCreate):
 
 def get_open_hours(
     db,
-    id_open_hour=None,
+    id_open_hours=None,
     start_hour=None,
     end_hour=None,
     day_name=None,
@@ -622,14 +622,14 @@ def delete_open_hour(db: Session, open_hour_id: int):
 
 def update_open_hour(
     db,
-    id_open_hour=None,
+    id_open_hours=None,
     start_hour=None,
     end_hour=None,
     day_name=None,
 ):
     open_hour = (
         db.query(models.OpenHour)
-        .filter(models.OpenHour.id_open_hour == id_open_hour)
+        .filter(models.OpenHour.id_open_hours == id_open_hours)
         .first()
     )
 
@@ -638,6 +638,11 @@ def update_open_hour(
 
     update_dict = locals()
     del update_dict["db"]
+
+    days = get_days(db, day=day_name)
+    if len(days) < 1:
+        raise NoResultFound("No day with specified name in the database.")
+    update_dict['id_day'] = days[0].id_day
 
     for key, value in update_dict.items():
         if value is not None:
@@ -793,15 +798,22 @@ def add_facility(db: Session, facility: schemas.FacilityCreate):
     )
     companies = get_companies(db, id_company=facility.id_company)
     if len(addresses) < 1:
-        raise NoResultFound("No address with specified name in the database.")
+        raise NoResultFound("No address with specified id in the database.")
     if len(facility_types) < 1:
         raise NoResultFound(
             "No facility type with specified name in the database."
         )
     if len(companies) < 1:
-        raise NoResultFound("No company with specified name in the database.")
-
-    new_obj = models.Facility(**facility.model_dump())
+        raise NoResultFound("No company with specified id in the database.")
+    
+    facility_dict = facility.model_dump()
+    ids_open_hours = facility_dict.pop("ids_open_hours")
+    new_obj = models.Facility(**facility_dict)
+    for id_open_hour in ids_open_hours:
+        results = get_open_hours(db, id_open_hours=id_open_hour)
+        if len(results) < 1:
+            raise NoResultFound("No open_hours with specified id in the database.")
+        new_obj.open_hours.append(results[0])
     db.add(new_obj)
     db.commit()
     db.refresh(new_obj)

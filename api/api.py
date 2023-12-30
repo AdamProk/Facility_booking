@@ -615,7 +615,7 @@ def delete_open_hour(open_hour_id: int, db: Session = Depends(get_db)):
     "/open_hour/", response_model=list[schemas.OpenHour], tags=["Open Hours"]
 )
 def get_open_houres(
-    id_open_hour: int = Query(None),
+    id_open_hours: int = Query(None),
     day_name: str = Query(None),
     start_hour: str = Query(None),
     end_hour: str = Query(None),
@@ -632,7 +632,7 @@ def get_open_houres(
 
 @app.put("/open_hour/", response_model=schemas.OpenHour, tags=["Open Hours"])
 def update_open_hour(
-    id_open_hour: int = Query(None),
+    id_open_hours: int = Query(None),
     day_name: str = Query(None),
     start_hour: str = Query(None),
     end_hour: str = Query(None),
@@ -819,7 +819,7 @@ def get_facilities(
     id_facility_type: int = Query(None),
     id_address: int = Query(None),
     id_company: int = Query(None),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     try:
         results = crud.get_facilities(**locals())
@@ -839,7 +839,7 @@ def update_facility(
     id_facility_type: int = Query(None),
     id_address: int = Query(None),
     id_company: int = Query(None),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     try:
         results = crud.update_facility(**locals())

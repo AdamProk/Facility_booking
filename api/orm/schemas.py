@@ -151,6 +151,8 @@ class Facility(BaseModel):
 
     company: Company
 
+    open_hours: list[OpenHour]
+
 class FacilityCreate(BaseModel):
     name: str
     description: str
@@ -159,3 +161,5 @@ class FacilityCreate(BaseModel):
     id_facility_type: int
     id_address: int
     id_company: int
+
+    ids_open_hours: list[int]

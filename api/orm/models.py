@@ -1,5 +1,6 @@
 from sqlalchemy import (
     Boolean,
+    Table,
     Text,
     Float,
     Column,
@@ -11,6 +12,14 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 from .database import Base, engine
+
+
+facility_open_hours_association = Table(
+    "facility_open_hours_association",
+    Base.metadata,
+    Column("id_facility", Integer, ForeignKey("facilities.id_facility")),
+    Column("id_open_hours", Integer, ForeignKey("open_hours.id_open_hours")),
+)
 
 
 class UserRole(Base):
@@ -134,6 +143,13 @@ class OpenHour(Base):
     day = relationship("Day", back_populates="hours")
 
 
+    facilities = relationship(
+        "Facility",
+        secondary=facility_open_hours_association,
+        back_populates="open_hours",
+    )
+
+
 class Image(Base):
     __tablename__ = "images"
 
@@ -160,6 +176,12 @@ class Facility(Base):
 
     id_company = Column(Integer, ForeignKey("companies.id_company"))
     company = relationship("Company", back_populates="facilities")
+
+    open_hours = relationship(
+        "OpenHour",
+        secondary=facility_open_hours_association,
+        back_populates="facilities",
+    )
 
 
 # class FacilityImages:
