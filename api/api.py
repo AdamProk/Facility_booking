@@ -49,7 +49,14 @@ def get_db(request: Request):
 def add_user_role(
     user_role: schemas.UserRoleCreate, db: Session = Depends(get_db)
 ):
-    return crud.add_user_role(db, user_role)
+    try:
+        result = crud.add_user_role(db, user_role)
+    except IntegrityError:
+        raise HTTPException(
+            status_code=500,
+            detail="Incorrect information. Unique constraint violated.",
+        )
+    return result
 
 
 @app.delete("/user_role/", tags=['User Roles'])
@@ -175,14 +182,20 @@ def update_user(
 
 # endregion USER
 
-
-
 # region RESERVATION STATUSES
 @app.post("/reservation_status/", response_model=schemas.ReservationStatus, tags=["Reservation Statuses"])
 def add_reservation_status(
     reservation_status: schemas.ReservationStatusCreate, db: Session = Depends(get_db)
 ):
-    return crud.add_reservation_status(db, reservation_status)
+
+    try:
+        result = crud.add_reservation_status(db, reservation_status)
+    except IntegrityError:
+        raise HTTPException(
+            status_code=500,
+            detail="Incorrect information. Unique constraint violated.",
+        )
+    return result
 
 
 @app.delete("/reservation_status/", tags=['Reservation Statuses'])
@@ -223,7 +236,15 @@ def get_reservation_statuses(
 def add_facility_type(
     facility_type: schemas.FacilityTypeCreate, db: Session = Depends(get_db)
 ):
-    return crud.add_facility_type(db, facility_type)
+
+    try:
+        response = crud.add_facility_type(db, facility_type)
+    except IntegrityError:
+        raise HTTPException(
+            status_code=500,
+            detail="Incorrect information. Unique constraint violated.",
+        )
+    return response
 
 
 @app.delete("/facility_type/", tags=['Facility Types'])
@@ -259,7 +280,101 @@ def get_facility_types(
 # endregion FACILITY TYPES
 
 
+# region CITIES
+@app.post("/city/", response_model=schemas.City, tags=["Cities"])
+def add_city(
+    city: schemas.CityCreate, db: Session = Depends(get_db)
+):
+    try:
+        response = crud.add_city(db, city)
+    except IntegrityError:
+        raise HTTPException(
+            status_code=500,
+            detail="Incorrect information. Unique constraint violated.",
+        )
+    return response
 
+
+@app.delete("/city/", tags=['Cities'])
+def delete_city(city_id: int, db: Session = Depends(get_db)):
+    try:
+        crud.delete_city(db, city_id)
+    except NoResultFound as e:
+        raise HTTPException(status_code=404, detail=e.args[0])
+    return JSONResponse({"result": True})
+
+
+@app.get(
+    "/city/", response_model=list[schemas.City], tags=["Cities"]
+)
+def get_cities(
+    id_city: int = Query(None),
+    name: str = Query(None),
+    db: Session = Depends(get_db),
+):
+    try:
+        results = crud.get_cities(
+            db,
+            id_city=id_city,
+            name=name,
+        )
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No occurence found in the database."
+        )
+    return results
+
+
+# endregion CITIES
+
+
+# region STATES
+@app.post("/state/", response_model=schemas.State, tags=["States"])
+def add_state(
+    state: schemas.StateCreate, db: Session = Depends(get_db)
+):
+
+    try:
+        response = crud.add_state(db, state)
+    except IntegrityError:
+        raise HTTPException(
+            status_code=500,
+            detail="Incorrect information. Unique constraint violated.",
+        )
+    return response
+
+
+@app.delete("/state/", tags=['States'])
+def delete_state(state_id: int, db: Session = Depends(get_db)):
+    try:
+        crud.delete_state(db, state_id)
+    except NoResultFound as e:
+        raise HTTPException(status_code=404, detail=e.args[0])
+    return JSONResponse({"result": True})
+
+
+@app.get(
+    "/state/", response_model=list[schemas.State], tags=["States"]
+)
+def get_states(
+    id_state: int = Query(None),
+    name: str = Query(None),
+    db: Session = Depends(get_db),
+):
+    try:
+        results = crud.get_states(
+            db,
+            id_state=id_state,
+            name=name,
+        )
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No occurence found in the database."
+        )
+    return results
+
+
+# endregion STATES
 
 if __name__ == "__main__":
     uvicorn.run("api:app", host="0.0.0.0", port=8000, reload=True, workers=1)

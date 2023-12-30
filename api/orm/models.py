@@ -9,7 +9,7 @@ class UserRole(Base):
     __tablename__ = "user_roles"
 
     id_user_role = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
+    name = Column(String, nullable=False, unique=True)
 
     users = relationship('User', back_populates='user_role')
 
@@ -35,7 +35,7 @@ class ReservationStatus(Base):
     __tablename__ = "reservation_statuses"
 
     id_reservation_status = Column(Integer, primary_key=True)
-    status = Column(String, nullable=False)
+    status = Column(String, nullable=False, unique=True)
 
     # users = relationship('User', back_populates='user_role')
 
@@ -45,6 +45,24 @@ class FacilityType(Base):
     __tablename__ = "facility_types"
 
     id_facility_type = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
+    name = Column(String, nullable=False, unique=True)
+
+    # users = relationship('User', back_populates='user_role')
+
+
+class City(Base):
+    __tablename__ = "cities"
+
+    id_city = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False, unique=True)
+
+    # users = relationship('User', back_populates='user_role')
+
+
+class State(Base):
+    __tablename__ = "states"
+
+    id_state = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False, unique=True)
 
     # users = relationship('User', back_populates='user_role')

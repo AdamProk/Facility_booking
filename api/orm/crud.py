@@ -184,3 +184,72 @@ def delete_facility_type(db: Session, facility_type_id: int):
 
 
 # endregion FACILITY TYPE
+
+
+
+
+# region CITIES
+
+
+def add_city(db: Session, city: schemas.CityCreate):
+    new_obj = models.City(**city.model_dump())
+    db.add(new_obj)
+    db.commit()
+    db.refresh(new_obj)
+    return new_obj
+
+def get_cities(
+    db=None,
+    id_city=None,
+    name=None,
+):
+    query_dict = {k: v for k, v in locals().items() if v is not None}
+    del query_dict["db"]
+
+    return dict_query_and(db, models.City, query_dict)
+
+def delete_city(db: Session, city_id: int):
+    query = db.query(models.City).filter(models.City.id_city == city_id)
+    if query.first() is None:
+        raise NoResultFound(
+            "No occurence found with this id was found in the database."
+        )
+    query.delete()
+    db.commit()
+
+
+# endregion CITIES 
+
+
+
+# region STATES
+
+
+def add_state(db: Session, state: schemas.StateCreate):
+    new_obj = models.State(**state.model_dump())
+    db.add(new_obj)
+    db.commit()
+    db.refresh(new_obj)
+    return new_obj
+
+def get_states(
+    db=None,
+    id_state=None,
+    name=None,
+):
+    query_dict = {k: v for k, v in locals().items() if v is not None}
+    del query_dict["db"]
+
+    return dict_query_and(db, models.State, query_dict)
+
+def delete_state(db: Session, state_id: int):
+    query = db.query(models.State).filter(models.State.id_state == state_id)
+    if query.first() is None:
+        raise NoResultFound(
+            "No occurence found with this id was found in the database."
+        )
+    query.delete()
+    db.commit()
+
+
+# endregion STATES
