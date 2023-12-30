@@ -595,5 +595,47 @@ def update_company(
 # endregion ADDRESSES
 
 
+
+# region IMAGES
+@app.post("/image/", response_model=schemas.Image, tags=["Images"])
+def add_image(image: schemas.ImageCreate, db: Session = Depends(get_db)):
+    try:
+        response = crud.add_image(db, image)
+    except IntegrityError:
+        raise HTTPException(
+            status_code=500,
+            detail="Incorrect information. Unique constraint violated.",
+        )
+    return response
+
+
+@app.delete("/image/", tags=["Images"])
+def delete_image(image_id: int, db: Session = Depends(get_db)):
+    try:
+        crud.delete_image(db, image_id)
+    except NoResultFound as e:
+        raise HTTPException(status_code=404, detail=e.args[0])
+    return JSONResponse({"result": True})
+
+
+@app.get("/image/", response_model=list[schemas.Image], tags=["Images"])
+def get_images(
+    id_image: int = Query(None),
+    image_path: str = Query(None),
+    db: Session = Depends(get_db),
+):
+    try:
+        results = crud.get_images(**locals())
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No occurence found in the database."
+        )
+    return results
+
+
+# endregion IMAGES
+
+
+
 if __name__ == "__main__":
     uvicorn.run("api:app", host="0.0.0.0", port=8000, reload=True, workers=1)

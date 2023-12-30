@@ -127,3 +127,11 @@ class CompanyCreate(BaseModel):
     name: str
     nip: str
     phone_number: str
+
+
+class Image(BaseModel):
+    id_image: int
+    image_path: str
+
+class ImageCreate(BaseModel):
+    image_path: str

@@ -438,8 +438,6 @@ def delete_open_hour(db: Session, open_hour_id: int):
 # endregion OPEN HOURS
 
 
-
-
 # region COMPANIES
 
 
@@ -481,3 +479,36 @@ def delete_company(db: Session, company_id: int):
 
 
 # endregion COMPANIES
+
+
+
+# region IMAGES
+
+def add_image(db: Session, image: schemas.ImageCreate):
+    new_obj = models.Image(**image.model_dump())
+    db.add(new_obj)
+    db.commit()
+    db.refresh(new_obj)
+    return new_obj
+
+
+def get_images(
+    db=None,
+    id_image=None,
+    image_path=None,
+):
+    query_dict = {k: v for k, v in locals().items() if v is not None}
+
+    return dict_query_and(models.Image, query_dict)
+
+
+def delete_image(db: Session, image_id: int):
+    query = db.query(models.Image).filter(models.Image.id_image == image_id)
+    if query.first() is None:
+        raise NoResultFound(
+            "No occurence found with this id was found in the database."
+        )
+    query.delete()
+    db.commit()
+
+# endregion IMAGES

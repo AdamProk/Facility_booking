@@ -127,3 +127,9 @@ class OpenHour(Base):
 
     id_day = Column(Integer, ForeignKey("days.id_day"))
     day = relationship("Day", back_populates="hours")
+
+class Image(Base):
+    __tablename__ = "images"
+
+    id_image = Column(Integer, primary_key=True)
+    image_path = Column(String, nullable=False, unique=True)
