@@ -73,6 +73,19 @@ class State(Base):
     addresses = relationship("Address", back_populates="state")
 
 
+class Company(Base):
+    __tablename__ = "companies"
+
+    id_company = Column(Integer, primary_key=True)
+
+    id_address = Column(Integer, ForeignKey("addresses.id_address"))
+    address = relationship("Address", back_populates="company")
+
+    name = Column(String, nullable=False, unique=True)
+    nip = Column(String, nullable=False, unique=True)
+    phone_number = Column(String, nullable=False)
+
+
 class Address(Base):
     __tablename__ = "addresses"
     __table_args__ = (
@@ -92,6 +105,8 @@ class Address(Base):
     street_name = Column(String, nullable=False)
     building_number = Column(Integer, nullable=False)
     postal_code = Column(String, nullable=False)
+
+    company = relationship("Company", back_populates="address")
 
 
 class Day(Base):

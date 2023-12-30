@@ -412,11 +412,11 @@ def update_address(
     return results
 
 
-
 # endregion ADDRESSES
 
 
-# region DAYS 
+# region DAYS
+
 
 @app.post("/day/", response_model=schemas.Day, tags=["Days"])
 def add_day(day: schemas.DayCreate, db: Session = Depends(get_db)):
@@ -459,8 +459,11 @@ def get_days(
 
 # region OPEN HOURS
 
+
 @app.post("/open_hour/", response_model=schemas.OpenHour, tags=["Open Hours"])
-def add_open_hour(open_hour: schemas.OpenHourCreate, db: Session = Depends(get_db)):
+def add_open_hour(
+    open_hour: schemas.OpenHourCreate, db: Session = Depends(get_db)
+):
     try:
         response = crud.add_open_hour(db, open_hour)
     except IntegrityError:
@@ -480,7 +483,9 @@ def delete_open_hour(open_hour_id: int, db: Session = Depends(get_db)):
     return JSONResponse({"result": True})
 
 
-@app.get("/open_hour/", response_model=list[schemas.OpenHour], tags=["Open Hours"])
+@app.get(
+    "/open_hour/", response_model=list[schemas.OpenHour], tags=["Open Hours"]
+)
 def get_open_houres(
     id_open_hour: int = Query(None),
     day_name: str = Query(None),
@@ -520,6 +525,74 @@ def update_open_hour(
 
 
 # endregion OPEN HOURS
+
+
+# region COMPANIES
+
+
+@app.post("/company/", response_model=schemas.Company, tags=["Companies"])
+def add_company(company: schemas.CompanyCreate, db: Session = Depends(get_db)):
+    try:
+        response = crud.add_company(db, company)
+    except IntegrityError:
+        raise HTTPException(
+            status_code=500,
+            detail="Incorrect information. Unique constraint violated.",
+        )
+    return response
+
+
+@app.delete("/company/", tags=["Companies"])
+def delete_company(company_id: int, db: Session = Depends(get_db)):
+    try:
+        crud.delete_company(db, company_id)
+    except NoResultFound as e:
+        raise HTTPException(status_code=404, detail=e.args[0])
+    return JSONResponse({"result": True})
+
+
+@app.get("/company/", response_model=list[schemas.Company], tags=["Companies"])
+def get_companies(
+    id_company: int = Query(None),
+    name=Query(None),
+    nip=Query(None),
+    phone_number=Query(None),
+    id_address=Query(None),
+    db: Session = Depends(get_db),
+):
+    try:
+        results = crud.get_companies(**locals())
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No occurence found in the database."
+        )
+    return results
+
+
+@app.put("/company/", response_model=schemas.Company, tags=["Companies"])
+def update_company(
+    id_company: int = Query(None),
+    name=Query(None),
+    nip=Query(None),
+    phone_number=Query(None),
+    id_address=Query(None),
+    db: Session = Depends(get_db),
+):
+    try:
+        results = crud.update_company(**locals())
+    except IntegrityError:
+        raise HTTPException(
+            status_code=500,
+            detail="Incorrect information. Unique constraint violated.",
+        )
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No occurence found in the database."
+        )
+    return results
+
+
+# endregion ADDRESSES
 
 
 if __name__ == "__main__":

@@ -436,3 +436,48 @@ def delete_open_hour(db: Session, open_hour_id: int):
 
 
 # endregion OPEN HOURS
+
+
+
+
+# region COMPANIES
+
+
+def add_company(db: Session, company: schemas.CompanyCreate):
+    addresses = get_addresses(db, id_address=company.id_address)
+    if len(addresses) < 1:
+        raise NoResultFound("No such address in the database.")
+
+
+    new_obj = models.Company(**company.model_dump())
+    db.add(new_obj)
+    db.commit()
+    db.refresh(new_obj)
+    return new_obj
+
+
+def get_companies(
+    db,
+    id_company=None,
+    name=None,
+    nip=None,
+    phone_number=None,
+    id_address=None,
+):
+    query_dict = {k: v for k, v in locals().items() if v is not None}
+    return dict_query_and(models.Company, query_dict)
+
+
+def delete_company(db: Session, company_id: int):
+    query = db.query(models.Company).filter(
+        models.Company.id_company == company_id
+    )
+    if query.first() is None:
+        raise NoResultFound(
+            "No occurence found with this id was found in the database."
+        )
+    query.delete()
+    db.commit()
+
+
+# endregion COMPANIES

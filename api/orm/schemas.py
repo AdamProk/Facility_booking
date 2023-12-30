@@ -112,3 +112,18 @@ class OpenHourCreate(BaseModel):
 
     start_hour: datetime.time
     end_hour: datetime.time
+
+
+class Company(BaseModel):
+    id_company: int
+    address: Address
+    name: str
+    nip: str
+    phone_number: str
+
+
+class CompanyCreate(BaseModel):
+    id_address: int
+    name: str
+    nip: str
+    phone_number: str
