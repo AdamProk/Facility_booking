@@ -1,6 +1,19 @@
 from typing import Annotated
-from fastapi import Depends, FastAPI, HTTPException, Response, Request, Query, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi import (
+    Depends,
+    FastAPI,
+    HTTPException,
+    Response,
+    Request,
+    Query,
+    status,
+    Security,
+)
+from fastapi.security import (
+    OAuth2PasswordBearer,
+    OAuth2PasswordRequestForm,
+    SecurityScopes,
+)
 from sqlalchemy.orm import Session
 import uvicorn
 from contextlib import asynccontextmanager
@@ -13,6 +26,7 @@ from jose import JWTError, jwt
 from components import availability_checker
 from components import facility_reserver
 from passlib.context import CryptContext
+from pydantic import ValidationError
 import components
 
 models.Base.metadata.create_all(bind=engine)
@@ -36,7 +50,13 @@ app = FastAPI(
     version="0.0.1",
     lifespan=lifespan,
 )
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl="token",
+    scopes={
+        "me": "Read information about the current user.",
+        "users": "Read users.",
+    },
+)
 
 
 @app.middleware("http")
@@ -59,12 +79,14 @@ def get_db(request: Request):
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
 
 def get_password_hash(password):
     return pwd_context.hash(password)
+
 
 def authenticate_user(db, username: str, password: str):
     users = crud.get_users(db, email=username)
@@ -76,7 +98,9 @@ def authenticate_user(db, username: str, password: str):
     return user
 
 
-def create_access_token(data: dict, expires_delta: datetime.timedelta | None = None):
+def create_access_token(
+    data: dict, expires_delta: datetime.timedelta | None = None
+):
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.datetime.utcnow() + expires_delta
@@ -88,32 +112,46 @@ def create_access_token(data: dict, expires_delta: datetime.timedelta | None = N
 
 
 @app.get("/me", response_model=schemas.User)
-def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+async def get_current_user(
+    security_scopes: SecurityScopes,
+    token: Annotated[str, Depends(oauth2_scheme)],
+):
+    if security_scopes.scopes:
+        authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
+    else:
+        authenticate_value = "Bearer"
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
+        headers={"WWW-Authenticate": authenticate_value},
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("sub")
-        if email is None:
+        username: str = payload.get("sub")
+        if username is None:
             raise credentials_exception
-        token_data = schemas.TokenData(username=email)
-    except JWTError:
+        token_scopes = payload.get("scopes", [])
+        token_data = schemas.TokenData(scopes=token_scopes, username=username)
+    except (JWTError, ValidationError):
         raise credentials_exception
     with SessionLocal() as db:
         users = crud.get_users(db, email=token_data.username)
         if users is None:
             raise credentials_exception
+        for scope in security_scopes.scopes:
+            if scope not in token_data.scopes:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Not enough permissions",
+                    headers={"WWW-Authenticate": authenticate_value},
+                )
         return users[0]
-
 
 
 @app.post("/token", response_model=schemas.Token)
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
@@ -122,12 +160,14 @@ async def login_for_access_token(
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token_expires = datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = datetime.timedelta(
+        minutes=ACCESS_TOKEN_EXPIRE_MINUTES
+    )
     access_token = create_access_token(
-        data={"sub": user.email}, expires_delta=access_token_expires
+        data={"sub": user.email, "scopes": form_data.scopes},
+        expires_delta=access_token_expires,
     )
     return {"access_token": access_token, "token_type": "bearer"}
-
 
 
 # endregion SECURITY
@@ -139,7 +179,11 @@ async def login_for_access_token(
 
 @app.post("/user_role/", response_model=schemas.UserRole, tags=["User Roles"])
 def add_user_role(
-    user_role: schemas.UserRoleCreate, db: Session = Depends(get_db)
+    current_user: Annotated[
+        schemas.User, Security(get_current_user, scopes=["users"])
+    ],
+    user_role: schemas.UserRoleCreate,
+    db: Session = Depends(get_db),
 ):
     try:
         result = crud.add_user_role(db, user_role)
