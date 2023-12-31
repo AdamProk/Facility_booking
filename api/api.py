@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import Depends, FastAPI, HTTPException, Response, Request, Query
+from fastapi import Depends, FastAPI, HTTPException, Response, Request, Query, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 import uvicorn
@@ -9,11 +9,17 @@ from orm import crud, models, schemas
 from orm.database import SessionLocal, engine
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from fastapi.responses import JSONResponse
+from jose import JWTError, jwt
 from components import availability_checker
 from components import facility_reserver
+from passlib.context import CryptContext
 import components
 
 models.Base.metadata.create_all(bind=engine)
+
+SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
 @asynccontextmanager
@@ -51,46 +57,77 @@ def get_db(request: Request):
 
 # region SECURITY
 
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-def fake_decode_token(token, db: Session = Depends(get_db)):
-    user = get_users(db, email=token.split("_")[0])
-    return schemas.User(**user.__dict__)
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
 
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
-    user = fake_decode_token(token)
+def get_password_hash(password):
+    return pwd_context.hash(password)
+
+def authenticate_user(db, username: str, password: str):
+    users = crud.get_users(db, email=username)
+    if not users:
+        return False
+    user = users[0]
+    if not verify_password(password, user.password):
+        return False
     return user
 
 
-@app.get("/user/me")
-async def read_users_me(
-    current_user: Annotated[schemas.User, Depends(get_current_user)]
-):
-    return current_user
+def create_access_token(data: dict, expires_delta: datetime.timedelta | None = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
 
 
-def fake_hash_password(password: str):
-    return password + "notreallyhashed"
+@app.get("/me", response_model=schemas.User)
+def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise credentials_exception
+        token_data = schemas.TokenData(username=email)
+    except JWTError:
+        raise credentials_exception
+    with SessionLocal() as db:
+        users = crud.get_users(db, email=token_data.username)
+        if users is None:
+            raise credentials_exception
+        return users[0]
 
 
-@app.post("/token")
-async def login(
+
+@app.post("/token", response_model=schemas.Token)
+async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db)
 ):
-    users = crud.get_users(db, email=form_data.username)
-    if not users:
+    user = authenticate_user(db, form_data.username, form_data.password)
+    if not user:
         raise HTTPException(
-            status_code=400, detail="Incorrect username or password"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
         )
-    user = users[0]
-    hashed_password = fake_hash_password(form_data.password)
-    if not hashed_password == user.password:
-        raise HTTPException(
-            status_code=400, detail="Incorrect username or password"
-        )
+    access_token_expires = datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.email}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
 
-    return {"access_token": user.email + "_token", "token_type": "bearer"}
 
 
 # endregion SECURITY
@@ -133,6 +170,7 @@ def get_user_roles(
     db: Session = Depends(get_db),
 ):
     try:
+        del token
         results = crud.get_user_roles(**locals())
     except NoResultFound:
         raise HTTPException(
@@ -169,6 +207,7 @@ def update_user_role(
 @app.post("/user/", response_model=schemas.User, tags=["Users"])
 def add_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     try:
+        user.password = get_password_hash(user.password)
         response = crud.add_user(db, user)
     except IntegrityError:
         raise HTTPException(
@@ -194,7 +233,7 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
 def get_users(
     id_user: int = Query(None),
     email: str = Query(None),
-    password: str = Query(None),
+    # password: str = Query(None),
     name: str = Query(None),
     lastname: str = Query(None),
     phone_number: str = Query(None),
