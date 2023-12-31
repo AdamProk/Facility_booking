@@ -1,6 +1,7 @@
 from fastapi import Depends, FastAPI, HTTPException, Response, Request, Query
 from sqlalchemy.orm import Session
 import uvicorn
+import datetime
 from orm import crud, models, schemas
 from orm.database import SessionLocal, engine
 from sqlalchemy.exc import IntegrityError, NoResultFound
@@ -617,8 +618,8 @@ def delete_open_hour(open_hour_id: int, db: Session = Depends(get_db)):
 def get_open_houres(
     id_open_hours: int = Query(None),
     day_name: str = Query(None),
-    start_hour: str = Query(None),
-    end_hour: str = Query(None),
+    start_hour: datetime.time = Query(None),
+    end_hour: datetime.time = Query(None),
     db: Session = Depends(get_db),
 ):
     try:
@@ -634,8 +635,8 @@ def get_open_houres(
 def update_open_hour(
     id_open_hours: int = Query(None),
     day_name: str = Query(None),
-    start_hour: str = Query(None),
-    end_hour: str = Query(None),
+    start_hour: datetime.time = Query(None),
+    end_hour: datetime.time = Query(None),
     db: Session = Depends(get_db),
 ):
     try:
@@ -856,6 +857,90 @@ def update_facility(
 
 
 # endregion FACILITIES
+
+
+# region RESERVATIONS
+
+
+@app.post(
+    "/reservation/", response_model=schemas.Reservation, tags=["Reservations"]
+)
+def add_reservation(
+    reservation: schemas.ReservationCreate, db: Session = Depends(get_db)
+):
+    try:
+        response = crud.add_reservation(db, reservation)
+    except IntegrityError:
+        raise HTTPException(
+            status_code=500,
+            detail="Incorrect information. Unique constraint violated.",
+        )
+    return response
+
+
+@app.delete("/reservation/", tags=["Reservations"])
+def delete_reservation(reservation_id: int, db: Session = Depends(get_db)):
+    try:
+        crud.delete_reservation(db, reservation_id)
+    except NoResultFound as e:
+        raise HTTPException(status_code=404, detail=e.args[0])
+    return JSONResponse({"result": True})
+
+
+@app.get(
+    "/reservation/",
+    response_model=list[schemas.Reservation],
+    tags=["Reservations"],
+)
+def get_reservations(
+    id_reservation: int = Query(None),
+    date: datetime.date = Query(None),
+    start_hour: datetime.time = Query(None),
+    end_hour: datetime.time = Query(None),
+    price_final: float = Query(None),
+    id_user: int = Query(None),
+    id_facility: int = Query(None),
+    id_status: int = Query(None),
+    db: Session = Depends(get_db),
+):
+    try:
+        results = crud.get_reservations(**locals())
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No occurence found in the database."
+        )
+    return results
+
+
+@app.put(
+    "/reservation/", response_model=schemas.Reservation, tags=["Reservations"]
+)
+def update_reservation(
+    id_reservation: int = Query(None),
+    date: datetime.date = Query(None),
+    start_hour: datetime.time = Query(None),
+    end_hour: datetime.time = Query(None),
+    price_final: float = Query(None),
+    id_user: int = Query(None),
+    id_facility: int = Query(None),
+    id_status: int = Query(None),
+    db: Session = Depends(get_db),
+):
+    try:
+        results = crud.update_reservation(**locals())
+    except IntegrityError:
+        raise HTTPException(
+            status_code=500,
+            detail="Incorrect information. Unique constraint violated.",
+        )
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No occurence found in the database."
+        )
+    return results
+
+
+# endregion RESERVATIONS
 
 if __name__ == "__main__":
     uvicorn.run("api:app", host="0.0.0.0", port=8000, reload=True, workers=1)

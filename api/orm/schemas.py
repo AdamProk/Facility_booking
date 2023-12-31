@@ -153,6 +153,7 @@ class Facility(BaseModel):
 
     open_hours: list[OpenHour]
 
+
 class FacilityCreate(BaseModel):
     name: str
     description: str
@@ -163,3 +164,29 @@ class FacilityCreate(BaseModel):
     id_company: int
 
     ids_open_hours: list[int]
+
+
+class Reservation(BaseModel):
+    id_reservation: int
+
+    date: datetime.date
+    start_hour: datetime.time
+    end_hour: datetime.time
+    price_final: float
+
+    user: User
+
+    facility: Facility
+
+    status: ReservationStatus
+
+
+class ReservationCreate(BaseModel):
+    date: datetime.date
+    start_hour: datetime.time
+    end_hour: datetime.time
+    price_final: float
+
+    id_user: int
+    id_facility: int
+    id_status: int

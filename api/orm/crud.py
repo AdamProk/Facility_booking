@@ -175,7 +175,6 @@ def update_user(
 
 # endregion USERS
 
-
 # region RESERVATION STATUSES
 
 
@@ -244,7 +243,6 @@ def update_reservation_status(
 
 # endregion RESERVATION STATUSES
 
-
 # region FACILITY TYPES
 
 
@@ -308,7 +306,6 @@ def update_facility_type(
 
 # endregion FACILITY TYPE
 
-
 # region CITIES
 
 
@@ -363,7 +360,6 @@ def update_city(
 
 
 # endregion CITIES
-
 
 # region STATES
 
@@ -423,7 +419,6 @@ def update_state(
 
 
 # endregion STATES
-
 
 # region ADDRESSES
 
@@ -516,7 +511,6 @@ def update_address(
 
 
 # endregion ADDRESSES
-
 
 # region DAYS
 
@@ -642,7 +636,7 @@ def update_open_hour(
     days = get_days(db, day=day_name)
     if len(days) < 1:
         raise NoResultFound("No day with specified name in the database.")
-    update_dict['id_day'] = days[0].id_day
+    update_dict["id_day"] = days[0].id_day
 
     for key, value in update_dict.items():
         if value is not None:
@@ -654,7 +648,6 @@ def update_open_hour(
 
 
 # endregion OPEN HOURS
-
 
 # region COMPANIES
 
@@ -805,14 +798,16 @@ def add_facility(db: Session, facility: schemas.FacilityCreate):
         )
     if len(companies) < 1:
         raise NoResultFound("No company with specified id in the database.")
-    
+
     facility_dict = facility.model_dump()
     ids_open_hours = facility_dict.pop("ids_open_hours")
     new_obj = models.Facility(**facility_dict)
     for id_open_hour in ids_open_hours:
         results = get_open_hours(db, id_open_hours=id_open_hour)
         if len(results) < 1:
-            raise NoResultFound("No open_hours with specified id in the database.")
+            raise NoResultFound(
+                "No open_hours with specified id in the database."
+            )
         new_obj.open_hours.append(results[0])
     db.add(new_obj)
     db.commit()
@@ -879,3 +874,93 @@ def update_facility(
 
 
 # endregion FACILITIES
+
+
+# region RESERVATIONS
+
+def add_reservation(db: Session, reservation: schemas.ReservationCreate):
+    users = get_users(db, id_user=reservation.id_user)
+    statuses = get_reservation_statuses(
+        db, id_reservation_status=reservation.id_status
+    )
+    facilities = get_facilities(db,id_facility=reservation.id_facility)
+
+    if len(users) < 1:
+        raise NoResultFound("No user with specified id in the database.")
+    if len(statuses) < 1:
+        raise NoResultFound(
+            "No status with specified id in the database."
+        )
+    if len(facilities) < 1:
+        raise NoResultFound("No facility with specified id in the database.")
+
+    new_obj = models.Reservation(**reservation.model_dump())
+    db.add(new_obj)
+    db.commit()
+    db.refresh(new_obj)
+    return new_obj
+
+
+def get_reservations(
+    db,
+    id_reservation=None,
+    date=None,
+    start_hour=None,
+    end_hour=None,
+    price_final=None,
+    id_user=None,
+    id_facility=None,
+    id_status=None
+):
+    query_dict = {k: v for k, v in locals().items() if v is not None}
+
+    return dict_query_and(models.Reservation, query_dict)
+
+
+def delete_reservation(db: Session, reservation_id: int):
+    query = db.query(models.Reservation).filter(
+        models.Reservation.id_reservation == reservation_id
+    )
+    if query.first() is None:
+        raise NoResultFound(
+            "No occurence found with this id was found in the database."
+        )
+    query.delete()
+    db.commit()
+
+
+def update_reservation(
+    db,
+    id_reservation=None,
+    date=None,
+    start_hour=None,
+    end_hour=None,
+    price_final=None,
+    id_user=None,
+    id_facility=None,
+    id_status=None
+):
+    reservation = (
+        db.query(models.Reservation)
+        .filter(models.Reservation.id_reservation == id_reservation)
+        .first()
+    )
+
+    if reservation is None:
+        raise NoResultFound(
+            "No reservation found with this id in the database."
+        )
+
+    update_dict = locals()
+    del update_dict["db"]
+
+    for key, value in update_dict.items():
+        if value is not None:
+            setattr(reservation, key, value)
+
+    db.commit()
+
+    return reservation
+
+
+# endregion RESERVATIONS

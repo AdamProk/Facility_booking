@@ -1,5 +1,6 @@
 from sqlalchemy import (
     Boolean,
+    Date,
     Table,
     Text,
     Float,
@@ -47,6 +48,8 @@ class User(Base):
     lastname = Column(String)
     phone_number = Column(String)
 
+    reservations = relationship("Reservation", back_populates="user")
+
 
 class ReservationStatus(Base):
     __tablename__ = "reservation_statuses"
@@ -54,7 +57,7 @@ class ReservationStatus(Base):
     id_reservation_status = Column(Integer, primary_key=True)
     status = Column(String, nullable=False, unique=True)
 
-    # users = relationship('User', back_populates='user_role')
+    reservations = relationship("Reservation", back_populates="status")
 
 
 class FacilityType(Base):
@@ -142,7 +145,6 @@ class OpenHour(Base):
     id_day = Column(Integer, ForeignKey("days.id_day"))
     day = relationship("Day", back_populates="hours")
 
-
     facilities = relationship(
         "Facility",
         secondary=facility_open_hours_association,
@@ -177,6 +179,8 @@ class Facility(Base):
     id_company = Column(Integer, ForeignKey("companies.id_company"))
     company = relationship("Company", back_populates="facilities")
 
+    reservations = relationship("Reservation", back_populates="facility")
+
     open_hours = relationship(
         "OpenHour",
         secondary=facility_open_hours_association,
@@ -184,13 +188,23 @@ class Facility(Base):
     )
 
 
-# class FacilityImages:
-#     __tablename__ = "facility_images"
+class Reservation(Base):
+    __tablename__ = "reservations"
 
-#     id_facility_image = Column(Integer, primary_key=True)
+    id_reservation = Column(Integer, primary_key=True)
 
-#     id_image = Column(Integer, ForeignKey("images.id_image"))
-#     image = relationship("Image", back_populates="facility_images")
+    date = Column(Date)
+    start_hour = Column(Time)
+    end_hour = Column(Time)
+    price_final = Column(Float)
 
-#     id_facility = Column(Integer, ForeignKey("facilities.id_facility"))
-#     facility = relationship("Facility", back_populates="facility_images")
+    id_user = Column(Integer, ForeignKey("users.id_user"))
+    user = relationship("User", back_populates="reservations")
+
+    id_facility = Column(Integer, ForeignKey("facilities.id_facility"))
+    facility = relationship("Facility", back_populates="reservations")
+
+    id_status = Column(
+        Integer, ForeignKey("reservation_statuses.id_reservation_status")
+    )
+    status = relationship("ReservationStatus", back_populates="reservations")
