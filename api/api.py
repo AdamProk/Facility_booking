@@ -7,6 +7,7 @@ from orm import crud, models, schemas
 from orm.database import SessionLocal, engine
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from fastapi.responses import JSONResponse
+from components import availability_checker
 import components
 
 models.Base.metadata.create_all(bind=engine)
@@ -474,6 +475,8 @@ def update_state(
 def add_address(address: schemas.AddressCreate, db: Session = Depends(get_db)):
     try:
         response = crud.add_address(db, address)
+    except NoResultFound as e:
+        raise HTTPException(status_code=404, detail=e.args[0])
     except IntegrityError:
         raise HTTPException(
             status_code=500,
@@ -613,6 +616,10 @@ def add_open_hour(
             status_code=500,
             detail="Incorrect information. Unique constraint violated.",
         )
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No occurence found in the database."
+        )
     return response
 
 
@@ -680,6 +687,10 @@ def add_company(company: schemas.CompanyCreate, db: Session = Depends(get_db)):
         raise HTTPException(
             status_code=500,
             detail="Incorrect information. Unique constraint violated.",
+        )
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No occurence found in the database."
         )
     return response
 
@@ -810,6 +821,10 @@ def add_facility(
             status_code=500,
             detail="Incorrect information. Unique constraint violated.",
         )
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No occurence found in the database."
+        )
     return response
 
 
@@ -844,7 +859,7 @@ def get_facilities(
     return results
 
 
-@app.put("/facility/", response_model=schemas.Facility, tags=["Facilities"])
+@app.put("/facility/", response_model=schemas.FacilityCreate, tags=["Facilities"])
 def update_facility(
     id_facility: int = Query(None),
     name: str = Query(None),
@@ -853,6 +868,7 @@ def update_facility(
     id_facility_type: int = Query(None),
     id_address: int = Query(None),
     id_company: int = Query(None),
+    ids_open_hours: list[int] = Query(None),
     db: Session = Depends(get_db),
 ):
     try:
@@ -887,6 +903,10 @@ def add_reservation(
         raise HTTPException(
             status_code=500,
             detail="Incorrect information. Unique constraint violated.",
+        )
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No occurence found in the database."
         )
     return response
 
@@ -959,6 +979,27 @@ def update_reservation(
 
 
 # region ACTIONS
+
+
+@app.get("/actions/check_availability/", tags=["Actions"])
+def check_availability(
+    facility_id: int,
+    date: datetime.date,
+    start_hour: datetime.time,
+    end_hour: datetime.time,
+    db: Session = Depends(get_db),
+):
+    try:
+        result = availability_checker.check_availability(**locals())
+    except IntegrityError:
+        raise HTTPException(
+            status_code=500,
+            detail="Incorrect information. Unique constraint violated.",
+        )
+    except NoResultFound as e:
+        raise HTTPException(status_code=404, detail=e.args[0])
+    return JSONResponse({"result": result})
+
 
 
 # endregion ACTIONS
