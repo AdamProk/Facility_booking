@@ -1,0 +1,30 @@
+body, html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    /* Add this to remove any default padding */
+}
+
+.container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    background-color: rgb(182, 178, 189);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    overflow-y: auto;
+    max-height: 50%;
+}
+
+li {
+    border: 5px solid black;
+    margin-bottom: 10px;
+}

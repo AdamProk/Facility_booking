@@ -14,6 +14,8 @@ services:
     volumes:
       - ./api:/app
 
+    networks:
+      - internal
 
   db:
     image: postgres
@@ -27,3 +29,24 @@ services:
       - 5555:5432
     volumes:
       - ./volumes/postgres_data:/var/lib/postgresql/data 
+
+    networks:
+      - internal
+
+
+  website:
+    container_name: facility-booking-website
+    build: ./website
+    command: python3 /app/main.py
+    volumes:
+      - ./website:/app
+    ports:
+      - 9000:9000
+    environment:
+      - ON_SERVER=1
+    networks:
+      - internal
+
+networks:
+  internal:
+    name: internal 
