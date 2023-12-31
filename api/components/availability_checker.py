@@ -2,8 +2,8 @@ from orm import crud, models, schemas
 from sqlalchemy.exc import IntegrityError, NoResultFound
 
 
-def check_availability(db, facility_id, date, start_hour, end_hour):
-    facilities = crud.get_facilities(db, id_facility=facility_id)
+def check_availability(db, id_facility, date, start_hour, end_hour, **kwargs):
+    facilities = crud.get_facilities(db, id_facility=id_facility)
     if len(facilities) < 1:
         raise NoResultFound("No facility with specified id in the database.")
 
@@ -29,9 +29,11 @@ def check_availability(db, facility_id, date, start_hour, end_hour):
     # Check if there isnt any reservation collision
     for reservation in facility.reservations:
         if (
-            (reservation.start_hour <= start_hour)
-            and (reservation.end_hour >= end_hour)
-            and reservation.date == date
+            reservation.date == date and
+            (start_hour > reservation.start_hour and
+            start_hour < reservation.end_hour) or
+            (end_hour > reservation.start_hour and
+            end_hour < reservation.end_hour)
         ):
             return False
 

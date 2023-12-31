@@ -8,6 +8,7 @@ from orm.database import SessionLocal, engine
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from fastapi.responses import JSONResponse
 from components import availability_checker
+from components import facility_reserver 
 import components
 
 models.Base.metadata.create_all(bind=engine)
@@ -983,7 +984,7 @@ def update_reservation(
 
 @app.get("/actions/check_availability/", tags=["Actions"])
 def check_availability(
-    facility_id: int,
+    id_facility: int,
     date: datetime.date,
     start_hour: datetime.time,
     end_hour: datetime.time,
@@ -1000,6 +1001,30 @@ def check_availability(
         raise HTTPException(status_code=404, detail=e.args[0])
     return JSONResponse({"result": result})
 
+
+
+@app.get("/actions/reserve/", tags=["Actions"])
+def reserve(
+    id_facility: int,
+    id_user: int,
+    date: datetime.date,
+    start_hour: datetime.time,
+    end_hour: datetime.time,
+    db: Session = Depends(get_db),
+):
+    try:
+        result = availability_checker.check_availability(**locals())
+        if result:
+            result = facility_reserver.reserve(**locals())
+            
+    except IntegrityError:
+        raise HTTPException(
+            status_code=500,
+            detail="Incorrect information. Unique constraint violated.",
+        )
+    except NoResultFound as e:
+        raise HTTPException(status_code=404, detail=e.args[0])
+    return JSONResponse({"result": result})
 
 
 # endregion ACTIONS
