@@ -4,14 +4,6 @@ from sqlalchemy import and_, or_
 from . import models, schemas
 
 
-class ElementNotFound(Exception):
-    pass
-
-
-class NoConnectionWithDB(Exception):
-    pass
-
-
 def dict_query_and(model, query_dict, db=None):
     db = query_dict.pop("db", None)
     if db is None:
@@ -45,7 +37,7 @@ def add_user_role(db: Session, user_role: schemas.UserRoleCreate):
 
 
 def get_user_roles(
-    db=None,
+    db,
     id_user_role=None,
     name=None,
 ):
@@ -116,7 +108,7 @@ def add_user(db: Session, user: schemas.UserCreate):
 
 
 def get_users(
-    db=None,
+    db,
     id_user=None,
     email=None,
     password=None,
@@ -147,7 +139,7 @@ def delete_user(db: Session, user_id: int):
 
 
 def update_user(
-    db=None,
+    db,
     id_user=None,
     email=None,
     password=None,
@@ -255,7 +247,7 @@ def add_facility_type(db: Session, facility_type: schemas.FacilityTypeCreate):
 
 
 def get_facility_types(
-    db=None,
+    db,
     id_facility_type=None,
     name=None,
 ):
@@ -373,7 +365,7 @@ def add_state(db: Session, state: schemas.StateCreate):
 
 
 def get_states(
-    db=None,
+    db,
     id_state=None,
     name=None,
 ):
@@ -524,7 +516,7 @@ def add_day(db: Session, day: schemas.DayCreate):
 
 
 def get_days(
-    db=None,
+    db,
     id_day=None,
     day=None,
 ):
@@ -731,7 +723,7 @@ def add_image(db: Session, image: schemas.ImageCreate):
 
 
 def get_images(
-    db=None,
+    db,
     id_image=None,
     image_path=None,
 ):
