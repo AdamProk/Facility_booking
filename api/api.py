@@ -128,8 +128,9 @@ async def login_for_access_token(
     access_token_expires = datetime.timedelta(
         minutes=cm.ACCESS_TOKEN_EXPIRE_MINUTES
     )
+    user_role = user.user_role.name.lower()
     access_token = cm.create_access_token(
-        data={"sub": user.email, "scopes": form_data.scopes},
+        data={"sub": user.email, "scopes": [user_role]},#ser_role},#form_data.scopes},
         expires_delta=access_token_expires,
     )
     return {"access_token": access_token, "token_type": "bearer"}
