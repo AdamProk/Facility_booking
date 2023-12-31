@@ -1,4 +1,6 @@
+from typing import Annotated
 from fastapi import Depends, FastAPI, HTTPException, Response, Request, Query
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 import uvicorn
 from contextlib import asynccontextmanager
@@ -8,7 +10,7 @@ from orm.database import SessionLocal, engine
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from fastapi.responses import JSONResponse
 from components import availability_checker
-from components import facility_reserver 
+from components import facility_reserver
 import components
 
 models.Base.metadata.create_all(bind=engine)
@@ -28,16 +30,7 @@ app = FastAPI(
     version="0.0.1",
     lifespan=lifespan,
 )
-# tags_metadata = [
-#     {
-#         "name": "Users",
-#         "description": "",
-#     },
-#     {
-#         "name": "User Roles",
-#         "description": "",
-#     },
-# ]
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 @app.middleware("http")
@@ -55,6 +48,52 @@ async def db_session_middleware(request: Request, call_next):
 def get_db(request: Request):
     return request.state.db
 
+
+# region SECURITY
+
+
+def fake_decode_token(token, db: Session = Depends(get_db)):
+    user = get_users(db, email=token.split("_")[0])
+    return schemas.User(**user.__dict__)
+
+
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+    user = fake_decode_token(token)
+    return user
+
+
+@app.get("/user/me")
+async def read_users_me(
+    current_user: Annotated[schemas.User, Depends(get_current_user)]
+):
+    return current_user
+
+
+def fake_hash_password(password: str):
+    return password + "notreallyhashed"
+
+
+@app.post("/token")
+async def login(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    db: Session = Depends(get_db),
+):
+    users = crud.get_users(db, email=form_data.username)
+    if not users:
+        raise HTTPException(
+            status_code=400, detail="Incorrect username or password"
+        )
+    user = users[0]
+    hashed_password = fake_hash_password(form_data.password)
+    if not hashed_password == user.password:
+        raise HTTPException(
+            status_code=400, detail="Incorrect username or password"
+        )
+
+    return {"access_token": user.email + "_token", "token_type": "bearer"}
+
+
+# endregion SECURITY
 
 # region CRUD
 
@@ -88,6 +127,7 @@ def delete_user_role(user_role_id: int, db: Session = Depends(get_db)):
     "/user_role/", response_model=list[schemas.UserRole], tags=["User Roles"]
 )
 def get_user_roles(
+    token: Annotated[str, Depends(oauth2_scheme)],
     id_user_role: int = Query(None),
     name: str = Query(None),
     db: Session = Depends(get_db),
@@ -860,7 +900,9 @@ def get_facilities(
     return results
 
 
-@app.put("/facility/", response_model=schemas.FacilityCreate, tags=["Facilities"])
+@app.put(
+    "/facility/", response_model=schemas.FacilityCreate, tags=["Facilities"]
+)
 def update_facility(
     id_facility: int = Query(None),
     name: str = Query(None),
@@ -1002,7 +1044,6 @@ def check_availability(
     return JSONResponse({"result": result})
 
 
-
 @app.get("/actions/reserve/", tags=["Actions"])
 def reserve(
     id_facility: int,
@@ -1016,7 +1057,7 @@ def reserve(
         result = availability_checker.check_availability(**locals())
         if result:
             result = facility_reserver.reserve(**locals())
-            
+
     except IntegrityError:
         raise HTTPException(
             status_code=500,

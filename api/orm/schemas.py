@@ -27,6 +27,14 @@ class User(BaseModel):
     user_role: UserRole
     reservations: List[UserReservation]
 
+class UserInDB(BaseModel):
+    hashed_password: str
+    email: str
+    name: str
+    lastname: str
+    phone_number: str
+
+
 
 class UserCreate(BaseModel):
     email: str

@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from fastapi import Query
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy import and_, or_
 from . import models, schemas
