@@ -1,30 +1,43 @@
 from fastapi import Depends, FastAPI, HTTPException, Response, Request, Query
 from sqlalchemy.orm import Session
 import uvicorn
+from contextlib import asynccontextmanager
 import datetime
 from orm import crud, models, schemas
 from orm.database import SessionLocal, engine
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from fastapi.responses import JSONResponse
+from components import availability_checker
+from components import facility_reserver 
+import components
 
 models.Base.metadata.create_all(bind=engine)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    setupper = components.DBSetup(SessionLocal)
+    setupper.setup()
+    del setupper
+    yield
 
 
 app = FastAPI(
     title="Facility Booking API",
     description="Facility Booking API written for Software Engineering class",
     version="0.0.1",
+    lifespan=lifespan,
 )
-tags_metadata = [
-    {
-        "name": "Users",
-        "description": "",
-    },
-    {
-        "name": "User Roles",
-        "description": "",
-    },
-]
+# tags_metadata = [
+#     {
+#         "name": "Users",
+#         "description": "",
+#     },
+#     {
+#         "name": "User Roles",
+#         "description": "",
+#     },
+# ]
 
 
 @app.middleware("http")
@@ -42,6 +55,8 @@ async def db_session_middleware(request: Request, call_next):
 def get_db(request: Request):
     return request.state.db
 
+
+# region CRUD
 
 # region USER ROLES
 
@@ -461,6 +476,8 @@ def update_state(
 def add_address(address: schemas.AddressCreate, db: Session = Depends(get_db)):
     try:
         response = crud.add_address(db, address)
+    except NoResultFound as e:
+        raise HTTPException(status_code=404, detail=e.args[0])
     except IntegrityError:
         raise HTTPException(
             status_code=500,
@@ -600,6 +617,10 @@ def add_open_hour(
             status_code=500,
             detail="Incorrect information. Unique constraint violated.",
         )
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No occurence found in the database."
+        )
     return response
 
 
@@ -667,6 +688,10 @@ def add_company(company: schemas.CompanyCreate, db: Session = Depends(get_db)):
         raise HTTPException(
             status_code=500,
             detail="Incorrect information. Unique constraint violated.",
+        )
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No occurence found in the database."
         )
     return response
 
@@ -797,6 +822,10 @@ def add_facility(
             status_code=500,
             detail="Incorrect information. Unique constraint violated.",
         )
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No occurence found in the database."
+        )
     return response
 
 
@@ -831,7 +860,7 @@ def get_facilities(
     return results
 
 
-@app.put("/facility/", response_model=schemas.Facility, tags=["Facilities"])
+@app.put("/facility/", response_model=schemas.FacilityCreate, tags=["Facilities"])
 def update_facility(
     id_facility: int = Query(None),
     name: str = Query(None),
@@ -840,6 +869,7 @@ def update_facility(
     id_facility_type: int = Query(None),
     id_address: int = Query(None),
     id_company: int = Query(None),
+    ids_open_hours: list[int] = Query(None),
     db: Session = Depends(get_db),
 ):
     try:
@@ -874,6 +904,10 @@ def add_reservation(
         raise HTTPException(
             status_code=500,
             detail="Incorrect information. Unique constraint violated.",
+        )
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No occurence found in the database."
         )
     return response
 
@@ -941,6 +975,60 @@ def update_reservation(
 
 
 # endregion RESERVATIONS
+
+# endregion CRUD
+
+
+# region ACTIONS
+
+
+@app.get("/actions/check_availability/", tags=["Actions"])
+def check_availability(
+    id_facility: int,
+    date: datetime.date,
+    start_hour: datetime.time,
+    end_hour: datetime.time,
+    db: Session = Depends(get_db),
+):
+    try:
+        result = availability_checker.check_availability(**locals())
+    except IntegrityError:
+        raise HTTPException(
+            status_code=500,
+            detail="Incorrect information. Unique constraint violated.",
+        )
+    except NoResultFound as e:
+        raise HTTPException(status_code=404, detail=e.args[0])
+    return JSONResponse({"result": result})
+
+
+
+@app.get("/actions/reserve/", tags=["Actions"])
+def reserve(
+    id_facility: int,
+    id_user: int,
+    date: datetime.date,
+    start_hour: datetime.time,
+    end_hour: datetime.time,
+    db: Session = Depends(get_db),
+):
+    try:
+        result = availability_checker.check_availability(**locals())
+        if result:
+            result = facility_reserver.reserve(**locals())
+            
+    except IntegrityError:
+        raise HTTPException(
+            status_code=500,
+            detail="Incorrect information. Unique constraint violated.",
+        )
+    except NoResultFound as e:
+        raise HTTPException(status_code=404, detail=e.args[0])
+    return JSONResponse({"result": result})
+
+
+# endregion ACTIONS
+
 
 if __name__ == "__main__":
     uvicorn.run("api:app", host="0.0.0.0", port=8000, reload=True, workers=1)

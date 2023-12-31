@@ -93,7 +93,7 @@ def add_user(db: Session, user: schemas.UserCreate):
     user_dict = user.model_dump()
     user_dict["password"] = user.password + "notreallyhashed"
     matching_user_roles = get_user_roles(
-        db, name=user_dict.pop("user_role_name")
+        db, name=user_dict.pop("user_role_name").capitalize()
     )
     if len(matching_user_roles) < 1:
         raise NoResultFound("User role not found.")
@@ -120,7 +120,7 @@ def get_users(
     query_dict = {k: v for k, v in locals().items() if v is not None}
 
     if user_role_name:
-        roles = get_user_roles(db, name=query_dict.pop("user_role_name"))
+        roles = get_user_roles(db, name=query_dict.pop("user_role_name").capitalize())
         if len(roles) < 1:
             return []
         query_dict["user_role_id"] = roles[0].id_user_role
@@ -416,8 +416,8 @@ def update_state(
 
 
 def add_address(db: Session, address: schemas.AddressCreate):
-    cities = get_cities(db, name=address.city_name)
-    states = get_states(db, name=address.state_name)
+    cities = get_cities(db, name=address.city_name.capitalize())
+    states = get_states(db, name=address.state_name.capitalize())
     if len(cities) < 1:
         raise NoResultFound("No city with specified name in the database.")
     if len(states) < 1:
@@ -446,13 +446,13 @@ def get_addresses(
     query_dict = {k: v for k, v in locals().items() if v is not None}
 
     if city_name is not None:
-        results = get_cities(db, name=query_dict.pop("city_name"))
+        results = get_cities(db, name=query_dict.pop("city_name").capitalize())
         if len(results) < 1:
             return []
         query_dict["id_city"] = results[0].id_city
 
     if state_name is not None:
-        results = get_states(db, name=query_dict.pop("state_name"))
+        results = get_states(db, name=query_dict.pop("state_name").capitalize())
         if len(results) < 1:
             return []
         query_dict["id_state"] = results[0].id_state
@@ -562,7 +562,7 @@ def update_day(
 
 # region OPEN HOURS
 def add_open_hour(db: Session, open_hour: schemas.OpenHourCreate):
-    days = get_days(db, day=open_hour.day_name)
+    days = get_days(db, day=open_hour.day_name.capitalize())
     if len(days) < 1:
         raise NoResultFound("No day with specified name in the database.")
 
@@ -586,7 +586,7 @@ def get_open_hours(
     query_dict = {k: v for k, v in locals().items() if v is not None}
 
     if day_name is not None:
-        results = get_days(db, day=query_dict.pop("day_name"))
+        results = get_days(db, day=query_dict.pop("day_name").capitalize())
         if len(results) < 1:
             return []
         query_dict["id_day"] = results[0].id_day
@@ -625,7 +625,7 @@ def update_open_hour(
     update_dict = locals()
     del update_dict["db"]
 
-    days = get_days(db, day=day_name)
+    days = get_days(db, day=day_name.capitalize())
     if len(days) < 1:
         raise NoResultFound("No day with specified name in the database.")
     update_dict["id_day"] = days[0].id_day
@@ -843,6 +843,7 @@ def update_facility(
     id_facility_type=None,
     id_address=None,
     id_company=None,
+    ids_open_hours=None,
 ):
     facility = (
         db.query(models.Facility)
@@ -859,6 +860,14 @@ def update_facility(
     for key, value in update_dict.items():
         if value is not None:
             setattr(facility, key, value)
+
+    for id_open_hour in ids_open_hours:
+        results = get_open_hours(db, id_open_hours=id_open_hour)
+        if len(results) < 1:
+            raise NoResultFound(
+                "No open_hours with specified id in the database."
+            )
+        facility.open_hours.append(results[0])
 
     db.commit()
 
