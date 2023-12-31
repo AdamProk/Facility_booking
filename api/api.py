@@ -456,7 +456,7 @@ def delete_facility_type(
 )
 def get_facility_types(
     current_user: Annotated[
-        schemas.User, Security(get_current_user, scopes=["admin"])
+        schemas.User, Security(get_current_user, scopes=["user"])
     ],
     id_facility_type: int = Query(None),
     name: str = Query(None),
@@ -540,7 +540,7 @@ def delete_city(
 @app.get("/city/", response_model=list[schemas.City], tags=["Cities"])
 def get_cities(
     current_user: Annotated[
-        schemas.User, Security(get_current_user, scopes=["admin"])
+        schemas.User, Security(get_current_user, scopes=["user"])
     ],
     id_city: int = Query(None),
     name: str = Query(None),
@@ -620,7 +620,7 @@ def delete_state(
 @app.get("/state/", response_model=list[schemas.State], tags=["States"])
 def get_states(
     current_user: Annotated[
-        schemas.User, Security(get_current_user, scopes=["admin"])
+        schemas.User, Security(get_current_user, scopes=["user"])
     ],
     id_state: int = Query(None),
     name: str = Query(None),
@@ -704,7 +704,7 @@ def delete_address(
 @app.get("/address/", response_model=list[schemas.Address], tags=["Addresses"])
 def get_addresses(
     current_user: Annotated[
-        schemas.User, Security(get_current_user, scopes=["admin"])
+        schemas.User, Security(get_current_user, scopes=["user"])
     ],
     id_address: int = Query(None),
     street_name: str = Query(None),
@@ -756,8 +756,6 @@ def update_address(
 
 
 # region DAYS
-
-
 @app.post("/day/", response_model=schemas.Day, tags=["Days"])
 def add_day(
     current_user: Annotated[
@@ -794,7 +792,7 @@ def delete_day(
 @app.get("/day/", response_model=list[schemas.Day], tags=["Days"])
 def get_days(
     current_user: Annotated[
-        schemas.User, Security(get_current_user, scopes=["admin"])
+        schemas.User, Security(get_current_user, scopes=["user"])
     ],
     id_day: int = Query(None),
     day: str = Query(None),
@@ -882,7 +880,7 @@ def delete_open_hour(
 )
 def get_open_houres(
     current_user: Annotated[
-        schemas.User, Security(get_current_user, scopes=["admin"])
+        schemas.User, Security(get_current_user, scopes=["user"])
     ],
     id_open_hours: int = Query(None),
     day_name: str = Query(None),
@@ -972,7 +970,7 @@ def delete_company(
 @app.get("/company/", response_model=list[schemas.Company], tags=["Companies"])
 def get_companies(
     current_user: Annotated[
-        schemas.User, Security(get_current_user, scopes=["admin"])
+        schemas.User, Security(get_current_user, scopes=["user"])
     ],
     id_company: int = Query(None),
     name=Query(None),
@@ -1058,7 +1056,7 @@ def delete_image(
 @app.get("/image/", response_model=list[schemas.Image], tags=["Images"])
 def get_images(
     current_user: Annotated[
-        schemas.User, Security(get_current_user, scopes=["admin"])
+        schemas.User, Security(get_current_user, scopes=["user"])
     ],
     id_image: int = Query(None),
     image_path: str = Query(None),
@@ -1145,7 +1143,7 @@ def delete_facility(
 )
 def get_facilities(
     current_user: Annotated[
-        schemas.User, Security(get_current_user, scopes=["admin"])
+        schemas.User, Security(get_current_user, scopes=["user"])
     ],
     id_facility: int = Query(None),
     name: str = Query(None),
