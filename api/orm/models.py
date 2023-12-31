@@ -1,4 +1,5 @@
 from sqlalchemy import (
+    CheckConstraint,
     Boolean,
     Date,
     Table,
@@ -11,7 +12,7 @@ from sqlalchemy import (
     UniqueConstraint,
     Time,
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, validates
 from .database import Base, engine
 
 
@@ -30,6 +31,10 @@ class UserRole(Base):
     name = Column(String, nullable=False, unique=True)
 
     users = relationship("User", back_populates="user_role")
+
+    @validates("name")
+    def convert_upper(self, key, value):
+        return value.capitalize()
 
 
 class User(Base):
@@ -50,6 +55,10 @@ class User(Base):
 
     reservations = relationship("Reservation", back_populates="user")
 
+    @validates("name", "lastname")
+    def convert_upper(self, key, value):
+        return value.capitalize()
+
 
 class ReservationStatus(Base):
     __tablename__ = "reservation_statuses"
@@ -58,6 +67,10 @@ class ReservationStatus(Base):
     status = Column(String, nullable=False, unique=True)
 
     reservations = relationship("Reservation", back_populates="status")
+
+    @validates("status")
+    def convert_upper(self, key, value):
+        return value.capitalize()
 
 
 class FacilityType(Base):
@@ -68,6 +81,10 @@ class FacilityType(Base):
 
     facilities = relationship("Facility", back_populates="facility_type")
 
+    @validates("name")
+    def convert_upper(self, key, value):
+        return value.capitalize()
+
 
 class City(Base):
     __tablename__ = "cities"
@@ -77,6 +94,10 @@ class City(Base):
 
     addresses = relationship("Address", back_populates="city")
 
+    @validates("name")
+    def convert_upper(self, key, value):
+        return value.capitalize()
+
 
 class State(Base):
     __tablename__ = "states"
@@ -85,6 +106,10 @@ class State(Base):
     name = Column(String, nullable=False, unique=True)
 
     addresses = relationship("Address", back_populates="state")
+
+    @validates("name")
+    def convert_upper(self, key, value):
+        return value.capitalize()
 
 
 class Company(Base):
@@ -100,6 +125,10 @@ class Company(Base):
     phone_number = Column(String, nullable=False)
 
     facilities = relationship("Facility", back_populates="company")
+
+    @validates("name")
+    def convert_upper(self, key, value):
+        return value.capitalize()
 
 
 class Address(Base):
@@ -125,6 +154,10 @@ class Address(Base):
     company = relationship("Company", back_populates="address")
     facilities = relationship("Facility", back_populates="address")
 
+    @validates("street_name")
+    def convert_upper(self, key, value):
+        return value.capitalize()
+
 
 class Day(Base):
     __tablename__ = "days"
@@ -132,6 +165,10 @@ class Day(Base):
     id_day = Column(Integer, primary_key=True)
     day = Column(String, nullable=False)
     hours = relationship("OpenHour", back_populates="day")
+
+    @validates("day")
+    def convert_upper(self, key, value):
+        return value.capitalize()
 
 
 class OpenHour(Base):
@@ -186,6 +223,10 @@ class Facility(Base):
         secondary=facility_open_hours_association,
         back_populates="facilities",
     )
+
+    @validates("name", "description")
+    def convert_upper(self, key, value):
+        return value.capitalize()
 
 
 class Reservation(Base):

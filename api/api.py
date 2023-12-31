@@ -1,30 +1,41 @@
 from fastapi import Depends, FastAPI, HTTPException, Response, Request, Query
 from sqlalchemy.orm import Session
 import uvicorn
+from contextlib import asynccontextmanager
 import datetime
 from orm import crud, models, schemas
 from orm.database import SessionLocal, engine
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from fastapi.responses import JSONResponse
+import components
 
 models.Base.metadata.create_all(bind=engine)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    setupper = components.DBSetup(SessionLocal)
+    setupper.setup()
+    del setupper
+    yield
 
 
 app = FastAPI(
     title="Facility Booking API",
     description="Facility Booking API written for Software Engineering class",
     version="0.0.1",
+    lifespan=lifespan,
 )
-tags_metadata = [
-    {
-        "name": "Users",
-        "description": "",
-    },
-    {
-        "name": "User Roles",
-        "description": "",
-    },
-]
+# tags_metadata = [
+#     {
+#         "name": "Users",
+#         "description": "",
+#     },
+#     {
+#         "name": "User Roles",
+#         "description": "",
+#     },
+# ]
 
 
 @app.middleware("http")
@@ -42,6 +53,8 @@ async def db_session_middleware(request: Request, call_next):
 def get_db(request: Request):
     return request.state.db
 
+
+# region CRUD
 
 # region USER ROLES
 
@@ -941,6 +954,15 @@ def update_reservation(
 
 
 # endregion RESERVATIONS
+
+# endregion CRUD
+
+
+# region ACTIONS
+
+
+# endregion ACTIONS
+
 
 if __name__ == "__main__":
     uvicorn.run("api:app", host="0.0.0.0", port=8000, reload=True, workers=1)
