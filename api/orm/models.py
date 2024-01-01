@@ -195,7 +195,7 @@ class Image(Base):
     id_image = Column(Integer, primary_key=True)
     image_path = Column(String, nullable=False, unique=True)
 
-    id_facility = Column(Integer, ForeignKey("facilities.id_facility"))
+    id_facility = Column(Integer, ForeignKey("facilities.id_facility"), nullable=True)
     facility = relationship("Facility", back_populates="images")
 
 

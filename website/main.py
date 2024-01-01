@@ -10,6 +10,7 @@ from flask import (
 )
 import os
 from under_proxy import get_flask_app
+from components import images_handler
 import json
 
 ON_SERVER = bool(os.environ.get("ON_SERVER"))
