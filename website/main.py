@@ -10,77 +10,83 @@ from flask import (
 )
 import os
 from under_proxy import get_flask_app
+from werkzeug.utils import secure_filename
 from components import images_handler
+from components import api_requests as API
 import json
-
-ON_SERVER = bool(os.environ.get("ON_SERVER"))
-API_URL = "http://api:8000/" if ON_SERVER else "http://localhost:8000/"
 
 app = get_flask_app()
 app.secret_key = "secret"
+app.config["UPLOAD_FOLDER"] = images_handler.IMAGES_DIR
 
 
-def api_request(
-    method, endpoint, query_params={}, body={}, headers=None, use_token=True
-):
-    try:
-        if headers is None:
-            headers = {
-                "Accept": "application/json",
-                "Content-Type": "application/x-www-form-urlencoded",
-            }
-            if use_token:
-                headers["Authorization"] = "Bearer " + session.get("token")
-        response = getattr(requests, method)(
-            API_URL + endpoint, params=query_params, data=body, headers=headers
-        )
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        print("An error occurred:", e)
-    return None
-
-
-def get_token(email, password):
-    data = {
-        "grant_type": "",
-        "username": str(request.form.get("email")),
-        "password": str(request.form.get("password")),
-        "scope": "",
-        "client_id": "",
-        "client_secret": "",
-    }
-
-    response = api_request("post", "token", body=data, use_token=False)
-    if response is not None:
-        token = response.get("access_token")
-        session["token"] = token
-        return token
-
-    return None
-
-
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
 def index():
-    data = []
-    if session.get("token"):
-        data = api_request("get", "facility")
+    try:
+        data = API.make_request(
+            API.METHOD.GET,
+            API.DATA_ENDPOINT.FACILITY,
+        )
+    except API.APIError as e:
+        print(e)
+        data = []
+
     return render_template("index.html", data=data)
 
 
 @app.route("/login", methods=["POST"])
 def login():
-    email = (str(request.form.get("email")))
-    password = (str(request.form.get("password")))
-    print(get_token(email, password))
+    email = str(request.form.get("email"))
+    password = str(request.form.get("password"))
+
+    try:
+        session["token"] = API.get_token(email, password)
+    except API.APIError as e:
+        print(e)
 
     return redirect(url_for("index"))
 
 
 @app.route("/logout", methods=["GET"])
 def logout():
-    if session.get('token'):
-        del session['token']
+    session.pop("token", None)
+    return redirect(url_for("index"))
+
+
+@app.route("/upload_facility_image", methods=["POST"])
+def upload_facility_image():
+    id_facility = int(request.form.get("id_facility"))
+    if "file" not in request.files:
+        print("No file passed.")
+        return redirect(url_for("index"))
+
+    file = request.files["file"]
+    try:
+        image_path = images_handler.upload_image(file)
+
+    except Exception as e:
+        print("Error uploading image: " + str(e))
+        return redirect(url_for("index"))
+
+    try:
+        API.make_request(
+            API.METHOD.POST,
+            API.DATA_ENDPOINT.IMAGE,
+            body={
+                "image_path": "adsgashawg",
+                "id_facility": id_facility,
+            },
+        )
+    except API.APIError as e:
+        print(e)
+        try:
+            images_handler.remove_image(image_path)
+        except images_handler.ImageHandlerError:
+            print("Failed to remove the image.")
+        print(
+            "Failed to put image in the database. It was removed from images folder."
+        )
+
     return redirect(url_for("index"))
 
 

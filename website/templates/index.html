@@ -25,21 +25,28 @@
     </form>
     <a href="/logout"><button>Logout</button></a>
     <ul>
-        {% for d in data %}
-            <li>
-                {% for key, value in d.items() %}
-                    <strong>{{ key }}:</strong> {{ value }}<br>
-                {% endfor %}
-            </li>
+      {% for d in data %}
+      <li>
+        {% for key, value in d.items() %}
+        <strong>{{ key }}:</strong> {{ value }}<br>
         {% endfor %}
-    </ul>
-  </div>
+        <h1>Image Upload</h1>
+        <form method="POST" action="/upload_facility_image" enctype="multipart/form-data">
+          <input type="file" name="file" accept=".jpg, .jpeg, .png, .gif">
+          <input type="submit" value="Upload">
+          <input type="hidden" name="id_facility" value="{{d.id_facility}}">
+        </form>
+</body>
+</li>
+{% endfor %}
+</ul>
+</div>
 
 
-  <script>
+<script>
 
 
-  </script>
+</script>
 
 </body>
 

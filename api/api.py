@@ -99,7 +99,7 @@ async def get_current_user(
     except (JWTError, ValidationError):
         raise credentials_exception
     users = crud.get_users(db, email=token_data.username)
-    if users is None:
+    if not users:
         raise credentials_exception
     user = users[0]
     for scope in security_scopes.scopes:
@@ -128,8 +128,12 @@ async def login_for_access_token(
         minutes=cm.ACCESS_TOKEN_EXPIRE_MINUTES
     )
     user_role = user.user_role.name.lower()
+    scopes = ["user", "admin"] if user_role == "admin" else ["user"]
     access_token = cm.create_access_token(
-        data={"sub": user.email, "scopes": [user_role]},#ser_role},#form_data.scopes},
+        data={
+            "sub": user.email,
+            "scopes": scopes,
+        },  # ser_role},#form_data.scopes},
         expires_delta=access_token_expires,
     )
     return {"access_token": access_token, "token_type": "bearer"}
@@ -155,7 +159,7 @@ def add_user_role(
     except IntegrityError:
         raise HTTPException(
             status_code=500,
-            detail="Incorrect information. Unique constraint violated.",
+            detail="Incorrect information. Unique constraint violated or one of the object ids not in the database.",
         )
     return result
 
@@ -336,7 +340,7 @@ def add_reservation_status(
     except IntegrityError:
         raise HTTPException(
             status_code=500,
-            detail="Incorrect information. Unique constraint violated.",
+            detail="Incorrect information. Unique constraint violated or one of the object ids not in the database.",
         )
     return result
 
@@ -428,7 +432,7 @@ def add_facility_type(
     except IntegrityError:
         raise HTTPException(
             status_code=500,
-            detail="Incorrect information. Unique constraint violated.",
+            detail="Incorrect information. Unique constraint violated or one of the object ids not in the database.",
         )
     return response
 
@@ -516,7 +520,7 @@ def add_city(
     except IntegrityError:
         raise HTTPException(
             status_code=500,
-            detail="Incorrect information. Unique constraint violated.",
+            detail="Incorrect information. Unique constraint violated or one of the object ids not in the database.",
         )
     return response
 
@@ -596,7 +600,7 @@ def add_state(
     except IntegrityError:
         raise HTTPException(
             status_code=500,
-            detail="Incorrect information. Unique constraint violated.",
+            detail="Incorrect information. Unique constraint violated or one of the object ids not in the database.",
         )
     return response
 
@@ -680,7 +684,7 @@ def add_address(
     except IntegrityError:
         raise HTTPException(
             status_code=500,
-            detail="Incorrect information. Unique constraint violated.",
+            detail="Incorrect information. Unique constraint violated or one of the object ids not in the database.",
         )
     return response
 
@@ -742,7 +746,7 @@ def update_address(
     except IntegrityError:
         raise HTTPException(
             status_code=500,
-            detail="Incorrect information. Unique constraint violated.",
+            detail="Incorrect information. Unique constraint violated or one of the object ids not in the database.",
         )
     except NoResultFound:
         raise HTTPException(
@@ -768,7 +772,7 @@ def add_day(
     except IntegrityError:
         raise HTTPException(
             status_code=500,
-            detail="Incorrect information. Unique constraint violated.",
+            detail="Incorrect information. Unique constraint violated or one of the object ids not in the database.",
         )
     return response
 
@@ -850,7 +854,7 @@ def add_open_hour(
     except IntegrityError:
         raise HTTPException(
             status_code=500,
-            detail="Incorrect information. Unique constraint violated.",
+            detail="Incorrect information. Unique constraint violated or one of the object ids not in the database.",
         )
     except NoResultFound:
         raise HTTPException(
@@ -914,7 +918,7 @@ def update_open_hour(
     except IntegrityError:
         raise HTTPException(
             status_code=500,
-            detail="Incorrect information. Unique constraint violated.",
+            detail="Incorrect information. Unique constraint violated or one of the object ids not in the database.",
         )
     except NoResultFound:
         raise HTTPException(
@@ -942,7 +946,7 @@ def add_company(
     except IntegrityError:
         raise HTTPException(
             status_code=500,
-            detail="Incorrect information. Unique constraint violated.",
+            detail="Incorrect information. Unique constraint violated or one of the object ids not in the database.",
         )
     except NoResultFound:
         raise HTTPException(
@@ -1006,7 +1010,7 @@ def update_company(
     except IntegrityError:
         raise HTTPException(
             status_code=500,
-            detail="Incorrect information. Unique constraint violated.",
+            detail="Incorrect information. Unique constraint violated or one of the object ids not in the database.",
         )
     except NoResultFound:
         raise HTTPException(
@@ -1029,10 +1033,10 @@ def add_image(
 ):
     try:
         response = crud.add_image(db, image)
-    except IntegrityError:
+    except IntegrityError as e:
         raise HTTPException(
             status_code=500,
-            detail="Incorrect information. Unique constraint violated.",
+            detail="Incorrect information. Unique constraint violated or one of the object ids not in the database.",
         )
     return response
 
@@ -1113,7 +1117,7 @@ def add_facility(
     except IntegrityError:
         raise HTTPException(
             status_code=500,
-            detail="Incorrect information. Unique constraint violated.",
+            detail="Incorrect information. Unique constraint violated or one of the object ids not in the database.",
         )
     except NoResultFound:
         raise HTTPException(
@@ -1186,7 +1190,7 @@ def update_facility(
     except IntegrityError:
         raise HTTPException(
             status_code=500,
-            detail="Incorrect information. Unique constraint violated.",
+            detail="Incorrect information. Unique constraint violated or one of the object ids not in the database.",
         )
     except NoResultFound:
         raise HTTPException(
@@ -1216,7 +1220,7 @@ def add_reservation(
     except IntegrityError:
         raise HTTPException(
             status_code=500,
-            detail="Incorrect information. Unique constraint violated.",
+            detail="Incorrect information. Unique constraint violated or one of the object ids not in the database.",
         )
     except NoResultFound:
         raise HTTPException(
@@ -1292,7 +1296,7 @@ def update_reservation(
     except IntegrityError:
         raise HTTPException(
             status_code=500,
-            detail="Incorrect information. Unique constraint violated.",
+            detail="Incorrect information. Unique constraint violated or one of the object ids not in the database.",
         )
     except NoResultFound:
         raise HTTPException(
@@ -1326,7 +1330,7 @@ def check_availability(
     except IntegrityError:
         raise HTTPException(
             status_code=500,
-            detail="Incorrect information. Unique constraint violated.",
+            detail="Incorrect information. Unique constraint violated or one of the object ids not in the database.",
         )
     except NoResultFound as e:
         raise HTTPException(status_code=404, detail=e.args[0])
@@ -1354,7 +1358,7 @@ def reserve(
     except IntegrityError:
         raise HTTPException(
             status_code=500,
-            detail="Incorrect information. Unique constraint violated.",
+            detail="Incorrect information. Unique constraint violated or one of the object ids not in the database.",
         )
     except NoResultFound as e:
         raise HTTPException(status_code=404, detail=e.args[0])

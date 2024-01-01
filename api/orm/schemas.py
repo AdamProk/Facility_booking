@@ -5,6 +5,7 @@ import datetime
 from pydantic import Field
 
 UserReservation = ForwardRef("UserReservation")
+Facility = ForwardRef("Facility")
 
 
 class Token(BaseModel):
@@ -15,7 +16,6 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     username: str | None = None
     scopes: list[str] = []
-
 
 
 class UserRole(BaseModel):
@@ -150,6 +150,7 @@ class Image(BaseModel):
 
 class ImageCreate(BaseModel):
     image_path: str
+    id_facility: int
 
 
 class Facility(BaseModel):
@@ -222,3 +223,4 @@ class ReservationCreate(BaseModel):
 
 
 User.model_rebuild()
+Facility.model_rebuild()
