@@ -6,6 +6,7 @@ from flask import (
     json,
     request,
     url_for,
+    session,
 )
 import os
 from under_proxy import get_flask_app
@@ -15,13 +16,22 @@ ON_SERVER = bool(os.environ.get("ON_SERVER"))
 API_URL = "http://api:8000/" if ON_SERVER else "http://localhost:8000/"
 
 app = get_flask_app()
-print(ON_SERVER)
+app.secret_key = "secret"
 
 
-def api_request(method, endpoint, query_params={}, body={}):
+def api_request(
+    method, endpoint, query_params={}, body={}, headers=None, use_token=True
+):
     try:
+        if headers is None:
+            headers = {
+                "Accept": "application/json",
+                "Content-Type": "application/x-www-form-urlencoded",
+            }
+            if use_token:
+                headers["Authorization"] = "Bearer " + session.get("token")
         response = getattr(requests, method)(
-            API_URL + endpoint, params=query_params, data=json.dumps(body)
+            API_URL + endpoint, params=query_params, data=body, headers=headers
         )
         response.raise_for_status()
         return response.json()
@@ -30,27 +40,46 @@ def api_request(method, endpoint, query_params={}, body={}):
     return None
 
 
+def get_token(email, password):
+    data = {
+        "grant_type": "",
+        "username": str(request.form.get("email")),
+        "password": str(request.form.get("password")),
+        "scope": "",
+        "client_id": "",
+        "client_secret": "",
+    }
+
+    response = api_request("post", "token", body=data, use_token=False)
+    if response is not None:
+        token = response.get("access_token")
+        session["token"] = token
+        return token
+
+    return None
+
 
 @app.route("/")
 def index():
-    response = api_request("get", "user")
-    print(response)
-    return render_template("index.html", users=response)
+    data = []
+    if session.get("token"):
+        data = api_request("get", "facility")
+    return render_template("index.html", data=data)
 
 
-@app.route("/add_user", methods=["POST"])
-def add_user():
-    data = {
-        "email": request.form.get("email"),
-        "password": request.form.get("password"),
-        "name": request.form.get("name"),
-        "lastname": request.form.get("lastname"),
-        "phone_number": request.form.get("phone_number"),
-        "user_role_name": request.form.get("user_role_name"),
-    }
+@app.route("/login", methods=["POST"])
+def login():
+    email = (str(request.form.get("email")))
+    password = (str(request.form.get("password")))
+    print(get_token(email, password))
 
-    api_request("post", "user", body=data)
+    return redirect(url_for("index"))
 
+
+@app.route("/logout", methods=["GET"])
+def logout():
+    if session.get('token'):
+        del session['token']
     return redirect(url_for("index"))
 
 

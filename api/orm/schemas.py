@@ -167,6 +167,8 @@ class Facility(BaseModel):
 
     open_hours: list[OpenHour]
 
+    images: list[Image]
+
 
 class FacilityCreate(BaseModel):
     name: str

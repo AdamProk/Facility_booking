@@ -26,7 +26,6 @@ from jose import JWTError, jwt
 from components import availability_checker
 from components import facility_reserver
 from components import credentials_manager as cm
-from passlib.context import CryptContext
 from pydantic import ValidationError
 import components
 
@@ -1312,6 +1311,9 @@ def update_reservation(
 
 @app.get("/actions/check_availability/", tags=["Actions"])
 def check_availability(
+    current_user: Annotated[
+        schemas.User, Security(get_current_user, scopes=["user"])
+    ],
     id_facility: int,
     date: datetime.date,
     start_hour: datetime.time,
@@ -1319,6 +1321,7 @@ def check_availability(
     db: Session = Depends(get_db),
 ):
     try:
+        del current_user
         result = availability_checker.check_availability(**locals())
     except IntegrityError:
         raise HTTPException(
@@ -1332,6 +1335,9 @@ def check_availability(
 
 @app.get("/actions/reserve/", tags=["Actions"])
 def reserve(
+    current_user: Annotated[
+        schemas.User, Security(get_current_user, scopes=["user"])
+    ],
     id_facility: int,
     id_user: int,
     date: datetime.date,
@@ -1340,6 +1346,7 @@ def reserve(
     db: Session = Depends(get_db),
 ):
     try:
+        del current_user
         result = availability_checker.check_availability(**locals())
         if result:
             result = facility_reserver.reserve(**locals())
