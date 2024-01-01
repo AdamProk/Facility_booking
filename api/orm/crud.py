@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import IntegrityError, NoResultFound
+from fastapi import Query
+from sqlalchemy.exc import IntegrityError, NoResultFound, DatabaseError
 from sqlalchemy import and_, or_
 from . import models, schemas
 
@@ -7,7 +8,7 @@ from . import models, schemas
 def dict_query_and(model, query_dict, db=None):
     db = query_dict.pop("db", None)
     if db is None:
-        raise NoConnectionWithDB(
+        raise DatabaseError(
             "No connection with the database was provided"
         )
     if len(query_dict) > 0:  # If query contains any criteria
@@ -91,7 +92,6 @@ def update_user_role(
 
 def add_user(db: Session, user: schemas.UserCreate):
     user_dict = user.model_dump()
-    user_dict["password"] = user.password + "notreallyhashed"
     matching_user_roles = get_user_roles(
         db, name=user_dict.pop("user_role_name").capitalize()
     )

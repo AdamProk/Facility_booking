@@ -7,6 +7,17 @@ from pydantic import Field
 UserReservation = ForwardRef("UserReservation")
 
 
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    username: str | None = None
+    scopes: list[str] = []
+
+
+
 class UserRole(BaseModel):
     id_user_role: int
     name: str
@@ -155,6 +166,8 @@ class Facility(BaseModel):
     company: Company
 
     open_hours: list[OpenHour]
+
+    images: list[Image]
 
 
 class FacilityCreate(BaseModel):

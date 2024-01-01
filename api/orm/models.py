@@ -195,6 +195,9 @@ class Image(Base):
     id_image = Column(Integer, primary_key=True)
     image_path = Column(String, nullable=False, unique=True)
 
+    id_facility = Column(Integer, ForeignKey("facilities.id_facility"))
+    facility = relationship("Facility", back_populates="images")
+
 
 class Facility(Base):
     __tablename__ = "facilities"
@@ -223,6 +226,8 @@ class Facility(Base):
         secondary=facility_open_hours_association,
         back_populates="facilities",
     )
+
+    images = relationship("Image", back_populates="facility")
 
     @validates("name", "description")
     def convert_upper(self, key, value):
