@@ -14,6 +14,9 @@ from werkzeug.utils import secure_filename
 from components import images_handler
 from components import api_requests as API
 import json
+import logging
+
+LOGGER = logging.getLogger(__name__)
 
 app = get_flask_app()
 app.secret_key = "secret"
@@ -28,7 +31,7 @@ def index():
             API.DATA_ENDPOINT.FACILITY,
         )
     except API.APIError as e:
-        print(e)
+        LOGGER.error(e)
         data = []
 
     return render_template("index.html", data=data)
@@ -42,7 +45,7 @@ def login():
     try:
         session["token"] = API.get_token(email, password)
     except API.APIError as e:
-        print(e)
+        LOGGER.error(e)
 
     return redirect(url_for("index"))
 
@@ -57,15 +60,15 @@ def logout():
 def upload_facility_image():
     id_facility = int(request.form.get("id_facility"))
     if "file" not in request.files:
-        print("No file passed.")
+        LOGGER.error("No file passed.")
         return redirect(url_for("index"))
 
     file = request.files["file"]
     try:
-        image_path = images_handler.upload_image(file)
+        image_rel_path = images_handler.upload_image(file)
 
-    except Exception as e:
-        print("Error uploading image: " + str(e))
+    except images_handler.ImageHandlerError as e:
+        LOGGER.error("Error uploading image: " + str(e))
         return redirect(url_for("index"))
 
     try:
@@ -73,18 +76,17 @@ def upload_facility_image():
             API.METHOD.POST,
             API.DATA_ENDPOINT.IMAGE,
             body={
-                "image_path": "adsgashawg",
+                "image_path": image_rel_path,
                 "id_facility": id_facility,
             },
         )
     except API.APIError as e:
-        print(e)
         try:
-            images_handler.remove_image(image_path)
+            images_handler.remove_image(image_rel_path)
         except images_handler.ImageHandlerError:
-            print("Failed to remove the image.")
-        print(
-            "Failed to put image in the database. It was removed from images folder."
+            LOGGER.error("Failed to remove the image.")
+        LOGGER.error(
+            "Failed to put image in the database. It was removed from images folder." + str(e)
         )
 
     return redirect(url_for("index"))

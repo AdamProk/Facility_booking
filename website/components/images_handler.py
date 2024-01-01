@@ -23,7 +23,8 @@ def upload_image(file):
     filename = secure_filename(file.filename)
     path = os.path.join(IMAGES_DIR, filename)
     file.save(path)
-    return path
+
+    return filename
 
 
 def remove_image(file_path):

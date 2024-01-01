@@ -28,7 +28,18 @@
       {% for d in data %}
       <li>
         {% for key, value in d.items() %}
+
+        {% if key == 'images' %}
+        {% for img in value %}
+
+        <img src="{{ url_for('static', filename='images/' + img.image_path) }}"> 
+
+        {% endfor %}
+
+        {% else %}
         <strong>{{ key }}:</strong> {{ value }}<br>
+        {% endif %}
+
         {% endfor %}
         <h1>Image Upload</h1>
         <form method="POST" action="/upload_facility_image" enctype="multipart/form-data">

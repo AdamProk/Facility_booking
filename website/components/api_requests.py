@@ -50,12 +50,13 @@ class ACTION_ENDPOINT(Enum):
     CHECK_AVAILABILITY = auto()
     RESERVE = auto()
 
+
 class REQUEST_FORMAT(Enum):
     def _generate_next_value_(name, start, count, last_values):
         return "action/" + name.lower()
 
     JSON = auto()
-    URL_ENDCODED= auto()
+    URL_ENDCODED = auto()
 
 
 def make_request(
@@ -85,11 +86,15 @@ def make_request(
         response = getattr(requests, method.value)(
             API_URL + endpoint.value,
             params=query_params,
-            data=json.dumps(body) if request_format == REQUEST_FORMAT.JSON else body,
+            data=json.dumps(body)
+            if request_format == REQUEST_FORMAT.JSON
+            else body,
             headers=headers,
         )
         response.raise_for_status()
         return response.json()
+    except requests.exceptions.ConnectionError as e:
+        raise APIError("Failed to connect with the API.")
     except requests.exceptions.RequestException as e:
         raise APIError(
             "{} {}: {}. DETAIL: {}".format(
