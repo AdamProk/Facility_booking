@@ -11,7 +11,7 @@ class DBSetup:
     def _create_in_db(self, model, data):
         added_count = 0
         for row in data:
-            search_query = row
+            search_query = row.copy()
             if search_query.get("password"):
                 del search_query['password']
             item = self._db_session.query(model).filter_by(**search_query).first()

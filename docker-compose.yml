@@ -16,7 +16,8 @@ services:
 
     networks:
       - internal
-
+    depends_on:
+      - db
   db:
     image: postgres
     container_name: postgres_db 
@@ -29,6 +30,7 @@ services:
       - 5555:5432
     volumes:
       - ./volumes/postgres_data:/var/lib/postgresql/data 
+      - ./db_init_scripts:/docker-entrypoint-initdb.d
 
     networks:
       - internal
