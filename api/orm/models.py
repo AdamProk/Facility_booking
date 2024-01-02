@@ -81,9 +81,6 @@ class FacilityType(Base):
 
     facilities = relationship("Facility", back_populates="facility_type")
 
-    @validates("name")
-    def convert_upper(self, key, value):
-        return value.capitalize()
 
 
 class City(Base):
@@ -126,9 +123,6 @@ class Company(Base):
 
     facilities = relationship("Facility", back_populates="company")
 
-    @validates("name")
-    def convert_upper(self, key, value):
-        return value.capitalize()
 
 
 class Address(Base):
@@ -173,7 +167,7 @@ class Day(Base):
 
 class OpenHour(Base):
     __tablename__ = "open_hours"
-    __table_args__ = (UniqueConstraint("start_hour", "end_hour"),)
+    __table_args__ = (UniqueConstraint("start_hour", "end_hour", "id_day"),)
 
     id_open_hours = Column(Integer, primary_key=True)
     start_hour = Column(Time)

@@ -6,6 +6,7 @@ from pydantic import Field
 
 UserReservation = ForwardRef("UserReservation")
 Facility = ForwardRef("Facility")
+FacilityNoImage = ForwardRef("FacilityNoImage")
 
 
 class Token(BaseModel):
@@ -146,6 +147,7 @@ class CompanyCreate(BaseModel):
 class Image(BaseModel):
     id_image: int
     image_path: str
+    facility: FacilityNoImage
 
 
 class ImageCreate(BaseModel):
@@ -170,6 +172,20 @@ class Facility(BaseModel):
 
     images: list[Image]
 
+class FacilityNoImage(BaseModel):
+    id_facility: int
+
+    name: str
+    description: str
+    price_hourly: float
+
+    facility_type: FacilityType
+
+    address: Address
+
+    company: Company
+
+    open_hours: list[OpenHour]
 
 class FacilityCreate(BaseModel):
     name: str
@@ -224,3 +240,4 @@ class ReservationCreate(BaseModel):
 
 User.model_rebuild()
 Facility.model_rebuild()
+FacilityNoImage.model_rebuild()

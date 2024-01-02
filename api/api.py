@@ -232,7 +232,7 @@ def update_user_role(
 @app.post("/user/", response_model=schemas.User, tags=["Users"])
 def add_user(
     current_user: Annotated[
-        schemas.User, Security(get_current_user, scopes=["admin"])
+        schemas.User, Security(get_current_user, scopes=["user"])
     ],
     user: schemas.UserCreate,
     db: Session = Depends(get_db),
