@@ -31,7 +31,7 @@ class DATA_ENDPOINT(Enum):
     USER_ROLE = auto()
     USER = auto()
     RESERVATION_STATUS = auto()
-    FACILITY_TYP = auto()
+    FACILITY_TYPE = auto()
     CITY = auto()
     STATE = auto()
     ADDRESS = auto()
