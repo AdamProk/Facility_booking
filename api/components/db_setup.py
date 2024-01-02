@@ -1,6 +1,10 @@
 from orm import models, schemas, crud
+from sqlalchemy.exc import IntegrityError, NoResultFound
+import logging
 from passlib.context import CryptContext
 from components import credentials_manager as cm
+
+LOGGER = logging.getLogger(__name__)
 
 
 class DBSetup:
@@ -9,23 +13,33 @@ class DBSetup:
         self._db_session = None
 
     def _create_in_db(self, model, data):
-        added_count = 0
-        for row in data:
-            search_query = row.copy()
-            if search_query.get("password"):
-                del search_query["password"]
-            item = (
-                self._db_session.query(model).filter_by(**search_query).first()
-            )
-            if not item:
-                item = model(**row)
-                self._db_session.add(item)
-                added_count += 1
-        self._db_session.commit()
-        if added_count > 0:
-            print(
-                "Added {} of {} objects.".format(added_count, model.__name__)
-            )
+        try:
+            added_count = 0
+            for row in data:
+                search_query = row.copy()
+                if search_query.get("password"):
+                    del search_query["password"]
+                item = (
+                    self._db_session.query(model)
+                    .filter_by(**search_query)
+                    .first()
+                )
+                if not item:
+                    item = model(**row)
+                    try:
+                        self._db_session.add(item)
+                    except IntegrityError:
+                        pass
+                    added_count += 1
+            self._db_session.commit()
+            if added_count > 0:
+                LOGGER.info(
+                    "Added {} of {} objects.".format(
+                        added_count, model.__name__
+                    )
+                )
+        except Exception as e:
+            LOGGER.error(str(e))
 
     def _create_valid_days(self):
         valid_day_names = [
@@ -228,8 +242,10 @@ class DBSetup:
                 added_count += 1
         self._db_session.commit()
         if added_count > 0:
-            print(
-                "Added {} of {} objects.".format(added_count, models.Facility.__name__)
+            LOGGER.info(
+                "Added {} of {} objects.".format(
+                    added_count, models.Facility.__name__
+                )
             )
 
     def setup(self):
@@ -246,4 +262,4 @@ class DBSetup:
         self._create_valid_test_companies()
         self._create_valid_test_facilities()
         self._db_session.close()
-        print("Setup complete.")
+        LOGGER.info("Setup complete.")
