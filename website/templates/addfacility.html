@@ -5,6 +5,7 @@
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script src="{{ url_for('static', filename='js/index.js') }}"></script>
   <title>Facility Booking</title>
 
 </head>
@@ -26,11 +27,7 @@
       <label for="facility_type">Rodzaj placówki:</label>
       <select name="id_facility_type" required>
         {% for d in data %}
-        {% for key, value in d.items() %}
-        {% if key == 'name' %}
-            <option value="{{ d.id_facility_type }}"> {{ value }} </option>
-        {% endif %}
-        {% endfor %}
+        <option value="{{ d.id_facility_type }}"> {{ d.name }} </option>
         {% endfor %}
       </select>
       <label for="city">Miasto:</label>
@@ -49,16 +46,15 @@
       <input type="text" name="postal_code" required>
       <br>
       <button type="submit">Dodaj placówkę</button>
+
     </form>
+    <h1 id="response">huh</h1>
+    <button id="submitfacilities">Dodaj placówkę</button>
 </body>
 </div>
 
 
-<script>
-
-
-</script>
-
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
 </body>
 
 </html>
