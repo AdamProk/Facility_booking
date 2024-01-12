@@ -298,7 +298,7 @@ def check_if_username_in_db(
     results = crud.get_users(**locals())
     if results:
         return JSONResponse({"result": True}, 200)
-    return JSONResponse({"result": False}, 404)
+    return JSONResponse({"result": False}, 200)
 
 
 @app.put("/user/", response_model=schemas.User, tags=["Users"])
