@@ -66,6 +66,44 @@ def logout():
     return redirect(url_for("login"))
 
 
+@app.route("/register", methods=["GET"])
+def register_site():
+    return render_template("register.html")
+
+@app.route('/register', methods =['POST'])
+def register():
+    msg = ''
+    email = str(request.form['email'])
+    password = str(request.form['password'])
+    username = str(request.form['username'])
+    lastname = str(request.form['lastname'])
+    phone_number =str(request.form['phone_number'])
+    try:
+        account = API.make_request(API.METHOD.GET, API.DATA_ENDPOINT.USER, query_params={"email": email})[0] #TOCHANGE
+    except API.APIError as e:
+        LOGGER.info(e)
+        return make_response(jsonify({"response": str(e)}), 500)
+    
+    if not account:
+        try:
+            API.make_request(API.METHOD.POST, API.DATA_ENDPOINT.USER, body={
+                "email": email,
+                "password": password,
+                "name": username,
+                "lastname": lastname,
+                "phone_number": phone_number,
+                "user_role_name": "User",
+            })
+            msg = 'You have successfully registered !'
+        except API.APIError as e:
+            LOGGER.info(e)
+            return make_response(jsonify({"response": str(e)}), 500)
+    else:
+        LOGGER.log("No parameter found..")
+        msg = 'Account already exists!'
+    return make_response(jsonify({"response": msg}), 200)
+
+
 @app.route("/add_facility", methods=['GET'])
 def add_facility_site():
     try:
@@ -186,10 +224,27 @@ def upload_facility_image():
 
     return redirect(url_for("index"))
 
+@app.route("/delete_facility", methods=['POST'])
+def delete_facility():
+    id_facility = int(request.form.get('id_facility'))
+    try:
+        API.make_request(API.METHOD.DELETE, API.DATA_ENDPOINT.FACILITY, body={"facility_id": id_facility})
+    except API.APIError as e:
+        LOGGER.info(e)
+        raise exc.UniqueConstraintViolated("Nie udalo sie usunac danego obiektu")
+    
+    except exc.UniqueConstraintViolated as e:
+        return make_response(jsonify({"response": str(e)}), 500)
+    
+    return redirect(url_for("index"))
 
 @app.route("/add", methods=["GET"])
 def add():
     return make_response(jsonify({"response": "ok"}), 200)
+
+@app.route("/register_acc", methods=["GET"])
+def register_acc():
+    return make_response(jsonify({"response": "Account registered. You can log in now."}), 200)
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=9000)

@@ -1,0 +1,38 @@
+{% extends 'layout.html' %}
+
+{% block title %}Home{% endblock %}
+
+
+{% block content %}
+
+<!-- Edit content here -->
+
+<div class="container">
+    <form action="/register" method="post">
+        <label for="email"> Email:</label>
+        <input type="email" name="email" required>
+        <br>
+        <label for="password">Password:</label>
+        <input type="password" name="password" required>
+        <br>
+        <br>
+        <div>
+            USER INFORMATION
+        </div>
+        <label for="username">Username:</label>
+        <input type="text" name="username" required>
+        <label for="lastname">Lastname:</label>
+        <input type="text" name="lastname" required>
+        <br>
+        <label for="lastname">Phone Number:</label>
+        <input type="tel" name="phone_number" required>
+        <br>
+        <button id="submitregistration">Dodaj placówkę</button>
+    </form>
+    <br>
+</div>
+
+<h1 id="register_response"></h1>
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+
+{% endblock %}
