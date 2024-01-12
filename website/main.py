@@ -51,7 +51,7 @@ def company_data():
         )
     except API.APIError as e:
         LOGGER.error(e)
-        data = []
+        footer_data = []
     
     return dict(footer_data=footer_data)
 
@@ -96,8 +96,6 @@ def add_facility_site():
 @app.route("/add_facility", methods=['POST'])
 def add_facility():
     try:
-  #id_facility = int(request.form.get("id_facility"))
-    
         facility_name = str(request.form.get("name"))
         description =  str(request.form.get("description"))
         price_hourly = int(request.form.get("price_hourly"))
@@ -107,30 +105,9 @@ def add_facility():
         state_name = str(request.form.get("state"))
         building_no = int(request.form.get("building_number"))
         postal_code = str(request.form.get("postal_code"))
-        try:
-            API.make_request(API.METHOD.POST, API.DATA_ENDPOINT.CITY, body = { "name": str(request.form.get("city"))},)
-            API.make_request(API.METHOD.POST, API.DATA_ENDPOINT.STATE, body = { "name": str(request.form.get("state"))},)
-        except API.APIError as e:
-            LOGGER.info(str(e))
         
-        try:
-            API.make_request(API.METHOD.POST, API.DATA_ENDPOINT.ADDRESS, body ={       
-                    "city_name": city_name,
-                    "state_name": state_name,
-                    "street_name": street_name,
-                    "building_number": building_no,
-                    "postal_code": postal_code,
-                })
-        except API.APIError as e:
-            LOGGER.info("Adres juz istnieje")
+        address = get_or_create_address(city_name, state_name, street_name, building_no, postal_code)
 
-        address = API.make_request(API.METHOD.GET, API.DATA_ENDPOINT.ADDRESS, query_params={       
-                    "city_name": city_name,
-                    "state_name": state_name,
-                    "street_name": street_name,
-                    "building_number": building_no,
-                    "postal_code": postal_code,
-                })
         try:  
             API.make_request(
                 API.METHOD.POST,
@@ -163,6 +140,47 @@ def my_account_site():
 @app.route("/admin_panel", methods=["GET"])
 def admin_panel_site():
     return render_template("admin_panel.html")
+
+
+@app.route("/edit_site", methods=["GET"])
+def edit_site_site():
+    return render_template("edit_site.html")
+
+
+@app.route("/edit_site", methods=["POST"])
+def edit_site():
+    try: 
+        company_name = str(request.form.get("name"))
+        nip =  str(request.form.get("nip"))
+        phone_number = str(request.form.get("phone_number"))
+        city_name = str(request.form.get("city")).capitalize()
+        street_name = str(request.form.get("street_name")).capitalize()
+        state_name = str(request.form.get("state"))
+        building_no = int(request.form.get("building_number"))
+        postal_code = str(request.form.get("postal_code"))
+        
+        address = get_or_create_address(city_name, state_name, street_name, building_no, postal_code)
+
+        try:  
+            API.make_request(
+                API.METHOD.PUT,
+                API.DATA_ENDPOINT.COMPANY,
+                query_params = {
+                    "id_company": 1,
+                    "name": company_name,
+                    "nip": nip,
+                    "phone_number": phone_number,
+                    "id_address": address[0]['id_address'],
+                },)
+        except:
+            LOGGER.error("Nie mozna zaktualizowac danych")
+            raise exc.UniqueConstraintViolated("Nie mozna zaktualizowac danych")
+        
+    except exc.UniqueConstraintViolated as e:
+        return make_response(jsonify({"response": str(e)}), 500)
+    except NoResultFound as e:
+        return make_response(jsonify({"response": str(e)}), 404)
+    return make_response(jsonify({"response": "success"}), 200)
 
 
 @app.route("/upload_facility_image", methods=["POST"])
@@ -204,6 +222,40 @@ def upload_facility_image():
 @app.route("/add", methods=["GET"])
 def add():
     return make_response(jsonify({"response": "ok"}), 200)
+
+
+def get_or_create_address(city_name, state_name, street_name, building_no, postal_code):
+    try:
+        API.make_request(API.METHOD.POST, API.DATA_ENDPOINT.CITY, body={"name": city_name})
+        API.make_request(API.METHOD.POST, API.DATA_ENDPOINT.STATE, body={"name": state_name})
+        print('a')
+        LOGGER.info('a')
+    except API.APIError as e:
+        LOGGER.info(str(e))
+
+    try:
+        API.make_request(API.METHOD.POST, API.DATA_ENDPOINT.ADDRESS, body={
+            "city_name": city_name,
+            "state_name": state_name,
+            "street_name": street_name,
+            "building_number": building_no,
+            "postal_code": postal_code,
+        })
+        print('a')
+        LOGGER.info('a')
+    except API.APIError as e:
+        LOGGER.info("Address already exists")
+
+    address = API.make_request(API.METHOD.GET, API.DATA_ENDPOINT.ADDRESS, query_params={
+        "city_name": city_name,
+        "state_name": state_name,
+        "street_name": street_name,
+        "building_number": building_no,
+        "postal_code": postal_code,
+    })
+
+    return address
+
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=9000)
