@@ -119,6 +119,7 @@ def register():
                     "phone_number": phone_number,
                     "user_role_name": "User",
                 },
+                get_token_from_session=False,
             )
             msg = "You have successfully registered !"
         except API.APIError as e:
@@ -283,7 +284,7 @@ def delete_facility():
         API.make_request(
             API.METHOD.DELETE,
             API.DATA_ENDPOINT.FACILITY,
-            body={"facility_id": id_facility},
+            query_params={"facility_id": id_facility},
         )
     except API.APIError as e:
         LOGGER.info(e)
@@ -348,7 +349,7 @@ def get_or_create_address(city_name, state_name, street_name, building_no, posta
 @app.route("/register_acc", methods=["GET"])
 def register_acc():
     return make_response(
-        jsonify({"response": "Account registered. You can log in now."}), 200
+        jsonify({"response": "heck yeah"}), 200
     )
 
 
