@@ -52,7 +52,7 @@ def company_data():
     except API.APIError as e:
         LOGGER.error(e)
         footer_data = []
-    
+
     return dict(footer_data=footer_data)
 
 
@@ -84,41 +84,53 @@ def logout():
 def register_site():
     return render_template("register.html")
 
-@app.route('/register', methods =['POST'])
+
+@app.route("/register", methods=["POST"])
 def register():
-    msg = ''
-    email = str(request.form['email'])
-    password = str(request.form['password'])
-    username = str(request.form['username'])
-    lastname = str(request.form['lastname'])
-    phone_number =str(request.form['phone_number'])
+    msg = ""
+    email = str(request.form["email"])
+    password = str(request.form["password"])
+    username = str(request.form["username"])
+    lastname = str(request.form["lastname"])
+    phone_number = str(request.form["phone_number"])
     try:
-        account = API.make_request(API.METHOD.GET, API.DATA_ENDPOINT.USER, query_params={"email": email})[0] #TOCHANGE
+        account = API.make_request(
+            API.METHOD.GET,
+            API.ACTION_ENDPOINT.CHECK_IF_EMAIL_EXISTS,
+            query_params={"email": email},
+            get_token_from_session=False,
+        )[
+            "result"
+        ]  # TOCHANGE
     except API.APIError as e:
         LOGGER.info(e)
         return make_response(jsonify({"response": str(e)}), 500)
-    
+
     if not account:
         try:
-            API.make_request(API.METHOD.POST, API.DATA_ENDPOINT.USER, body={
-                "email": email,
-                "password": password,
-                "name": username,
-                "lastname": lastname,
-                "phone_number": phone_number,
-                "user_role_name": "User",
-            })
-            msg = 'You have successfully registered !'
+            API.make_request(
+                API.METHOD.POST,
+                API.DATA_ENDPOINT.USER,
+                body={
+                    "email": email,
+                    "password": password,
+                    "name": username,
+                    "lastname": lastname,
+                    "phone_number": phone_number,
+                    "user_role_name": "User",
+                },
+            )
+            msg = "You have successfully registered !"
         except API.APIError as e:
             LOGGER.info(e)
             return make_response(jsonify({"response": str(e)}), 500)
     else:
-        LOGGER.log("No parameter found..")
-        msg = 'Account already exists!'
+        LOGGER.info("No parameter found..")
+        msg = "Account already exists!"
     return make_response(jsonify({"response": msg}), 200)
 
 
-@app.route("/add_facility", methods=['GET'])
+@app.route("/add_facility", methods=["GET"])
 def add_facility_site():
     try:
         data = API.make_request(
@@ -131,11 +143,11 @@ def add_facility_site():
     return render_template("add_facility.html", data=data)
 
 
-@app.route("/add_facility", methods=['POST'])
+@app.route("/add_facility", methods=["POST"])
 def add_facility():
     try:
         facility_name = str(request.form.get("name"))
-        description =  str(request.form.get("description"))
+        description = str(request.form.get("description"))
         price_hourly = int(request.form.get("price_hourly"))
         id_facility_type = int(request.form.get("id_facility_type"))
         city_name = str(request.form.get("city")).capitalize()
@@ -143,26 +155,29 @@ def add_facility():
         state_name = str(request.form.get("state"))
         building_no = int(request.form.get("building_number"))
         postal_code = str(request.form.get("postal_code"))
-        
-        address = get_or_create_address(city_name, state_name, street_name, building_no, postal_code)
 
-        try:  
+        address = get_or_create_address(
+            city_name, state_name, street_name, building_no, postal_code
+        )
+
+        try:
             API.make_request(
                 API.METHOD.POST,
                 API.DATA_ENDPOINT.FACILITY,
-                body = {
+                body={
                     "name": facility_name,
                     "description": description,
                     "price_hourly": price_hourly,
                     "id_facility_type": id_facility_type,
-                    "id_address": address[0]['id_address'],
+                    "id_address": address[0]["id_address"],
                     "id_company": 1,
-                    "ids_open_hours": [1], #zastanowic sie
-                },)
+                    "ids_open_hours": [1],  # zastanowic sie
+                },
+            )
         except:
             LOGGER.error("Nie mozna dodac obiektu")
             raise exc.UniqueConstraintViolated("Nie mozna dodac obiektu")
-        
+
     except exc.UniqueConstraintViolated as e:
         return make_response(jsonify({"response": str(e)}), 500)
     except NoResultFound as e:
@@ -187,33 +202,36 @@ def edit_site_site():
 
 @app.route("/edit_site", methods=["POST"])
 def edit_site():
-    try: 
+    try:
         company_name = str(request.form.get("name"))
-        nip =  str(request.form.get("nip"))
+        nip = str(request.form.get("nip"))
         phone_number = str(request.form.get("phone_number"))
         city_name = str(request.form.get("city")).capitalize()
         street_name = str(request.form.get("street_name")).capitalize()
         state_name = str(request.form.get("state"))
         building_no = int(request.form.get("building_number"))
         postal_code = str(request.form.get("postal_code"))
-        
-        address = get_or_create_address(city_name, state_name, street_name, building_no, postal_code)
 
-        try:  
+        address = get_or_create_address(
+            city_name, state_name, street_name, building_no, postal_code
+        )
+
+        try:
             API.make_request(
                 API.METHOD.PUT,
                 API.DATA_ENDPOINT.COMPANY,
-                query_params = {
+                query_params={
                     "id_company": 1,
                     "name": company_name,
                     "nip": nip,
                     "phone_number": phone_number,
-                    "id_address": address[0]['id_address'],
-                },)
+                    "id_address": address[0]["id_address"],
+                },
+            )
         except:
             LOGGER.error("Nie mozna zaktualizowac danych")
             raise exc.UniqueConstraintViolated("Nie mozna zaktualizowac danych")
-        
+
     except exc.UniqueConstraintViolated as e:
         return make_response(jsonify({"response": str(e)}), 500)
     except NoResultFound as e:
@@ -251,24 +269,31 @@ def upload_facility_image():
         except images_handler.ImageHandlerError:
             LOGGER.error("Failed to remove the image.")
         LOGGER.error(
-            "Failed to put image in the database. It was removed from images folder." + str(e)
+            "Failed to put image in the database. It was removed from images folder."
+            + str(e)
         )
 
     return redirect(url_for("index"))
 
-@app.route("/delete_facility", methods=['POST'])
+
+@app.route("/delete_facility", methods=["POST"])
 def delete_facility():
-    id_facility = int(request.form.get('id_facility'))
+    id_facility = int(request.form.get("id_facility"))
     try:
-        API.make_request(API.METHOD.DELETE, API.DATA_ENDPOINT.FACILITY, body={"facility_id": id_facility})
+        API.make_request(
+            API.METHOD.DELETE,
+            API.DATA_ENDPOINT.FACILITY,
+            body={"facility_id": id_facility},
+        )
     except API.APIError as e:
         LOGGER.info(e)
         raise exc.UniqueConstraintViolated("Nie udalo sie usunac danego obiektu")
-    
+
     except exc.UniqueConstraintViolated as e:
         return make_response(jsonify({"response": str(e)}), 500)
-    
+
     return redirect(url_for("index"))
+
 
 @app.route("/add", methods=["GET"])
 def add():
@@ -277,40 +302,55 @@ def add():
 
 def get_or_create_address(city_name, state_name, street_name, building_no, postal_code):
     try:
-        API.make_request(API.METHOD.POST, API.DATA_ENDPOINT.CITY, body={"name": city_name})
-        API.make_request(API.METHOD.POST, API.DATA_ENDPOINT.STATE, body={"name": state_name})
-        print('a')
-        LOGGER.info('a')
+        API.make_request(
+            API.METHOD.POST, API.DATA_ENDPOINT.CITY, body={"name": city_name}
+        )
+        API.make_request(
+            API.METHOD.POST, API.DATA_ENDPOINT.STATE, body={"name": state_name}
+        )
+        print("a")
+        LOGGER.info("a")
     except API.APIError as e:
         LOGGER.info(str(e))
 
     try:
-        API.make_request(API.METHOD.POST, API.DATA_ENDPOINT.ADDRESS, body={
+        API.make_request(
+            API.METHOD.POST,
+            API.DATA_ENDPOINT.ADDRESS,
+            body={
+                "city_name": city_name,
+                "state_name": state_name,
+                "street_name": street_name,
+                "building_number": building_no,
+                "postal_code": postal_code,
+            },
+        )
+        print("a")
+        LOGGER.info("a")
+    except API.APIError as e:
+        LOGGER.info("Address already exists")
+
+    address = API.make_request(
+        API.METHOD.GET,
+        API.DATA_ENDPOINT.ADDRESS,
+        query_params={
             "city_name": city_name,
             "state_name": state_name,
             "street_name": street_name,
             "building_number": building_no,
             "postal_code": postal_code,
-        })
-        print('a')
-        LOGGER.info('a')
-    except API.APIError as e:
-        LOGGER.info("Address already exists")
-
-    address = API.make_request(API.METHOD.GET, API.DATA_ENDPOINT.ADDRESS, query_params={
-        "city_name": city_name,
-        "state_name": state_name,
-        "street_name": street_name,
-        "building_number": building_no,
-        "postal_code": postal_code,
-    })
+        },
+    )
 
     return address
 
 
 @app.route("/register_acc", methods=["GET"])
 def register_acc():
-    return make_response(jsonify({"response": "Account registered. You can log in now."}), 200)
+    return make_response(
+        jsonify({"response": "Account registered. You can log in now."}), 200
+    )
+
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=9000)
