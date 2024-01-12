@@ -830,7 +830,14 @@ def delete_facility(db: Session, facility_id: int):
         raise NoResultFound(
             "No occurence found with this id was found in the database."
         )
-    query.delete()
+    facility = query.first()
+    facility.company.facilities.remove(facility)
+    facility.facility_type.facilities.remove(facility)
+    facility.address.facilities.remove(facility)
+    for open_hour in facility.open_hours:
+        open_hour.facilities.remove(facility)
+    db.delete(facility)
+
     db.commit()
 
 
