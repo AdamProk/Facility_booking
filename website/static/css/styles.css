@@ -1,16 +1,61 @@
+:root {
+
+    --primary_color: rgb(0, 0, 0);
+    --primary_bg_color: rgb(182, 178, 189);
+
+    --secondary_color: rgb(200, 200, 200);
+}
+
 body, html {
     height: 100%;
     margin: 0;
     padding: 0;
-    /* Add this to remove any default padding */
+    font-family: Helvetica, sans-serif;
+}
+
+body {
+    background-color: var(--primary_bg_color);
+    color: var(--primary_color);
+}
+
+.navbar {
+    display: flex;
+    overflow: hidden;
+    justify-content: center;
+    align-items: center;
+    position:sticky;
+}
+
+.navbar a {
+    padding: 15px;
+    margin: 5px;
+    text-decoration: none;
+}
+
+.navbar a:hover {
+    background-color: var(--secondary_color);
+    color: black;
+}
+
+.footer {
+    text-align: center;
+    padding: 10px;
+    width: 100%;
+}
+
+.main_content {
+    width: 100%;
+    min-width: 40em;
+    position: relative;
+    transform: translateX(-50%);
+    left: 50%;
+    margin: 20px 0px;
+    padding: 5px;
 }
 
 .container {
-    position: relative;
-    width: 100%;
     height: 100%;
     text-align: center;
-    background-color: rgb(182, 178, 189);
     display: flex;
     flex-direction: column;
     justify-content: center;

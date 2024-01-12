@@ -41,9 +41,11 @@ def index():
 
     return render_template("home.html", data=data)
 
+
 @app.route("/login", methods=["GET"])
 def login_site():
     return render_template("login.html")
+
 
 @app.route("/login", methods=["POST"])
 def login():
@@ -61,10 +63,11 @@ def login():
 @app.route("/logout", methods=["GET"])
 def logout():
     session.pop("token", None)
-    return redirect(url_for("index"))
+    return redirect(url_for("login"))
 
-@app.route("/addfacility", methods=['GET'])
-def addfacility_site():
+
+@app.route("/add_facility", methods=['GET'])
+def add_facility_site():
     try:
         data = API.make_request(
             API.METHOD.GET,
@@ -73,7 +76,8 @@ def addfacility_site():
     except API.APIError as e:
         LOGGER.error(e)
         data = []
-    return render_template("addfacility.html", data=data)
+    return render_template("add_facility.html", data=data)
+
 
 @app.route("/add_facility", methods=['POST'])
 def add_facility():
@@ -135,6 +139,17 @@ def add_facility():
     except NoResultFound as e:
         return make_response(jsonify({"response": str(e)}), 404)
     return make_response(jsonify({"response": "success"}), 200)
+
+
+@app.route("/my_account", methods=["GET"])
+def my_account_site():
+    return render_template("my_account.html")
+
+
+@app.route("/admin_panel", methods=["GET"])
+def admin_panel_site():
+    return render_template("admin_panel.html")
+
 
 @app.route("/upload_facility_image", methods=["POST"])
 def upload_facility_image():

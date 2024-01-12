@@ -1,55 +1,46 @@
-<!DOCTYPE html>
-<html>
+{% extends 'layout.html' %}
 
-<head>
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-  <title>Facility Booking</title>
+{% block title %}Home{% endblock %}
 
-</head>
 
-<body>
+{% block content %}
 
-  <div class="container">
-    <a href="/login"><button>Login</button></a>
-    <a href="/logout"><button>Logout</button></a>
-    <a href="/addfacility"><button>Add facility</button></a>
+<!-- Edit content here -->
+
+<div class="container">
+    <div>SEARCHBAR FOR FACILITIES (also better display for facilities, but that's obv)</div>
+    <br><br>
     <ul>
-      {% for d in data %}
-      <li>
-        {% for key, value in d.items() %}
+        {% for d in data %}
+        <li>
+            {% for key, value in d.items() %}
 
-        {% if key == 'images' %}
-        {% for img in value %}
+            {% if key == 'images' %}
+            {% for img in value %}
 
-        <img src="{{ url_for('static', filename='images/' + img.image_path) }}"> 
+            <img src="{{ url_for('static', filename='images/' + img.image_path) }}"> 
 
+            {% endfor %}
+
+            {% else %}
+            <strong>{{ key }}:</strong> {{ value }}<br>
+            {% endif %}
+
+            {% endfor %}
+            <h1>Image Upload</h1>
+            
+            <form method="POST" action="/upload_facility_image" enctype="multipart/form-data">
+                <input type="file" name="file" accept=".jpg, .jpeg, .png, .gif">
+                <input type="submit" value="Upload">
+                <input type="hidden" name="id_facility" value="{{d.id_facility}}">
+            </form>
+
+        </li>
+        <div>RESERVE</div>
+        <br><br>
         {% endfor %}
-
-        {% else %}
-        <strong>{{ key }}:</strong> {{ value }}<br>
-        {% endif %}
-
-        {% endfor %}
-        <h1>Image Upload</h1>
-        <form method="POST" action="/upload_facility_image" enctype="multipart/form-data">
-          <input type="file" name="file" accept=".jpg, .jpeg, .png, .gif">
-          <input type="submit" value="Upload">
-          <input type="hidden" name="id_facility" value="{{d.id_facility}}">
-        </form>
-</body>
-</li>
-{% endfor %}
-</ul>
+    </ul>
 </div>
 
 
-<script>
-
-
-</script>
-
-</body>
-
-</html>
+{% endblock %}
