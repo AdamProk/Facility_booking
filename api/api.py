@@ -290,6 +290,17 @@ def get_users(
     return results
 
 
+@app.get("/user/check_if_email_exists", tags=["Users"])
+def check_if_username_in_db(
+    email: str,
+    db: Session = Depends(get_db),
+):
+    results = crud.get_users(**locals())
+    if results:
+        return JSONResponse({"result": True}, 200)
+    return JSONResponse({"result": False}, 404)
+
+
 @app.put("/user/", response_model=schemas.User, tags=["Users"])
 def update_user(
     current_user: Annotated[

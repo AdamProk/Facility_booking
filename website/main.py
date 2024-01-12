@@ -23,7 +23,7 @@ app.secret_key = "secret"
 app.config["UPLOAD_FOLDER"] = images_handler.IMAGES_DIR
 
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/", methods=["GET"])
 def index():
     try:
         data = API.make_request(
