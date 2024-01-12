@@ -42,6 +42,20 @@ def index():
     return render_template("home.html", data=data)
 
 
+@app.context_processor
+def company_data():
+    try:
+        footer_data = API.make_request(
+            API.METHOD.GET,
+            API.DATA_ENDPOINT.COMPANY,
+        )
+    except API.APIError as e:
+        LOGGER.error(e)
+        data = []
+    
+    return dict(footer_data=footer_data)
+
+
 @app.route("/login", methods=["GET"])
 def login_site():
     return render_template("login.html")
