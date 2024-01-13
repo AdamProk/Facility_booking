@@ -8,7 +8,7 @@
 <!-- Edit content here -->
 
 <div class="container">
-    <form action="/login" method="post">
+    <form action="/login" method="post" id="submitlogin">
         <label for="email">Email:</label>
         <input type="email" name="email" required>
         <br>
@@ -16,12 +16,14 @@
         <input type="password" name="password" required>
         <br>
         <button type="submit">Login</button>
+        <h1 id="login_response"></h1>
     </form>
     <br>
     <form action="/register" method="get">
         <button type="submit">Register a new account</button>
     </form>
 </div>
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
 
 
 {% endblock %}

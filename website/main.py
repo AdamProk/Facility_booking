@@ -1,4 +1,5 @@
 import requests
+import traceback
 from sqlalchemy.exc import NoResultFound
 from flask import (
     render_template,
@@ -51,9 +52,22 @@ def company_data():
         )
     except API.APIError as e:
         LOGGER.error(e)
-        footer_data = []
+        footer_data = dict()
 
     return dict(footer_data=footer_data)
+
+@app.context_processor
+def user_data():
+    try:
+        user_data = API.make_request(
+            API.METHOD.GET,
+            API.DATA_ENDPOINT.ME,
+        )
+    except API.APIError as e:
+        LOGGER.error(e)
+        user_data = dict()
+
+    return dict(user_data=user_data)
 
 
 @app.route("/login", methods=["GET"])
@@ -69,9 +83,11 @@ def login():
     try:
         session["token"] = API.get_token(email, password)
     except API.APIError as e:
-        LOGGER.error(e)
-
-    return redirect(url_for("index"))
+        LOGGER.info(e)
+        LOGGER.error(traceback.format_exc())
+        return make_response(jsonify({"response": "Incorrect email or password"}), 401)
+    
+    return make_response(jsonify({"response": "Successfully logged in."}), 200)
 
 
 @app.route("/logout", methods=["GET"])
@@ -198,6 +214,8 @@ def admin_panel_site():
 
 @app.route("/edit_site", methods=["GET"])
 def edit_site_site():
+    if(session.get('token') is None or user_data()['user_data']['user_role']['name'] != "Admin"):
+        return redirect(url_for("index"))
     return render_template("edit_site.html")
 
 
@@ -344,13 +362,6 @@ def get_or_create_address(city_name, state_name, street_name, building_no, posta
     )
 
     return address
-
-
-@app.route("/register_acc", methods=["GET"])
-def register_acc():
-    return make_response(
-        jsonify({"response": "heck yeah"}), 200
-    )
 
 
 if __name__ == "__main__":

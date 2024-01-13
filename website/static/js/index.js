@@ -4,7 +4,8 @@ $("#submitfacilities").click(function(){
     });
   });
 
-  $("#submitregistration").click(function (e) {
+
+$("#submitregistration").submit(function (e) {
     e.preventDefault();
   
     var form = $(this).closest('form');
@@ -12,7 +13,8 @@ $("#submitfacilities").click(function(){
     var formData = $(this).closest('form').serialize();
   
     // Make the POST request
-    $.post({
+    $.ajax({
+      type: "POST",
       url: "http://localhost:9000/register",
       data: formData,  // Pass serialized form data as the request body
       success: function (response) {
@@ -26,3 +28,32 @@ $("#submitfacilities").click(function(){
       }
     });
   });
+
+$("#submitlogin").submit(function (e) {
+  e.preventDefault();
+
+  var form = $(this).closest('form');
+  // Serialize the form data
+  var formData = $(this).closest('form').serialize();
+
+  // If all fields are filled, submit the form
+  $.ajax({
+    type: "POST",
+    url: "http://localhost:9000/login", 
+    data: formData,  // Pass serialized form data as the request body
+    success: function (response) {
+      $("#login_response").html(response["response"]);
+      // Handle success 
+      window.location.href = "/";
+    },
+    error: function (xhr, status, error) {
+      // Handle error
+      if (xhr.status === 401) {
+        var errorResponse = $.parseJSON(xhr.responseText);
+        // Unauthorized - Incorrect credentials
+        $("#login_response").html(errorResponse.response);
+        form[0].reset();
+    }
+  }});
+  // Make the POST request
+});

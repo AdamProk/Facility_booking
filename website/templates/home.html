@@ -34,10 +34,12 @@
                 <input type="submit" value="Upload">
                 <input type="hidden" name="id_facility" value="{{d.id_facility}}">
             </form>
+            {% if user_data.user_role.id_user_role == 2 %}
             <form method="POST" action="/delete_facility">
                 <input type="submit" value="Delete">
                 <input type="hidden" name="id_facility" value="{{d.id_facility}}">
             </form>
+            {% endif %}
  
         </li>
         <div>RESERVE</div>
