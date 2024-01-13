@@ -1,0 +1,58 @@
+{% extends 'layout.html' %}
+
+{% block title %}Add Facility{% endblock %}
+
+
+{% block content %}
+
+<!-- Edit content here -->
+
+<div class="container">
+    <form id="edit_facility" action="edit_facility" method="POST">
+        <label for="name">Nazwa placówki:</label>
+        <input type="text" name="name" value="{{ data[0].name }}">
+        <br>
+        <label for="description">Opis:</label>
+        <input type="text" name="description" value="{{ data[0].description }}">
+        <br>
+
+        <label for="price_hourly">Cena za godzine wynajmu:</label>
+        <input type="number" name="price_hourly" value="{{ data[0].price_hourly }}">
+        <br>
+        <label for="facility_type">Rodzaj placówki:</label>
+        <select name="id_facility_type">
+            {% for d in data_fac_type %}
+            {%if d.id_facility_type == data[0].facility_type.id_facility_type %}
+            <option value="{{ d.id_facility_type }}" selected> {{ d.name }} </option>
+            {% else %}
+            <option value="{{ d.id_facility_type }}"> {{ d.name }} </option>
+            {% endif %}
+            {% endfor %}
+        </select>
+        <label for="city">Miasto:</label>
+        <input type="text" name="city" value="{{ data[0].address.city.name }}">
+        <br>
+        <label for="state">Województwo:</label>
+        <input type="text" name="state" value="{{ data[0].address.city.name }}">
+        <br>
+        <label for="street_name">Ulica:</label>
+        <input type="text" name="street_name" value="{{ data[0].address.street_name }}">
+        <br>
+        <label for="building_number">Numer budynku:</label>
+        <input type="number" name="building_number" value="{{ data[0].address.building_number }}">
+        <br>
+        <label for="postal_code">Kod pocztowy:</label>
+        <input type="text" name="postal_code" value="{{ data[0].address.postal_code }}">
+        <br>
+        <button type="submit">Edytuj placówkę</button>
+        <input type="hidden" name="id_facility" value="{{data[0].id_facility}}">
+    </form>
+</div>
+
+
+<h1 id="fac_response"></h1>
+
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+
+
+{% endblock %}

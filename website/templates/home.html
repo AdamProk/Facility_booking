@@ -34,6 +34,10 @@
                 <input type="submit" value="Upload">
                 <input type="hidden" name="id_facility" value="{{d.id_facility}}">
             </form>
+            <form method="GET" action="/edit_facility">
+                <input type="submit" value="Edit">
+                <input type="hidden" name="id_facility" value="{{d.id_facility}}">
+            </form>
             <form method="POST" action="/delete_facility">
                 <input type="submit" value="Delete">
                 <input type="hidden" name="id_facility" value="{{d.id_facility}}">

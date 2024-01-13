@@ -19,6 +19,7 @@ from components import api_requests as API
 from components import exceptions as exc
 import json
 import logging
+import traceback
 
 
 LOGGER = logging.getLogger(__name__)
@@ -48,6 +49,7 @@ def company_data():
         footer_data = API.make_request(
             API.METHOD.GET,
             API.DATA_ENDPOINT.COMPANY,
+            query_params={"id_company": 1}
         )
     except API.APIError as e:
         LOGGER.error(e)
@@ -175,14 +177,22 @@ def add_facility():
                     "ids_open_hours": [1],  # zastanowic sie
                 },
             )
-        except:
+        except exc.UniqueConstraintViolated as e:
             LOGGER.error("Nie mozna dodac obiektu")
             raise exc.UniqueConstraintViolated("Nie mozna dodac obiektu")
 
     except exc.UniqueConstraintViolated as e:
+        LOGGER.error(traceback.format_exc());
         return make_response(jsonify({"response": str(e)}), 500)
     except NoResultFound as e:
+        LOGGER.error(traceback.format_exc());
         return make_response(jsonify({"response": str(e)}), 404)
+    except API.APIError as e:
+        LOGGER.error(traceback.format_exc());
+        return make_response(jsonify({"response": "API ERROR"}), 500)
+    except ValueError as e:
+        LOGGER.error(traceback.format_exc());
+        return make_response(jsonify({"response": str(e)}), 500)
     return make_response(jsonify({"response": "success"}), 200)
 
 
@@ -229,14 +239,22 @@ def edit_site():
                     "id_address": address[0]["id_address"],
                 },
             )
-        except:
-            LOGGER.error("Nie mozna zaktualizowac danych")
-            raise exc.UniqueConstraintViolated("Nie mozna zaktualizowac danych")
+        except exc.UniqueConstraintViolated as e:
+            LOGGER.error("Nie mozna dodac obiektu")
+            raise exc.UniqueConstraintViolated("Nie mozna dodac obiektu")
 
     except exc.UniqueConstraintViolated as e:
+        LOGGER.error(traceback.format_exc());
         return make_response(jsonify({"response": str(e)}), 500)
     except NoResultFound as e:
+        LOGGER.error(traceback.format_exc());
         return make_response(jsonify({"response": str(e)}), 404)
+    except API.APIError as e:
+        LOGGER.error(traceback.format_exc());
+        return make_response(jsonify({"response": "API ERROR"}), 500)
+    except ValueError as e:
+        LOGGER.error(traceback.format_exc());
+        return make_response(jsonify({"response": str(e)}), 500)
     return make_response(jsonify({"response": "success"}), 200)
 
 
@@ -246,14 +264,23 @@ def upload_logo():
         LOGGER.error("No file passed.")
         return make_response(jsonify({"response": "404"}), 404)
 
-    file = request.files["file"]
-    file.filename = 'logo.png'
+    try:
+        file = request.files["file"]
+        if file.filename == "":
+            raise images_handler.ImageHandlerError("Nie podałeś zdjęcia")
+        else:
+            file.filename = 'logo.png'
+    except images_handler.ImageHandlerError as e:
+        LOGGER.error(traceback.format_exc());
+        return make_response(jsonify({"response": str(e)}), 500)
+    
     try:
         images_handler.upload_image(file)
 
     except images_handler.ImageHandlerError as e:
         LOGGER.error("Error uploading image: " + str(e))
-        return make_response(jsonify({"response": "500"}), 500)
+        LOGGER.error(traceback.format_exc());
+        return make_response(jsonify({"response": str(e)}), 500)
 
     return make_response(jsonify({"response": "Logo Uploaded Successfully"}), 200)
 
@@ -296,6 +323,81 @@ def upload_facility_image():
     return redirect(url_for("index"))
 
 
+@app.route("/edit_facility", methods=["GET"])
+def edit_facility_site():
+    try:
+        id_facility = int(request.args.get("id_facility"))
+        data = API.make_request(
+            API.METHOD.GET,
+            API.DATA_ENDPOINT.FACILITY,
+            query_params={'id_facility': id_facility},
+        )
+        data_fac_type = API.make_request(
+            API.METHOD.GET,
+            API.DATA_ENDPOINT.FACILITY_TYPE
+        )
+    except API.APIError as e:
+        LOGGER.error(e)
+        data = []
+    return render_template("edit_facility.html", data=data, data_fac_type=data_fac_type)
+
+
+@app.route("/edit_facility", methods=["POST"])
+def edit_facility():
+    try:
+        id_facility = int(request.form.get("id_facility"))
+        facility_name = str(request.form.get("name"))
+        description = str(request.form.get("description"))
+        price_hourly = str(request.form.get("price_hourly"))
+        price_hourly = price_hourly.replace(',', '.')
+        price_hourly = int(float(price_hourly))
+        id_facility_type = int(request.form.get("id_facility_type"))
+        city_name = str(request.form.get("city")).capitalize()
+        street_name = str(request.form.get("street_name")).capitalize()
+        state_name = str(request.form.get("state"))
+        building_no = int(request.form.get("building_number"))
+        postal_code = str(request.form.get("postal_code"))
+
+        LOGGER.error(id_facility_type)
+
+        address = get_or_create_address(
+            city_name, state_name, street_name, building_no, postal_code
+        )
+
+        try:
+            API.make_request(
+                API.METHOD.PUT,
+                API.DATA_ENDPOINT.FACILITY,
+                query_params={
+                    "id_facility": id_facility,
+                    "name": facility_name,
+                    "description": description,
+                    "price_hourly": price_hourly,
+                    "id_facility_type": id_facility_type,
+                    "id_address": address[0]["id_address"],
+                    "id_company": 1,
+                    "ids_open_hours": [1],  # zastanowic sie
+                },
+            )
+        except exc.UniqueConstraintViolated as e:
+            LOGGER.error("Nie mozna dodac obiektu")
+            raise exc.UniqueConstraintViolated("Nie mozna dodac obiektu")
+
+    except exc.UniqueConstraintViolated as e:
+        LOGGER.error(traceback.format_exc());
+        return make_response(jsonify({"response": str(e)}), 500)
+    except NoResultFound as e:
+        LOGGER.error(traceback.format_exc());
+        return make_response(jsonify({"response": str(e)}), 404)
+    except API.APIError as e:
+        LOGGER.error(traceback.format_exc());
+        return make_response(jsonify({"response": "API ERROR"}), 500)
+    except ValueError as e:
+        LOGGER.error(traceback.format_exc());
+        return make_response(jsonify({"response": str(e)}), 500)
+    return make_response(jsonify({"response": "success"}), 200)
+
+
 @app.route("/delete_facility", methods=["POST"])
 def delete_facility():
     id_facility = int(request.form.get("id_facility"))
@@ -315,11 +417,6 @@ def delete_facility():
     return redirect(url_for("index"))
 
 
-@app.route("/add", methods=["GET"])
-def add():
-    return make_response(jsonify({"response": "ok"}), 200)
-
-
 def get_or_create_address(city_name, state_name, street_name, building_no, postal_code):
     try:
         API.make_request(
@@ -331,7 +428,7 @@ def get_or_create_address(city_name, state_name, street_name, building_no, posta
         print("a")
         LOGGER.info("a")
     except API.APIError as e:
-        LOGGER.info(str(e))
+        LOGGER.error(str(e))
 
     try:
         API.make_request(
@@ -345,22 +442,25 @@ def get_or_create_address(city_name, state_name, street_name, building_no, posta
                 "postal_code": postal_code,
             },
         )
-        print("a")
-        LOGGER.info("a")
     except API.APIError as e:
-        LOGGER.info("Address already exists")
+        LOGGER.error("Address already exists")
 
-    address = API.make_request(
-        API.METHOD.GET,
-        API.DATA_ENDPOINT.ADDRESS,
-        query_params={
-            "city_name": city_name,
-            "state_name": state_name,
-            "street_name": street_name,
-            "building_number": building_no,
-            "postal_code": postal_code,
-        },
-    )
+    try:
+        address = API.make_request(
+            API.METHOD.GET,
+            API.DATA_ENDPOINT.ADDRESS,
+            query_params={
+                "city_name": city_name,
+                "state_name": state_name,
+                "street_name": street_name,
+                "building_number": building_no,
+                "postal_code": postal_code,
+            },
+        )
+        if not address:
+            raise ValueError("Inapproperiate Address")
+    except ValueError as e:
+        raise e
 
     return address
 
