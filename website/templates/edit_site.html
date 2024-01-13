@@ -1,6 +1,6 @@
 {% extends 'layout.html' %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Edit Site{% endblock %}
 
 
 {% block content %}
@@ -34,9 +34,22 @@
         <label for="postal_code">Kod pocztowy:</label>
         <input type="text" name="postal_code" value="{{ footer_data[0].address.postal_code }}">
         <br>
-        <button type="submit">Edytuj swoje informacje</button>
+        <button id="submit_edit" type="submit">Edytuj swoje informacje</button>
+    </form>
+
+    <br><br>
+
+    <form method="POST" action="/upload_logo" enctype="multipart/form-data">
+        <label for="file">Edycja Logo:</label><br>
+        <input type="file" name="file" accept=".jpg, .jpeg, .png">
+        <button id="submit_logo" type="submit">Edytuj Logo</button>
     </form>
 </div>
+
+
+<h1 id="edit_site_response"></h1>
+
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
 
 
 {% endblock %}

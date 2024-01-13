@@ -27,14 +27,17 @@
             {% endif %}
 
             {% endfor %}
+            {% if user_data.user_role.id_user_role == 2 %}
             <h1>Image Upload</h1>
-            
             <form method="POST" action="/upload_facility_image" enctype="multipart/form-data">
                 <input type="file" name="file" accept=".jpg, .jpeg, .png, .gif">
                 <input type="submit" value="Upload">
                 <input type="hidden" name="id_facility" value="{{d.id_facility}}">
             </form>
-            {% if user_data.user_role.id_user_role == 2 %}
+            <form method="GET" action="/edit_facility">
+                <input type="submit" value="Edit">
+                <input type="hidden" name="id_facility" value="{{d.id_facility}}">
+            </form>
             <form method="POST" action="/delete_facility">
                 <input type="submit" value="Delete">
                 <input type="hidden" name="id_facility" value="{{d.id_facility}}">

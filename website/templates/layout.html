@@ -8,7 +8,7 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <link rel="icon" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="icon" href="{{ url_for('static', filename='/images/logo.png') }}">
     <title>Facility Booking</title>
 </head>
 
@@ -25,7 +25,6 @@
     </nav>
     {% else %}
     <nav class="navbar">
-        <a href="">register (PLACEHOLDER)</a>
         <a href="/login">login</a>
     </nav>
     {% endif %}
@@ -39,7 +38,7 @@
         <div>
             Info about Owner/Company
             <br>
-            {{ footer_data }}
+            {{ footer_data[0] }}
         </div>
     </footer>
     {% endif %}

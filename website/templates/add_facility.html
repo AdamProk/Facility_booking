@@ -1,6 +1,6 @@
 {% extends 'layout.html' %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Add Facility{% endblock %}
 
 
 {% block content %}
@@ -40,13 +40,12 @@
         <label for="postal_code">Kod pocztowy:</label>
         <input type="text" name="postal_code" required>
         <br>
-        <button type="submit">Dodaj placówkę</button>
-
+        <button id="submit_facility" type="submit">Dodaj placówkę</button>
     </form>
-    <h1 id="response">huh</h1>
-    <button id="submitfacilities">Dodaj placówkę</button>
 </div>
 
+
+<h1 id="fac_response"></h1>
 
 <script src="{{ url_for('static', filename='js/index.js') }}"></script>
 
