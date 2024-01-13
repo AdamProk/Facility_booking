@@ -240,8 +240,27 @@ def edit_site():
     return make_response(jsonify({"response": "success"}), 200)
 
 
+@app.route("/upload_logo", methods=["POST"])
+def upload_logo():
+    if "file" not in request.files:
+        LOGGER.error("No file passed.")
+        return make_response(jsonify({"response": "404"}), 404)
+
+    file = request.files["file"]
+    file.filename = 'logo.png'
+    try:
+        images_handler.upload_image(file)
+
+    except images_handler.ImageHandlerError as e:
+        LOGGER.error("Error uploading image: " + str(e))
+        return make_response(jsonify({"response": "500"}), 500)
+
+    return make_response(jsonify({"response": "Logo Uploaded Successfully"}), 200)
+
+
 @app.route("/upload_facility_image", methods=["POST"])
 def upload_facility_image():
+    LOGGER.error(request.files)
     id_facility = int(request.form.get("id_facility"))
     if "file" not in request.files:
         LOGGER.error("No file passed.")
