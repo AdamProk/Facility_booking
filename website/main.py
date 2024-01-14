@@ -47,6 +47,26 @@ def index():
     return render_template("home.html", data=data)
 
 
+@app.route("/search_facility", methods=["GET"])
+def search_facility():
+    try:
+        search_term = request.args.get('query', '')
+        if not search_term:
+            query_params = None
+        else:
+            query_params = {'name': search_term}
+        results  = API.make_request(
+            API.METHOD.GET,
+            API.DATA_ENDPOINT.FACILITY,
+            query_params=query_params
+        )
+    except API.APIError as e:
+        LOGGER.error(e)
+        results  = []
+
+    return render_template("search_results.html", results=results )
+
+
 # endregion HOME
 
 
