@@ -1,0 +1,55 @@
+{% extends 'layout.html' %}
+
+{% block title %}Home{% endblock %}
+
+
+{% block content %}
+
+<!-- Edit content here -->
+
+<div class="container">
+    <div>SEARCHBAR FOR FACILITIES (also better display for facilities, but that's obv)</div>
+    <br><br>
+    <ul>
+        {% for d in data %}
+        <li>
+            {% for key, value in d.items() %}
+
+            {% if key == 'images' %}
+            {% for img in value %}
+
+            <img src="{{ url_for('static', filename='images/' + img.image_path) }}"> 
+
+            {% endfor %}
+
+            {% else %}
+            <strong>{{ key }}:</strong> {{ value }}<br>
+            {% endif %}
+
+            {% endfor %}
+            {% if user_data.user_role.id_user_role == 2 %}
+            <h1>Image Upload</h1>
+            <form method="POST" action="/upload_facility_image" enctype="multipart/form-data">
+                <input type="file" name="file" accept=".jpg, .jpeg, .png, .gif">
+                <input type="submit" value="Upload">
+                <input type="hidden" name="id_facility" value="{{d.id_facility}}">
+            </form>
+            <form method="GET" action="/edit_facility">
+                <input type="submit" value="Edit">
+                <input type="hidden" name="id_facility" value="{{d.id_facility}}">
+            </form>
+            <form method="POST" action="/delete_facility">
+                <input type="submit" value="Delete">
+                <input type="hidden" name="id_facility" value="{{d.id_facility}}">
+            </form>
+            {% endif %}
+ 
+        </li>
+        <div>RESERVE</div>
+        <br><br>
+        {% endfor %}
+    </ul>
+</div>
+
+
+{% endblock %}

@@ -231,9 +231,6 @@ def update_user_role(
 
 @app.post("/user/", response_model=schemas.User, tags=["Users"])
 def add_user(
-    current_user: Annotated[
-        schemas.User, Security(get_current_user, scopes=["user"])
-    ],
     user: schemas.UserCreate,
     db: Session = Depends(get_db),
 ):
@@ -290,7 +287,7 @@ def get_users(
     return results
 
 
-@app.get("/user/check_if_email_exists", tags=["Users"])
+@app.get("/action/check_if_email_exists", tags=["Actions"])
 def check_if_username_in_db(
     email: str,
     db: Session = Depends(get_db),

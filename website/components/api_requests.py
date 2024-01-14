@@ -49,6 +49,7 @@ class ACTION_ENDPOINT(Enum):
 
     CHECK_AVAILABILITY = auto()
     RESERVE = auto()
+    CHECK_IF_EMAIL_EXISTS = auto()
 
 
 class REQUEST_FORMAT(Enum):
