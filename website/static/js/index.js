@@ -105,6 +105,55 @@ $("#submit_login").submit(function (e) {
   // Make the POST request
 });
 
+$("#submit_password_reset").submit(function (e) {
+    e.preventDefault();
+  
+    var form = $(this).closest('form');
+    var formData = $(this).closest('form').serialize();
+  
+    $.ajax({
+        type: "POST",
+        url: "http://localhost:9000/reset_password",
+        data: formData,
+        success: function (response) {
+            $("#password_reset_response").html(response["response"]);
+        },
+        error: function (xhr, status, error) {
+        if (xhr.status === 500) {
+            var errorResponse = $.parseJSON(xhr.responseText);
+            $("#password_reset_response").html(errorResponse.response);
+            form[0].reset();
+        }
+        }
+    });
+});
+
+$("#submit_edit_account_info").click(function (e) {
+    e.preventDefault();
+  
+    var form = $(this).closest('form');
+    var formData = $(this).closest('form').serialize();
+  
+    $.ajax({
+        type: "POST",
+        url: "http://localhost:9000/edit_account_info",
+        data: formData,
+        success: function (response) {
+            $("#edit_account_info_response").html(response["response"]);
+        },
+        error: function (xhr, status, error) {
+        if (xhr.status === 404) {
+            var errorResponse = $.parseJSON(xhr.responseText);
+            $("#edit_account_info_response").html(errorResponse.response);
+        }
+        if (xhr.status === 500) {
+            var errorResponse = $.parseJSON(xhr.responseText);
+            $("#edit_account_info_response").html(errorResponse.response);
+            form[0].reset();
+        }
+        }
+    });
+});
 
 $("#submit_edit").click(function (e) {
     e.preventDefault();
@@ -132,7 +181,6 @@ $("#submit_edit").click(function (e) {
         }
     });
 });
-
 
 $("#submit_logo").click(function (e) {
     e.preventDefault();

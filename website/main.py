@@ -90,11 +90,17 @@ def user_data():
 
 @app.route("/login", methods=["GET"])
 def login_site():
+    CHECKER = CHECK_IF_NO_SESSION()
+    if CHECKER:
+        return CHECKER
     return render_template("login.html")
 
 
 @app.route("/login", methods=["POST"])
 def login():
+    CHECKER = CHECK_IF_NO_SESSION()
+    if CHECKER:
+        return CHECKER
     email = str(request.form.get("email"))
     password = str(request.form.get("password"))
 
@@ -122,11 +128,17 @@ def logout():
 
 @app.route("/register", methods=["GET"])
 def register_site():
+    CHECKER = CHECK_IF_NO_SESSION()
+    if CHECKER:
+        return CHECKER
     return render_template("register.html")
 
 
 @app.route("/register", methods=["POST"])
 def register():
+    CHECKER = CHECK_IF_NO_SESSION()
+    if CHECKER:
+        return CHECKER
     msg = ""
     email = str(request.form["email"])
     password = str(request.form["password"])
@@ -161,7 +173,7 @@ def register():
                 },
                 get_token_from_session=False,
             )
-            msg = "You have successfully registered !"
+            msg = "You have successfully registered!"
         except API.APIError as e:
             LOGGER.info(e)
             return make_response(jsonify({"response": str(e)}), 500)
@@ -179,6 +191,9 @@ def register():
 
 @app.route("/add_facility", methods=["GET"])
 def add_facility_site():
+    CHECKER = CHECK_IF_ADMIN_STATUS()
+    if CHECKER:
+        return CHECKER
     try:
         data = API.make_request(
             API.METHOD.GET,
@@ -192,6 +207,9 @@ def add_facility_site():
 
 @app.route("/add_facility", methods=["POST"])
 def add_facility():
+    CHECKER = CHECK_IF_ADMIN_STATUS()
+    if CHECKER:
+        return CHECKER
     try:
         facility_name = str(request.form.get("name"))
         description = str(request.form.get("description"))
@@ -222,8 +240,8 @@ def add_facility():
                 },
             )
         except exc.UniqueConstraintViolated as e:
-            LOGGER.error("Nie mozna dodac obiektu")
-            raise exc.UniqueConstraintViolated("Nie mozna dodac obiektu")
+            LOGGER.error("Can't add the facility")
+            raise exc.UniqueConstraintViolated("Can't add the facility")
 
     except exc.UniqueConstraintViolated as e:
         LOGGER.error(traceback.format_exc())
@@ -242,6 +260,9 @@ def add_facility():
 
 @app.route("/upload_facility_image", methods=["POST"])
 def upload_facility_image():
+    CHECKER = CHECK_IF_ADMIN_STATUS()
+    if CHECKER:
+        return CHECKER
     LOGGER.error(request.files)
     id_facility = int(request.form.get("id_facility"))
     if "file" not in request.files:
@@ -280,6 +301,9 @@ def upload_facility_image():
 
 @app.route("/edit_facility", methods=["GET"])
 def edit_facility_site():
+    CHECKER = CHECK_IF_ADMIN_STATUS()
+    if CHECKER:
+        return CHECKER
     try:
         id_facility = int(request.args.get("id_facility"))
         data = API.make_request(
@@ -299,6 +323,9 @@ def edit_facility_site():
 
 @app.route("/edit_facility", methods=["POST"])
 def edit_facility():
+    CHECKER = CHECK_IF_ADMIN_STATUS()
+    if CHECKER:
+        return CHECKER
     try:
         id_facility = int(request.form.get("id_facility"))
         facility_name = str(request.form.get("name"))
@@ -329,12 +356,12 @@ def edit_facility():
                     "id_facility_type": id_facility_type,
                     "id_address": address[0]["id_address"],
                     "id_company": 1,
-                    "ids_open_hours": [1],  # zastanowic sie
+                    "ids_open_hours": [],  # zastanowic sie
                 },
             )
         except exc.UniqueConstraintViolated as e:
-            LOGGER.error("Nie mozna dodac obiektu")
-            raise exc.UniqueConstraintViolated("Nie mozna dodac obiektu")
+            LOGGER.error("Can't edit the facility")
+            raise exc.UniqueConstraintViolated("Can't edit the facility")
 
     except exc.UniqueConstraintViolated as e:
         LOGGER.error(traceback.format_exc())
@@ -353,6 +380,9 @@ def edit_facility():
 
 @app.route("/delete_facility", methods=["POST"])
 def delete_facility():
+    CHECKER = CHECK_IF_ADMIN_STATUS()
+    if CHECKER:
+        return CHECKER
     id_facility = int(request.form.get("id_facility"))
     try:
         API.make_request(
@@ -362,7 +392,7 @@ def delete_facility():
         )
     except API.APIError as e:
         LOGGER.info(e)
-        raise exc.UniqueConstraintViolated("Nie udalo sie usunac danego obiektu")
+        raise exc.UniqueConstraintViolated("Couldn't delete the facility")
 
     except exc.UniqueConstraintViolated as e:
         return make_response(jsonify({"response": str(e)}), 500)
@@ -378,17 +408,97 @@ def delete_facility():
 
 @app.route("/my_account", methods=["GET"])
 def my_account_site():
+    CHECKER = CHECK_IF_LOGGED_IN()
+    if CHECKER:
+        return CHECKER
     return render_template("my_account.html")
 
+@app.route("/edit_account_info", methods=["POST"])
+def edit_account_info():
+    CHECKER = CHECK_IF_LOGGED_IN()
+    if CHECKER:
+        return CHECKER
+    try:
+        name = str(request.form.get("name"))
+        lastname = str(request.form.get("lastname"))
+        phone_number = str(request.form.get("phone_number"))
+        try:
+            API.make_request(
+                API.METHOD.PUT,
+                API.DATA_ENDPOINT.USER,
+                query_params={
+                    "id_user": user_data()['user_data']['id_user'],
+                    "name": name,
+                    "lastname": lastname,
+                    "phone_number": phone_number,
+                },
+            )
+        except exc.UniqueConstraintViolated as e:
+            LOGGER.error("Couldn't edit user info. Try again.")
+            raise exc.UniqueConstraintViolated("Couldn't edit user info. Try again.")
+        
+    except exc.UniqueConstraintViolated as e:
+        LOGGER.error(traceback.format_exc())
+        return make_response(jsonify({"response": str(e)}), 500)
+    except NoResultFound as e:
+        LOGGER.error(traceback.format_exc())
+        return make_response(jsonify({"response": str(e)}), 404)
+    except API.APIError as e:
+        LOGGER.error(traceback.format_exc())
+        return make_response(jsonify({"response": "API ERROR"}), 500)
+    except ValueError as e:
+        LOGGER.error(traceback.format_exc())
+        return make_response(jsonify({"response": str(e)}), 500)
+    return make_response(jsonify({"response": "success"}), 200)
 
+   
 # endregion MY ACCOUNT
 
+# region RESETTING PASSWORD
+
+@app.route("/reset_password", methods=["GET"])
+def reset_password_site():
+    CHECKER = CHECK_IF_LOGGED_IN()
+    if CHECKER:
+        return CHECKER
+    return render_template("reset_password.html")
+
+@app.route("/reset_password", methods=["POST"])
+def reset_password():
+    CHECKER = CHECK_IF_LOGGED_IN()
+    if CHECKER:
+        return CHECKER
+    try: 
+        old_password = str(request.form.get("old_password"))
+        new_password = str(request.form.get("new_password"))
+        repeat_password = str(request.form.get("repeat_password"))
+        if repeat_password != new_password:
+            raise exc.UniqueConstraintViolated("Passwords don't match.")
+    except exc.UniqueConstraintViolated as e:
+        LOGGER.error(traceback.format_exc())
+        return make_response(jsonify({"response": str(e)}), 500)
+    except NoResultFound as e:
+        LOGGER.error(traceback.format_exc())
+        return make_response(jsonify({"response": str(e)}), 404)
+    except API.APIError as e:
+        LOGGER.error(traceback.format_exc())
+        return make_response(jsonify({"response": "API ERROR"}), 500)
+    except ValueError as e:
+        LOGGER.error(traceback.format_exc())
+        return make_response(jsonify({"response": str(e)}), 500)
+    return make_response(jsonify({"response": "success"}), 200)
+
+
+# endregion RESETTING PASSWORD
 
 # region ADMIN PANEL
 
 
 @app.route("/admin_panel", methods=["GET"])
 def admin_panel_site():
+    CHECKER = CHECK_IF_ADMIN_STATUS()
+    if CHECKER:
+        return CHECKER
     return render_template("admin_panel.html")
 
 
@@ -397,13 +507,17 @@ def admin_panel_site():
 
 @app.route("/edit_site", methods=["GET"])
 def edit_site_site():
-    if(session.get('token') is None or user_data()['user_data']['user_role']['name'] != "Admin"):
-        return redirect(url_for("index"))
+    CHECKER = CHECK_IF_ADMIN_STATUS()
+    if CHECKER:
+        return CHECKER
     return render_template("edit_site.html")
 
 
 @app.route("/edit_site", methods=["POST"])
 def edit_site():
+    CHECKER = CHECK_IF_ADMIN_STATUS()
+    if CHECKER:
+        return CHECKER
     try:
         company_name = str(request.form.get("name"))
         nip = str(request.form.get("nip"))
@@ -431,8 +545,8 @@ def edit_site():
                 },
             )
         except exc.UniqueConstraintViolated as e:
-            LOGGER.error("Nie mozna dodac obiektu")
-            raise exc.UniqueConstraintViolated("Nie mozna dodac obiektu")
+            LOGGER.error("Couldn't edit site info. Try again.")
+            raise exc.UniqueConstraintViolated("Couldn't edit site info. Try again.")
 
     except exc.UniqueConstraintViolated as e:
         LOGGER.error(traceback.format_exc())
@@ -451,6 +565,9 @@ def edit_site():
 
 @app.route("/upload_logo", methods=["POST"])
 def upload_logo():
+    CHECKER = CHECK_IF_ADMIN_STATUS()
+    if CHECKER:
+        return CHECKER
     if "file" not in request.files:
         LOGGER.error("No file passed.")
         return make_response(jsonify({"response": "404"}), 404)
@@ -458,11 +575,11 @@ def upload_logo():
     try:
         file = request.files["file"]
         if file.filename == "":
-            raise images_handler.ImageHandlerError("Nie podałeś zdjęcia")
+            raise images_handler.ImageHandlerError("Please upload an image")
         else:
             file.filename = 'logo.png'
     except images_handler.ImageHandlerError as e:
-        LOGGER.error(traceback.format_exc());
+        LOGGER.error(traceback.format_exc())
         return make_response(jsonify({"response": str(e)}), 500)
     
     try:
@@ -470,7 +587,7 @@ def upload_logo():
 
     except images_handler.ImageHandlerError as e:
         LOGGER.error("Error uploading image: " + str(e))
-        LOGGER.error(traceback.format_exc());
+        LOGGER.error(traceback.format_exc())
         return make_response(jsonify({"response": str(e)}), 500)
 
     return make_response(jsonify({"response": "Logo Uploaded Successfully"}), 200)
@@ -485,6 +602,9 @@ def upload_logo():
 
 
 def get_or_create_address(city_name, state_name, street_name, building_no, postal_code):
+    CHECKER = CHECK_IF_LOGGED_IN()
+    if CHECKER:
+        return CHECKER
     try:
         API.make_request(
             API.METHOD.POST, API.DATA_ENDPOINT.CITY, body={"name": city_name}
@@ -529,7 +649,26 @@ def get_or_create_address(city_name, state_name, street_name, building_no, posta
 
     return address
 
+def CHECK_IF_LOGGED_IN():
+    try:
+        if(session.get('token') is None):
+            return redirect(url_for("index"))
+    except Exception as e:
+        make_response(jsonify({"response": "Something went wrong with checking your logged in status. Error:" + str(e)}), 500)
 
+def CHECK_IF_ADMIN_STATUS():
+    try:
+        if(session.get('token') is None or user_data()['user_data']['user_role']['name'] != "Admin"):
+            return redirect(url_for("index"))
+    except Exception as e:
+        make_response(jsonify({"response": "Something went wrong with checking your admin privileges. Error:" + str(e)}), 500)
+
+def CHECK_IF_NO_SESSION(): 
+    try:
+        if(session.get("token") is not None):
+            return redirect(url_for("index"))
+    except Exception as e:
+        make_response(jsonify({"response": "Something went wrong with checking your logged out status. Error:" + str(e)}), 500)
 # endregion ACTIONS
 
 
