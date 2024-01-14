@@ -30,6 +30,9 @@ app.secret_key = "secret"
 app.config["UPLOAD_FOLDER"] = images_handler.IMAGES_DIR
 
 
+# region HOME
+
+
 @app.route("/", methods=["GET"])
 def index():
     try:
@@ -42,6 +45,12 @@ def index():
         data = []
 
     return render_template("home.html", data=data)
+
+
+# endregion HOME
+
+
+# region CONTEXT PROCESSORS
 
 
 @app.context_processor
@@ -58,6 +67,7 @@ def company_data():
 
     return dict(footer_data=footer_data)
 
+
 @app.context_processor
 def user_data():
     try:
@@ -70,6 +80,12 @@ def user_data():
         user_data = dict()
 
     return dict(user_data=user_data)
+
+
+# endregion CONTEXT PROCESSORS
+
+
+# region LOGIN
 
 
 @app.route("/login", methods=["GET"])
@@ -96,6 +112,12 @@ def login():
 def logout():
     session.pop("token", None)
     return redirect(url_for("login"))
+
+
+# endregion LOGIN
+
+
+# region REGISTER
 
 
 @app.route("/register", methods=["GET"])
@@ -147,6 +169,12 @@ def register():
         LOGGER.info("No parameter found..")
         msg = "Account already exists!"
     return make_response(jsonify({"response": msg}), 200)
+
+
+# endregion REGISTER
+
+
+# region FACILITY
 
 
 @app.route("/add_facility", methods=["GET"])
@@ -210,97 +238,6 @@ def add_facility():
         LOGGER.error(traceback.format_exc())
         return make_response(jsonify({"response": str(e)}), 500)
     return make_response(jsonify({"response": "success"}), 200)
-
-
-@app.route("/my_account", methods=["GET"])
-def my_account_site():
-    return render_template("my_account.html")
-
-
-@app.route("/admin_panel", methods=["GET"])
-def admin_panel_site():
-    return render_template("admin_panel.html")
-
-
-@app.route("/edit_site", methods=["GET"])
-def edit_site_site():
-    if(session.get('token') is None or user_data()['user_data']['user_role']['name'] != "Admin"):
-        return redirect(url_for("index"))
-    return render_template("edit_site.html")
-
-
-@app.route("/edit_site", methods=["POST"])
-def edit_site():
-    try:
-        company_name = str(request.form.get("name"))
-        nip = str(request.form.get("nip"))
-        phone_number = str(request.form.get("phone_number"))
-        city_name = str(request.form.get("city")).capitalize()
-        street_name = str(request.form.get("street_name")).capitalize()
-        state_name = str(request.form.get("state"))
-        building_no = int(request.form.get("building_number"))
-        postal_code = str(request.form.get("postal_code"))
-
-        address = get_or_create_address(
-            city_name, state_name, street_name, building_no, postal_code
-        )
-
-        try:
-            API.make_request(
-                API.METHOD.PUT,
-                API.DATA_ENDPOINT.COMPANY,
-                query_params={
-                    "id_company": 1,
-                    "name": company_name,
-                    "nip": nip,
-                    "phone_number": phone_number,
-                    "id_address": address[0]["id_address"],
-                },
-            )
-        except exc.UniqueConstraintViolated as e:
-            LOGGER.error("Nie mozna dodac obiektu")
-            raise exc.UniqueConstraintViolated("Nie mozna dodac obiektu")
-
-    except exc.UniqueConstraintViolated as e:
-        LOGGER.error(traceback.format_exc())
-        return make_response(jsonify({"response": str(e)}), 500)
-    except NoResultFound as e:
-        LOGGER.error(traceback.format_exc())
-        return make_response(jsonify({"response": str(e)}), 404)
-    except API.APIError as e:
-        LOGGER.error(traceback.format_exc())
-        return make_response(jsonify({"response": "API ERROR"}), 500)
-    except ValueError as e:
-        LOGGER.error(traceback.format_exc())
-        return make_response(jsonify({"response": str(e)}), 500)
-    return make_response(jsonify({"response": "success"}), 200)
-
-
-@app.route("/upload_logo", methods=["POST"])
-def upload_logo():
-    if "file" not in request.files:
-        LOGGER.error("No file passed.")
-        return make_response(jsonify({"response": "404"}), 404)
-
-    try:
-        file = request.files["file"]
-        if file.filename == "":
-            raise images_handler.ImageHandlerError("Nie podałeś zdjęcia")
-        else:
-            file.filename = 'logo.png'
-    except images_handler.ImageHandlerError as e:
-        LOGGER.error(traceback.format_exc());
-        return make_response(jsonify({"response": str(e)}), 500)
-    
-    try:
-        images_handler.upload_image(file)
-
-    except images_handler.ImageHandlerError as e:
-        LOGGER.error("Error uploading image: " + str(e))
-        LOGGER.error(traceback.format_exc());
-        return make_response(jsonify({"response": str(e)}), 500)
-
-    return make_response(jsonify({"response": "Logo Uploaded Successfully"}), 200)
 
 
 @app.route("/upload_facility_image", methods=["POST"])
@@ -433,6 +370,120 @@ def delete_facility():
     return redirect(url_for("index"))
 
 
+# endregion FACILITY
+
+
+# region MY ACCOUNT
+
+
+@app.route("/my_account", methods=["GET"])
+def my_account_site():
+    return render_template("my_account.html")
+
+
+# endregion MY ACCOUNT
+
+
+# region ADMIN PANEL
+
+
+@app.route("/admin_panel", methods=["GET"])
+def admin_panel_site():
+    return render_template("admin_panel.html")
+
+
+# region EDIT SITE
+
+
+@app.route("/edit_site", methods=["GET"])
+def edit_site_site():
+    if(session.get('token') is None or user_data()['user_data']['user_role']['name'] != "Admin"):
+        return redirect(url_for("index"))
+    return render_template("edit_site.html")
+
+
+@app.route("/edit_site", methods=["POST"])
+def edit_site():
+    try:
+        company_name = str(request.form.get("name"))
+        nip = str(request.form.get("nip"))
+        phone_number = str(request.form.get("phone_number"))
+        city_name = str(request.form.get("city")).capitalize()
+        street_name = str(request.form.get("street_name")).capitalize()
+        state_name = str(request.form.get("state"))
+        building_no = int(request.form.get("building_number"))
+        postal_code = str(request.form.get("postal_code"))
+
+        address = get_or_create_address(
+            city_name, state_name, street_name, building_no, postal_code
+        )
+
+        try:
+            API.make_request(
+                API.METHOD.PUT,
+                API.DATA_ENDPOINT.COMPANY,
+                query_params={
+                    "id_company": 1,
+                    "name": company_name,
+                    "nip": nip,
+                    "phone_number": phone_number,
+                    "id_address": address[0]["id_address"],
+                },
+            )
+        except exc.UniqueConstraintViolated as e:
+            LOGGER.error("Nie mozna dodac obiektu")
+            raise exc.UniqueConstraintViolated("Nie mozna dodac obiektu")
+
+    except exc.UniqueConstraintViolated as e:
+        LOGGER.error(traceback.format_exc())
+        return make_response(jsonify({"response": str(e)}), 500)
+    except NoResultFound as e:
+        LOGGER.error(traceback.format_exc())
+        return make_response(jsonify({"response": str(e)}), 404)
+    except API.APIError as e:
+        LOGGER.error(traceback.format_exc())
+        return make_response(jsonify({"response": "API ERROR"}), 500)
+    except ValueError as e:
+        LOGGER.error(traceback.format_exc())
+        return make_response(jsonify({"response": str(e)}), 500)
+    return make_response(jsonify({"response": "success"}), 200)
+
+
+@app.route("/upload_logo", methods=["POST"])
+def upload_logo():
+    if "file" not in request.files:
+        LOGGER.error("No file passed.")
+        return make_response(jsonify({"response": "404"}), 404)
+
+    try:
+        file = request.files["file"]
+        if file.filename == "":
+            raise images_handler.ImageHandlerError("Nie podałeś zdjęcia")
+        else:
+            file.filename = 'logo.png'
+    except images_handler.ImageHandlerError as e:
+        LOGGER.error(traceback.format_exc());
+        return make_response(jsonify({"response": str(e)}), 500)
+    
+    try:
+        images_handler.upload_image(file)
+
+    except images_handler.ImageHandlerError as e:
+        LOGGER.error("Error uploading image: " + str(e))
+        LOGGER.error(traceback.format_exc());
+        return make_response(jsonify({"response": str(e)}), 500)
+
+    return make_response(jsonify({"response": "Logo Uploaded Successfully"}), 200)
+
+
+# endregion EDIT SITE
+
+# endregion ADMIN PANEL
+
+
+# region ACTIONS
+
+
 def get_or_create_address(city_name, state_name, street_name, building_no, postal_code):
     try:
         API.make_request(
@@ -477,6 +528,9 @@ def get_or_create_address(city_name, state_name, street_name, building_no, posta
         raise e
 
     return address
+
+
+# endregion ACTIONS
 
 
 if __name__ == "__main__":
