@@ -449,7 +449,7 @@ def my_account_site():
         return CHECKER
     return render_template("my_account.html")
 
-@app.route("/edit_account_info", methods=["POST"])
+@app.route("/edit_account_info", methods=["PUT"])
 def edit_account_info():
     CHECKER = CHECK_IF_LOGGED_IN()
     if CHECKER:
@@ -461,9 +461,8 @@ def edit_account_info():
         try:
             API.make_request(
                 API.METHOD.PUT,
-                API.DATA_ENDPOINT.USER,
+                API.DATA_ENDPOINT.ME,
                 query_params={
-                    "id_user": user_data()['user_data']['id_user'],
                     "name": name,
                     "lastname": lastname,
                     "phone_number": phone_number,
@@ -481,7 +480,7 @@ def edit_account_info():
         return make_response(jsonify({"response": str(e)}), 404)
     except API.APIError as e:
         LOGGER.error(traceback.format_exc())
-        return make_response(jsonify({"response": "API ERROR"}), 500)
+        return make_response(jsonify({"response": str(e)}), 500)
     except ValueError as e:
         LOGGER.error(traceback.format_exc())
         return make_response(jsonify({"response": str(e)}), 500)

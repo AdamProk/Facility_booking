@@ -135,7 +135,7 @@ $("#submit_edit_account_info").click(function (e) {
     var formData = $(this).closest('form').serialize();
   
     $.ajax({
-        type: "POST",
+        type: "PUT",
         url: "http://localhost:9000/edit_account_info",
         data: formData,
         success: function (response) {
