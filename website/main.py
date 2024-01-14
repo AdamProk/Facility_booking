@@ -299,10 +299,6 @@ def edit_facility_site():
             API.METHOD.GET,
             API.DATA_ENDPOINT.FACILITY_TYPE
         )
-        open_hours = data[0]["open_hours"]
-        LOGGER.error(open_hours)
-        sorted_open_hours = sorted(open_hours, key=lambda x: open_hours.index(x))
-        LOGGER.error(sorted_open_hours)
     except API.APIError as e:
         LOGGER.error(e)
         data = []
