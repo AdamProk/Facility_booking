@@ -5,21 +5,30 @@ from sqlalchemy import and_, or_
 from . import models, schemas
 
 
-def dict_query_and(model, query_dict, db=None):
+def dict_query_and(model, query_dict, db=None, exact=True):
     db = query_dict.pop("db", None)
     if db is None:
-        raise DatabaseError(
-            "No connection with the database was provided"
-        )
+        raise DatabaseError("No connection with the database was provided")
     if len(query_dict) > 0:  # If query contains any criteria
-        q = db.query(model).filter(
-            and_(
-                *(
-                    getattr(model, key) == value
-                    for key, value in query_dict.items()
+        if exact:
+            q = db.query(model).filter(
+                and_(
+                    *(
+                        getattr(model, key) == value
+                        for key, value in query_dict.items()
+                    )
                 )
             )
-        )
+        else:
+            q = db.query(model).filter(
+                and_(
+                    *(
+                        getattr(model, key).like(f"%{value}%")
+                        for key, value in query_dict.items()
+                    )
+                )
+            )
+
     else:  # If query is empty: return all users
         q = db.query(model)
 
@@ -120,7 +129,9 @@ def get_users(
     query_dict = {k: v for k, v in locals().items() if v is not None}
 
     if user_role_name:
-        roles = get_user_roles(db, name=query_dict.pop("user_role_name").capitalize())
+        roles = get_user_roles(
+            db, name=query_dict.pop("user_role_name").capitalize()
+        )
         if len(roles) < 1:
             return []
         query_dict["user_role_id"] = roles[0].id_user_role
@@ -452,7 +463,9 @@ def get_addresses(
         query_dict["id_city"] = results[0].id_city
 
     if state_name is not None:
-        results = get_states(db, name=query_dict.pop("state_name").capitalize())
+        results = get_states(
+            db, name=query_dict.pop("state_name").capitalize()
+        )
         if len(results) < 1:
             return []
         query_dict["id_state"] = results[0].id_state
@@ -822,6 +835,16 @@ def get_facilities(
     return dict_query_and(models.Facility, query_dict)
 
 
+def search_facilities(
+    db,
+    name=None,
+    description=None,
+):
+    query_dict = {k: v for k, v in locals().items() if v is not None}
+
+    return dict_query_and(models.Facility, query_dict, exact=False)
+
+
 def delete_facility(db: Session, facility_id: int):
     query = db.query(models.Facility).filter(
         models.Facility.id_facility == facility_id
@@ -868,13 +891,19 @@ def update_facility(
         if value is not None:
             setattr(facility, key, value)
 
-    for id_open_hour in ids_open_hours:
-        results = get_open_hours(db, id_open_hours=id_open_hour)
-        if len(results) < 1:
-            raise NoResultFound(
-                "No open_hours with specified id in the database."
-            )
-        facility.open_hours.append(results[0])
+    if ids_open_hours:
+        for open_hour in facility.open_hours:
+            open_hour.facilities.remove(facility)
+
+        for open_hour in facility.open_hours:
+            facility.open_hours.remove(open_hour)
+        for id_open_hour in ids_open_hours:
+            results = get_open_hours(db, id_open_hours=id_open_hour)
+            if len(results) < 1:
+                raise NoResultFound(
+                    "No open_hours with specified id in the database."
+                )
+            facility.open_hours.append(results[0])
 
     db.commit()
 
@@ -886,19 +915,18 @@ def update_facility(
 
 # region RESERVATIONS
 
+
 def add_reservation(db: Session, reservation: schemas.ReservationCreate):
     users = get_users(db, id_user=reservation.id_user)
     statuses = get_reservation_statuses(
         db, id_reservation_status=reservation.id_status
     )
-    facilities = get_facilities(db,id_facility=reservation.id_facility)
+    facilities = get_facilities(db, id_facility=reservation.id_facility)
 
     if len(users) < 1:
         raise NoResultFound("No user with specified id in the database.")
     if len(statuses) < 1:
-        raise NoResultFound(
-            "No status with specified id in the database."
-        )
+        raise NoResultFound("No status with specified id in the database.")
     if len(facilities) < 1:
         raise NoResultFound("No facility with specified id in the database.")
 
@@ -918,7 +946,7 @@ def get_reservations(
     price_final=None,
     id_user=None,
     id_facility=None,
-    id_status=None
+    id_status=None,
 ):
     query_dict = {k: v for k, v in locals().items() if v is not None}
 
@@ -946,7 +974,7 @@ def update_reservation(
     price_final=None,
     id_user=None,
     id_facility=None,
-    id_status=None
+    id_status=None,
 ):
     reservation = (
         db.query(models.Reservation)

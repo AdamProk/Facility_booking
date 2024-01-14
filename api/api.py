@@ -74,7 +74,7 @@ def get_db(request: Request):
 # region SECURITY
 
 
-@app.get("/me", response_model=schemas.User)
+@app.get("/me", response_model=schemas.User, tags=['Security'])
 async def get_current_user(
     security_scopes: SecurityScopes,
     token: Annotated[str, Depends(oauth2_scheme)],
@@ -112,7 +112,41 @@ async def get_current_user(
     return user
 
 
-@app.post("/token", response_model=schemas.Token)
+@app.put("/me/", response_model=schemas.User, tags=["Security"])
+def update_me(
+    current_user: Annotated[
+        schemas.User, Security(get_current_user, scopes=["user"])
+    ],
+    email: str = Query(None),
+    password: str = Query(None),
+    name: str = Query(None),
+    lastname: str = Query(None),
+    phone_number: str = Query(None),
+    db: Session = Depends(get_db),
+):
+    try:
+        results = crud.update_user(
+            db=db,
+            id_user=current_user.id_user,
+            email=email,
+            password=cm.get_password_hash(password) if password else None,
+            name=name,
+            lastname=lastname,
+            phone_number=phone_number,
+        )
+    except IntegrityError:
+        raise HTTPException(
+            status_code=500,
+            detail="Incorrect user information. Unique constraint violated.",
+        )
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No occurence found in the database."
+        )
+    return results
+
+
+@app.post("/token", response_model=schemas.Token, tags=['Security'])
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Session = Depends(get_db),
@@ -314,6 +348,7 @@ def update_user(
 ):
     try:
         del current_user
+        password = cm.get_password_hash(password)
         results = crud.update_user(**locals())
     except IntegrityError:
         raise HTTPException(
@@ -1168,6 +1203,28 @@ def get_facilities(
     try:
         del current_user
         results = crud.get_facilities(**locals())
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No occurence found in the database."
+        )
+    return results
+
+
+
+@app.get(
+    "/facility/search", response_model=list[schemas.Facility], tags=["Facilities"]
+)
+def search_facility(
+    current_user: Annotated[
+        schemas.User, Security(get_current_user, scopes=["user"])
+    ],
+    name: str = Query(None),
+    description: str = Query(None),
+    db: Session = Depends(get_db),
+):
+    try:
+        del current_user
+        results = crud.search_facilities(**locals())
     except NoResultFound:
         raise HTTPException(
             status_code=404, detail="No occurence found in the database."
