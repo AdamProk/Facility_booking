@@ -47,6 +47,26 @@ def index():
     return render_template("home.html", data=data)
 
 
+@app.route("/search_facility", methods=["GET"])
+def search_facility():
+    try:
+        search_term = request.args.get('query', '')
+        if not search_term:
+            query_params = None
+        else:
+            query_params = {'name': search_term}
+        results  = API.make_request(
+            API.METHOD.GET,
+            API.DATA_ENDPOINT.FACILITY,
+            query_params=query_params
+        )
+    except API.APIError as e:
+        LOGGER.error(e)
+        results  = []
+
+    return render_template("search_results.html", results=results )
+
+
 # endregion HOME
 
 
@@ -225,6 +245,14 @@ def add_facility():
             city_name, state_name, street_name, building_no, postal_code
         )
 
+        monday = get_or_create_open_hours("Monday", str(request.form.get("monday_start")), str(request.form.get("monday_end")))
+        tuesday = get_or_create_open_hours("Tuesday", str(request.form.get("tuesday_start")), str(request.form.get("tuesday_end")))
+        wednesday = get_or_create_open_hours("Wednesday", str(request.form.get("wednesday_start")), str(request.form.get("wednesday_end")))
+        thursday = get_or_create_open_hours("Thursday", str(request.form.get("thursday_start")), str(request.form.get("thursday_end")))
+        friday = get_or_create_open_hours("Friday", str(request.form.get("friday_start")), str(request.form.get("friday_end")))
+        saturday = get_or_create_open_hours("Saturday", str(request.form.get("saturday_start")), str(request.form.get("saturday_end")))
+        sunday = get_or_create_open_hours("Sunday", str(request.form.get("sunday_start")), str(request.form.get("sunday_end")))
+
         try:
             API.make_request(
                 API.METHOD.POST,
@@ -236,7 +264,7 @@ def add_facility():
                     "id_facility_type": id_facility_type,
                     "id_address": address[0]["id_address"],
                     "id_company": 1,
-                    "ids_open_hours": [1],  # zastanowic sie
+                    "ids_open_hours": [monday, tuesday, wednesday, thursday, friday, saturday, sunday]
                 },
             )
         except exc.UniqueConstraintViolated as e:
@@ -344,6 +372,14 @@ def edit_facility():
             city_name, state_name, street_name, building_no, postal_code
         )
 
+        monday = get_or_create_open_hours("Monday", str(request.form.get("monday_start")), str(request.form.get("monday_end")))
+        tuesday = get_or_create_open_hours("Tuesday", str(request.form.get("tuesday_start")), str(request.form.get("tuesday_end")))
+        wednesday = get_or_create_open_hours("Wednesday", str(request.form.get("wednesday_start")), str(request.form.get("wednesday_end")))
+        thursday = get_or_create_open_hours("Thursday", str(request.form.get("thursday_start")), str(request.form.get("thursday_end")))
+        friday = get_or_create_open_hours("Friday", str(request.form.get("friday_start")), str(request.form.get("friday_end")))
+        saturday = get_or_create_open_hours("Saturday", str(request.form.get("saturday_start")), str(request.form.get("saturday_end")))
+        sunday = get_or_create_open_hours("Sunday", str(request.form.get("sunday_start")), str(request.form.get("sunday_end")))
+
         try:
             API.make_request(
                 API.METHOD.PUT,
@@ -356,7 +392,7 @@ def edit_facility():
                     "id_facility_type": id_facility_type,
                     "id_address": address[0]["id_address"],
                     "id_company": 1,
-                    "ids_open_hours": [],  # zastanowic sie
+                    "ids_open_hours": [monday, tuesday, wednesday, thursday, friday, saturday, sunday]
                 },
             )
         except exc.UniqueConstraintViolated as e:
@@ -669,6 +705,38 @@ def CHECK_IF_NO_SESSION():
             return redirect(url_for("index"))
     except Exception as e:
         make_response(jsonify({"response": "Something went wrong with checking your logged out status. Error:" + str(e)}), 500)
+
+def get_or_create_open_hours(day_name, start_hour, end_hour):
+    try:
+        API.make_request(
+            API.METHOD.POST,
+            API.DATA_ENDPOINT.OPEN_HOUR,
+            body={
+                "day_name": day_name,
+                "start_hour": start_hour,
+                "end_hour": end_hour,
+            },
+        )
+    except API.APIError as e:
+        LOGGER.error("Hours already exists")
+
+    try:
+        open_hours = API.make_request(
+            API.METHOD.GET,
+            API.DATA_ENDPOINT.OPEN_HOUR,
+            query_params={
+                "day_name": day_name,
+                "start_hour": start_hour,
+                "end_hour": end_hour,
+            },
+        )
+        if not open_hours:
+            raise ValueError("Inappropriate Hours")
+    except ValueError as e:
+        raise e
+
+    return open_hours[0]["id_open_hours"]
+
 # endregion ACTIONS
 
 
