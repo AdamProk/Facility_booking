@@ -46,63 +46,6 @@ body {
     color: rgb(255, 255, 255);
 }
 
-/*************** F A C I L I T I E S ***************/
-
-.main_content {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-}
-
-.container {
-    background-color: #fff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    width: 80%;
-    border-radius: 5px;
-}
-
-ul {
-    list-style: none;
-    padding: 15px;
-
-}
-
-li {
-    background-color: #fff;
-    border-radius: 5px;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-    padding: 15px;
-}
-
-img {
-    max-width: 100%;
-    height: auto;
-    margin-bottom: 10px;
-    border-radius: 5px;
-}
-
-form {
-    display: inline-block;
-    margin-right: 10px;
-}
-
-.reserve-btn {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 20px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-
-
-
 /*************** F O O T E R ***************/
 
 

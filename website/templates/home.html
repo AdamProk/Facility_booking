@@ -20,7 +20,7 @@
     <img src="{{ url_for('static', filename='images/football_pitch_dark.jpg') }}", alt="Client main site image"/>
     <div class="img-overlay">
         <h1>
-            reserve you time.
+            reserve your time.
         </h1>
     </div>
 </div>
@@ -34,45 +34,45 @@
 </div>
 
 <div class="container" id="container">
-    <div>SEARCHBAR FOR FACILITIES (also better display for facilities, but that's obv)</div>
-    <br><br>
-    <ul>
-        {% for d in data %}
-        <li>
-            {% for key, value in d.items() %}
+    {% for d in data %}
+        <a href="/">
+            <div class="facilities">
+                <div class="facil_image">
+                    {% if d['images'] %}
+                        {% for img in d['images'] %}
+                                <img src="{{ url_for('static', filename='images/' + img.image_path) }}">
+                        {% endfor %}
+                    {% else %}
+                        <img src="{{ url_for('static', filename='images/no_image.jpg') }}" alt="no image available">
+                    {% endif %}
+                </div>
+                <div class="facil_info">
+                        <strong id="facil_name_strong">{{ d['name'] }}</strong>
+                        <output>{{ d['address']['city']['name'] }}</output>
+                        <output>{{ d['address']['street_name'] }} {{d['address']['building_number']}}</output>
+                        <output>{{ d['address']['postal_code'] }}, {{ d['address']['state']['name'] }}</output>
+                </div>
 
-            {% if key == 'images' %}
-            {% for img in value %}
-            <img src="{{ url_for('static', filename='images/' + img.image_path) }}">
-            {% endfor %}
-
-            {% else %}
-            <strong>{{ key }}:</strong> {{ value }}<br>
-            {% endif %}
-
-            {% endfor %}
-
-            {% if user_data.user_role.id_user_role == 2 %}
-            <div class="reserve-btn">RESERVE</div>
-            <form method="POST" action="/upload_facility_image" enctype="multipart/form-data">
-                <input type="file" name="file" accept=".jpg, .jpeg, .png, .gif">
-                <input type="submit" value="Upload">
-                <input type="hidden" name="id_facility" value="{{d.id_facility}}">
-            </form>
-            <form method="GET" action="/edit_facility">
-                <input type="submit" value="Edit">
-                <input type="hidden" name="id_facility" value="{{d.id_facility}}">
-            </form>
-            <form method="POST" action="/delete_facility">
-                <input type="submit" value="Delete">
-                <input type="hidden" name="id_facility" value="{{d.id_facility}}">
-            </form>
-            {% endif %}
-        </li>
-        <br><br>
-        {% endfor %}
-    </ul>
-</div>
+                {% if user_data.user_role.id_user_role == 2 %}
+                <div class="reserve-btn">RESERVE</div>
+                <form method="POST" action="/upload_facility_image" enctype="multipart/form-data">
+                    <input type="file" name="file" accept=".jpg, .jpeg, .png, .gif">
+                    <input type="submit" value="Upload">
+                    <input type="hidden" name="id_facility" value="{{d.id_facility}}">
+                </form>
+                <form method="GET" action="/edit_facility">
+                    <input type="submit" value="Edit">
+                    <input type="hidden" name="id_facility" value="{{d.id_facility}}">
+                </form>
+                <form method="POST" action="/delete_facility">
+                    <input type="submit" value="Delete">
+                    <input type="hidden" name="id_facility" value="{{d.id_facility}}">
+                </form>
+                {% endif %}
+            </div>
+        </a>
+    {% endfor %}
+</div> 
 
 {% endblock %}
 
