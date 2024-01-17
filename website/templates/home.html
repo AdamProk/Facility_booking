@@ -8,12 +8,15 @@
 <!-- Edit content here -->
 
 <div class="container">
-    <div>SEARCHBAR FOR FACILITIES (also better display for facilities, but that's obv)</div>
-    <br><br>
-    <ul>
+    <div>
+        <label for="search">Search Facilities:</label>
+        <input type="text" id="search" oninput="performSearch()">
+    </div>
+    <div id="searchResults"></div>
+    <ul id="facility_list">
         {% for d in data %}
         <li>
-            {% for key, value in d.items() %}
+            {% for key, value in d.items() %} 
 
             {% if key == 'images' %}
             {% for img in value %}
@@ -23,7 +26,9 @@
             {% endfor %}
 
             {% else %}
+            {% if key != 'company' %}
             <strong>{{ key }}:</strong> {{ value }}<br>
+            {% endif %}
             {% endif %}
 
             {% endfor %}
@@ -42,14 +47,17 @@
                 <input type="submit" value="Delete">
                 <input type="hidden" name="id_facility" value="{{d.id_facility}}">
             </form>
+            <br><br>
+            <div>RESERVE</div>
             {% endif %}
  
-        </li>
-        <div>RESERVE</div>
-        <br><br>
+        </li>     
         {% endfor %}
     </ul>
 </div>
+
+
+<script src="{{ url_for('static', filename='js/update_fac_list.js') }}"></script>
 
 
 {% endblock %}
