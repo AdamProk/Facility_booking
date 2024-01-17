@@ -638,10 +638,13 @@ def update_open_hour(
     update_dict = locals()
     del update_dict["db"]
 
-    days = get_days(db, day=day_name.capitalize())
-    if len(days) < 1:
-        raise NoResultFound("No day with specified name in the database.")
-    update_dict["id_day"] = days[0].id_day
+    if day_name:
+        days = get_days(db, day=day_name.capitalize())
+        if len(days) < 1:
+            raise NoResultFound("No day with specified name in the database.")
+        update_dict["id_day"] = days[0].id_day
+
+    del update_dict['day_name'] 
 
     for key, value in update_dict.items():
         if value is not None:

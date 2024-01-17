@@ -33,7 +33,7 @@ app.config["UPLOAD_FOLDER"] = images_handler.IMAGES_DIR
 # region HOME
 
 
-@app.route("/", methods=["GET"])
+@app.route("/", methods=["GET"], redirect_url="/error")
 def index():
     try:
         data = API.make_request(
@@ -101,6 +101,7 @@ def user_data():
 
     return dict(user_data=user_data)
 
+app.user_data = user_data
 
 # endregion CONTEXT PROCESSORS
 
@@ -110,9 +111,9 @@ def user_data():
 
 @app.route("/login", methods=["GET"])
 def login_site():
-    CHECKER = CHECK_IF_NO_SESSION()
-    if CHECKER:
-        return CHECKER
+    # CHECKER = CHECK_IF_NO_SESSION()
+    # if CHECKER:
+    #     return CHECKER
     return render_template("login.html")
 
 
