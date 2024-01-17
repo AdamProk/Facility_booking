@@ -1,0 +1,113 @@
+:root { /* NOT USED AT ALL, to be changed later on */
+    --primary_color: rgb(0, 0, 0);
+    --primary_bg_color: rgb(182, 178, 189);
+    --secondary_color: rgb(200, 200, 200);
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: #f2f2f2;
+
+    overflow-x: hidden;
+}
+
+/*************** N A V B A R ***************/
+
+.navbar {
+    width: 100vw;
+    height: 8vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+
+    background-color: transparent; 
+}
+.navbar a {
+    padding: 15px;
+    margin: 5px;
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+}
+.navbar a:hover {
+    color: rgb(255, 255, 255);
+}
+
+/*************** F A C I L I T I E S ***************/
+
+.main_content {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.container {
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 80%;
+    border-radius: 5px;
+}
+
+ul {
+    list-style: none;
+    padding: 15px;
+
+}
+
+li {
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    padding: 15px;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+form {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.reserve-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+
+
+
+/*************** F O O T E R ***************/
+
+
+.footer {
+    text-align: center;
+    padding: 10px;
+    width: 100%;
+}

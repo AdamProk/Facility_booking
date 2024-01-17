@@ -4,10 +4,36 @@
 
 
 {% block content %}
-
 <!-- Edit content here -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/home.css') }}" />
 
-<div class="container">
+
+<!-- Include jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="{{ url_for('static', filename='js/datepicker_handler.js') }}"></script>
+<!-- Include jQuery UI -->
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+
+<div class="main-graphic" id="main-graphic">
+    <img src="{{ url_for('static', filename='images/football_pitch_dark.jpg') }}", alt="Client main site image"/>
+    <div class="img-overlay">
+        <h1>
+            reserve you time.
+        </h1>
+    </div>
+</div>
+
+<div class="search-bar-wrap" id="search-bar">
+    <div class="search-bar">
+        <input type="text" placeholder="What are you looking for today ?...">
+        <!-- <input type="text" id="datepicker_1" placeholder="Select a date"> -->
+        <button>search</button>
+    </div>
+</div>
+
+<div class="container" id="container">
     <div>SEARCHBAR FOR FACILITIES (also better display for facilities, but that's obv)</div>
     <br><br>
     <ul>
@@ -17,9 +43,7 @@
 
             {% if key == 'images' %}
             {% for img in value %}
-
-            <img src="{{ url_for('static', filename='images/' + img.image_path) }}"> 
-
+            <img src="{{ url_for('static', filename='images/' + img.image_path) }}">
             {% endfor %}
 
             {% else %}
@@ -27,8 +51,9 @@
             {% endif %}
 
             {% endfor %}
+
             {% if user_data.user_role.id_user_role == 2 %}
-            <h1>Image Upload</h1>
+            <div class="reserve-btn">RESERVE</div>
             <form method="POST" action="/upload_facility_image" enctype="multipart/form-data">
                 <input type="file" name="file" accept=".jpg, .jpeg, .png, .gif">
                 <input type="submit" value="Upload">
@@ -43,13 +68,13 @@
                 <input type="hidden" name="id_facility" value="{{d.id_facility}}">
             </form>
             {% endif %}
- 
         </li>
-        <div>RESERVE</div>
         <br><br>
         {% endfor %}
     </ul>
 </div>
 
-
 {% endblock %}
+
+
+
