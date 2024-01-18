@@ -580,6 +580,28 @@ def upload_logo():
 # endregion ADMIN PANEL
 
 
+# region RESERVATIONS
+
+
+@app.route("/curr_reservations", methods=["GET"])
+def curr_reservations():
+    CHECKER = CHECK_IF_ADMIN_STATUS()
+    if CHECKER:
+        return CHECKER
+    try:
+        data = API.make_request(
+            API.METHOD.GET,
+            API.DATA_ENDPOINT.RESERVATION,
+        )
+    except API.APIError as e:
+        LOGGER.error(e)
+        data = []
+    return render_template("curr_reservations.html", data=data)
+
+
+# endregion RESERVATIONS
+
+
 # region ACTIONS
 
 
