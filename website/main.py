@@ -15,6 +15,7 @@ from flask import (
 import os
 from under_proxy import get_flask_app
 from werkzeug.utils import secure_filename
+from datetime import date, datetime, timedelta
 from components import images_handler
 from components import api_requests as API
 from components import exceptions as exc
@@ -236,7 +237,7 @@ def add_facility():
         sunday = get_or_create_open_hours("Sunday", str(request.form.get("sunday_start")), str(request.form.get("sunday_end")))
 
         try:
-            API.make_request(
+            fac = API.make_request(
                 API.METHOD.POST,
                 API.DATA_ENDPOINT.FACILITY,
                 body={
@@ -252,6 +253,45 @@ def add_facility():
         except exc.UniqueConstraintViolated as e:
             LOGGER.error("Can't add the facility")
             raise exc.UniqueConstraintViolated("Can't add the facility")
+        
+        
+        if "files" not in request.files or not request.files['files'].filename:
+            LOGGER.info("No images passed.")
+            return make_response(jsonify({"response": "success, no images added"}), 200)
+        
+        try:
+            files = request.files.getlist('files')
+            for file in files:
+                try:
+                    image_rel_path = images_handler.upload_image(file)
+
+                except images_handler.ImageHandlerError as e:
+                    LOGGER.error("Error uploading image: " + str(e))
+                    return redirect(url_for("index"))
+
+                try:
+                    API.make_request(
+                        API.METHOD.POST,
+                        API.DATA_ENDPOINT.IMAGE,
+                        body={
+                            "image_path": image_rel_path,
+                            "id_facility": fac['id_facility'],
+                        },
+                    )
+                except API.APIError as e:
+                    try:
+                        images_handler.remove_image(image_rel_path)
+                    except images_handler.ImageHandlerError:
+                        LOGGER.error("Failed to remove the image.")
+                    LOGGER.error(
+                        "Failed to put image in the database. It was removed from images folder."
+                        + str(e)
+                    )
+        except images_handler.ImageHandlerError as e:
+            LOGGER.error("Error uploading image: " + str(e))
+            LOGGER.error(traceback.format_exc())
+            return make_response(jsonify({"response": str(e)}), 500)
+
 
     except exc.UniqueConstraintViolated as e:
         LOGGER.error(traceback.format_exc())
@@ -414,7 +454,16 @@ def delete_facility():
 
 @app.route("/my_account", methods=["GET"], logged_in=True, redirect_url="/")
 def my_account_site():
-    return render_template("my_account.html")
+    try:
+        data = API.make_request(
+            API.METHOD.GET,
+            API.DATA_ENDPOINT.ME,
+        )
+    except API.APIError as e:
+        LOGGER.error(e)
+        data = []
+    return render_template("my_account.html", data=data, curr_date=date.today())
+
 
 @app.route("/edit_account_info", methods=["PUT"], logged_in=True, redirect_url="/")
 def edit_account_info():
@@ -583,11 +632,8 @@ def upload_logo():
 # region RESERVATIONS
 
 
-@app.route("/curr_reservations", methods=["GET"])
+@app.route("/curr_reservations", methods=["GET"], admin=True, redirect_url="/")
 def curr_reservations():
-    CHECKER = CHECK_IF_ADMIN_STATUS()
-    if CHECKER:
-        return CHECKER
     try:
         data = API.make_request(
             API.METHOD.GET,
@@ -596,7 +642,26 @@ def curr_reservations():
     except API.APIError as e:
         LOGGER.error(e)
         data = []
-    return render_template("curr_reservations.html", data=data)
+    return render_template("curr_reservations.html", data=data, curr_date=date.today())
+
+
+@app.route("/delete_reservation_admin", methods=["POST"], admin=True, redirect_url="/")
+def delete_reservation():
+    id_reservation = int(request.form.get("id_reservation"))
+    try:
+        API.make_request(
+            API.METHOD.DELETE,
+            API.DATA_ENDPOINT.RESERVATION,
+            query_params={"reservation_id": id_reservation},
+        )
+    except API.APIError as e:
+        LOGGER.info(e)
+        raise exc.UniqueConstraintViolated("Couldn't delete the reservation")
+
+    except exc.UniqueConstraintViolated as e:
+        return make_response(jsonify({"response": str(e)}), 500)
+
+    return redirect(url_for("curr_reservations"))
 
 
 # endregion RESERVATIONS
@@ -651,36 +716,53 @@ def get_or_create_address(city_name, state_name, street_name, building_no, posta
     return address
 
 
-def get_or_create_open_hours(day_name, start_hour, end_hour):
-    try:
-        API.make_request(
-            API.METHOD.POST,
-            API.DATA_ENDPOINT.OPEN_HOUR,
-            body={
-                "day_name": day_name,
-                "start_hour": start_hour,
-                "end_hour": end_hour,
-            },
-        )
-    except API.APIError as e:
-        LOGGER.error("Hours already exists")
+def get_or_create_open_hours(day_name, start_hour2, end_hour2):
+    start_hour2 = start_hour2[:5]
+    end_hour2 = end_hour2[:5]
+    start_hour = start_hour2.split(":", 1)
+    end_hour = end_hour2.split(":", 1) 
+    
+    if start_hour[1] != end_hour[1]:
+        raise ValueError("Wrong time interval inputted.")
+    if start_hour[0] >= end_hour[0]:
+        raise ValueError("Wrong time interval inputted.") 
+    if(start_hour[1] == "30" or start_hour[1] == "00"):
+    
+        try: 
+            API.make_request(
+                API.METHOD.POST,
+                API.DATA_ENDPOINT.OPEN_HOUR,
+                body={
+                    "day_name": day_name,
+                    "start_hour": start_hour2,
+                    "end_hour": end_hour2,
+                },
+            )
+        except API.APIError as e:
+            LOGGER.error("Hours already exists")
 
-    try:
-        open_hours = API.make_request(
-            API.METHOD.GET,
-            API.DATA_ENDPOINT.OPEN_HOUR,
-            query_params={
-                "day_name": day_name,
-                "start_hour": start_hour,
-                "end_hour": end_hour,
-            },
-        )
-        if not open_hours:
-            raise ValueError("Inappropriate Hours")
-    except ValueError as e:
-        raise e
+        try:
+            open_hours = API.make_request(
+                API.METHOD.GET,
+                API.DATA_ENDPOINT.OPEN_HOUR,
+                query_params={
+                    "day_name": day_name,
+                    "start_hour": start_hour2,
+                    "end_hour": end_hour2,
+                },
+            )
+            if not open_hours:
+                raise ValueError("Inappropriate Hours")
+        except ValueError as e:
+            raise e
 
     return open_hours[0]["id_open_hours"]
+
+
+@app.template_filter('string_to_datetime')
+def string_to_datetime(value):
+    return datetime.strptime(value, '%Y-%m-%d').date() - timedelta(days=1)
+
 
 # endregion ACTIONS
 

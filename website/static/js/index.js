@@ -1,30 +1,33 @@
-$("#submit_facility").click(function (e) {
+$("#submit_facility").submit(function (e) {
     e.preventDefault();
-  
+
     var form = $(this).closest('form');
-    var formData = $(this).closest('form').serialize();
-  
+    var formData = new FormData(form[0]);
+
     $.ajax({
         type: "POST",
         url: "http://localhost:9000/add_facility",
         data: formData,
+        contentType: false,
+        processData: false,
         success: function (response) {
             $("#fac_response").html(response["response"]);
             form[0].reset();
         },
         error: function (xhr, status, error) {
-        if (xhr.status === 404) {
-            var errorResponse = $.parseJSON(xhr.responseText);
-            $("#fac_response").html(errorResponse.response);
-        }
-        if (xhr.status === 500) {
-            var errorResponse = $.parseJSON(xhr.responseText);
-            $("#fac_response").html(errorResponse.response);
-            form[0].reset();
-        }
+            if (xhr.status === 404) {
+                var errorResponse = $.parseJSON(xhr.responseText);
+                $("#fac_response").html(errorResponse.response);
+            }
+            if (xhr.status === 500) {
+                var errorResponse = $.parseJSON(xhr.responseText);
+                $("#fac_response").html(errorResponse.response);
+                form[0].reset();
+            }
         }
     });
 });
+
 
 
 $("#edit_facility").submit(function (e) {
@@ -61,7 +64,6 @@ $("#submit_registration").submit(function (e) {
     var form = $(this).closest('form');
     var formData = $(this).closest('form').serialize();
   
-    // Make the POST request
     $.ajax({
       type: "POST",
       url: "http://localhost:9000/register",
@@ -76,34 +78,30 @@ $("#submit_registration").submit(function (e) {
     });
   });
 
+
 $("#submit_login").submit(function (e) {
   e.preventDefault();
 
   var form = $(this).closest('form');
-  // Serialize the form data
   var formData = $(this).closest('form').serialize();
 
-  // If all fields are filled, submit the form
   $.ajax({
     type: "POST",
     url: "http://localhost:9000/login", 
-    data: formData,  // Pass serialized form data as the request body
+    data: formData,
     success: function (response) {
       $("#login_response").html(response["response"]);
-      // Handle success 
       window.location.href = "/";
     },
     error: function (xhr, status, error) {
-      // Handle error
       if (xhr.status === 401) {
         var errorResponse = $.parseJSON(xhr.responseText);
-        // Unauthorized - Incorrect credentials
         $("#login_response").html(errorResponse.response);
         form[0].reset();
     }
   }});
-  // Make the POST request
 });
+
 
 $("#submit_password_reset").submit(function (e) {
     e.preventDefault();
@@ -127,6 +125,7 @@ $("#submit_password_reset").submit(function (e) {
         }
     });
 });
+
 
 $("#submit_edit_account_info").click(function (e) {
     e.preventDefault();
@@ -155,6 +154,7 @@ $("#submit_edit_account_info").click(function (e) {
     });
 });
 
+
 $("#submit_edit").click(function (e) {
     e.preventDefault();
   
@@ -181,6 +181,7 @@ $("#submit_edit").click(function (e) {
         }
     });
 });
+
 
 $("#submit_logo").click(function (e) {
     e.preventDefault();
