@@ -146,6 +146,26 @@ def update_me(
     return results
 
 
+@app.delete("/me/delete_reservation/", tags=["Security"])
+def delete_reservation(
+    current_user: Annotated[
+        schemas.User, Security(get_current_user, scopes=["user"])
+    ],
+    reservation_id: int,
+    db: Session = Depends(get_db),
+):
+    try:
+        user_reservation_ids = [r.id_reservation for r in current_user.reservations]
+        if reservation_id not in user_reservation_ids:
+            raise NoResultFound("Reservation not found in user's reservations.")
+        crud.delete_reservation(db, reservation_id)
+    except NoResultFound as e:
+        raise HTTPException(status_code=404, detail=e.args[0])
+    return JSONResponse({"result": True})
+
+
+
+
 @app.post("/token", response_model=schemas.Token, tags=['Security'])
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],

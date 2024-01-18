@@ -164,7 +164,7 @@ def update_user(
     if user is None:
         raise NoResultFound("No user found with this id in the database.")
 
-    update_dict = locals()
+    update_dict = locals().copy()
     del update_dict["db"]
 
     for key, value in update_dict.items():
@@ -644,7 +644,7 @@ def update_open_hour(
             raise NoResultFound("No day with specified name in the database.")
         update_dict["id_day"] = days[0].id_day
 
-    del update_dict['day_name'] 
+    del update_dict["day_name"]
 
     for key, value in update_dict.items():
         if value is not None:
@@ -892,7 +892,7 @@ def update_facility(
 
     update_dict = locals().copy()
     del update_dict["db"]
-    del update_dict['ids_open_hours']
+    del update_dict["ids_open_hours"]
 
     for key, value in update_dict.items():
         if value is not None:
