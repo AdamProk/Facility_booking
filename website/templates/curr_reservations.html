@@ -2,17 +2,13 @@
 
 {% block title %}Add Facility{% endblock %}
 
+
 {% block content %}
 
 <!-- Edit content here -->
 
 <div class="container">
-    <div>
-        <label for="search">Search Facilities:</label>
-        <input type="text" id="search" oninput="performSearch()">
-    </div>
-    <div id="searchResults"></div>
-    <ul id="facility_list">
+    <ul id="reservation_list">
 
         {% set statuses = {'Pending': 2, 'Confirmed': 3, 'Finished': 1} %}
 
@@ -35,11 +31,16 @@
                         <strong>{{ key }}:</strong> {{ value }}<br>
                     {% endif %}
                 {% endfor %}
+
+                {% if status_id in [2, 3] and d['date']|string_to_datetime > curr_date %}
+                    <button>Cancel Reservation</button>
+                {% endif %}
             </li>
             {% endif %}
         {% endfor %}
         {% endfor %}
     </ul>
 </div>
+
 
 {% endblock %}

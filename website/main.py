@@ -15,6 +15,7 @@ from flask import (
 import os
 from under_proxy import get_flask_app
 from werkzeug.utils import secure_filename
+from datetime import date, datetime, timedelta
 from components import images_handler
 from components import api_requests as API
 from components import exceptions as exc
@@ -414,7 +415,16 @@ def delete_facility():
 
 @app.route("/my_account", methods=["GET"], logged_in=True, redirect_url="/")
 def my_account_site():
-    return render_template("my_account.html")
+    try:
+        data = API.make_request(
+            API.METHOD.GET,
+            API.DATA_ENDPOINT.RESERVATION,
+        )
+    except API.APIError as e:
+        LOGGER.error(e)
+        data = []
+    return render_template("my_account.html", data=data, curr_date=date.today())
+
 
 @app.route("/edit_account_info", methods=["PUT"], logged_in=True, redirect_url="/")
 def edit_account_info():
@@ -593,7 +603,7 @@ def curr_reservations():
     except API.APIError as e:
         LOGGER.error(e)
         data = []
-    return render_template("curr_reservations.html", data=data)
+    return render_template("curr_reservations.html", data=data, curr_date=date.today())
 
 
 # endregion RESERVATIONS
@@ -678,6 +688,12 @@ def get_or_create_open_hours(day_name, start_hour, end_hour):
         raise e
 
     return open_hours[0]["id_open_hours"]
+
+
+@app.template_filter('string_to_datetime')
+def string_to_datetime(value):
+    return datetime.strptime(value, '%Y-%m-%d').date() - timedelta(days=1)
+
 
 # endregion ACTIONS
 
