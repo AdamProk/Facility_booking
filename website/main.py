@@ -583,11 +583,8 @@ def upload_logo():
 # region RESERVATIONS
 
 
-@app.route("/curr_reservations", methods=["GET"])
+@app.route("/curr_reservations", methods=["GET"], admin=True, redirect_url="/")
 def curr_reservations():
-    CHECKER = CHECK_IF_ADMIN_STATUS()
-    if CHECKER:
-        return CHECKER
     try:
         data = API.make_request(
             API.METHOD.GET,

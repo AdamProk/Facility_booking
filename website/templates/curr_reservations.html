@@ -2,7 +2,6 @@
 
 {% block title %}Add Facility{% endblock %}
 
-
 {% block content %}
 
 <!-- Edit content here -->
@@ -14,84 +13,33 @@
     </div>
     <div id="searchResults"></div>
     <ul id="facility_list">
-        
-        <h2>Pending</h2>
+
+        {% set statuses = {'Pending': 2, 'Confirmed': 3, 'Finished': 1} %}
+
+        {% for status_name, status_id in statuses.items() %}
+        <h2>{{ status_name }}</h2>
         {% for d in data %}
-        {% if d['status']['id_reservation_status'] == 2 %}
-        <li>
-            {% for key, value in d.items() %}
+            {% if d['status']['id_reservation_status'] == status_id %}
+            <li>
+                {% for key, value in d.items() %}
+                    {% if key not in ['user', 'facility'] %}
+                        <strong>{{ key }}:</strong> {{ value }}<br>
+                    {% endif %}
 
-                {% if key != 'user' and key != 'facility' %}
-                <strong>{{ key }}:</strong> {{ value }}<br>
-                {% endif %}
+                    {% if key == 'user' %}
+                        <strong>{{ key }}:</strong> {{ value['id_user'] }}<br>
+                        <strong>{{ key }}:</strong> {{ value['email'] }}<br>
+                    {% endif %}
 
-                {% if key == 'user' %}
-                <!-- <strong>{{ key }}:</strong> {{ value }}<br> -->
-                <strong>{{ key }}:</strong> {{ value['id_user'] }}<br>
-                <strong>{{ key }}:</strong> {{ value['email'] }}<br>
-                {% endif %}
-
-
-                {% if key == 'facility' %}
-                <strong>{{ key }}:</strong> {{ value }}<br>
-                {% endif %}
-            {% endfor %}
-        </li>
-        {% endif %}
+                    {% if key == 'facility' %}
+                        <strong>{{ key }}:</strong> {{ value }}<br>
+                    {% endif %}
+                {% endfor %}
+            </li>
+            {% endif %}
         {% endfor %}
-
-        <h2>Confirmed</h2>
-        {% for d in data %}
-        {% if d['status']['id_reservation_status'] == 3 %}
-        <li>
-            {% for key, value in d.items() %}
-
-                {% if key != 'user' and key != 'facility' %}
-                <strong>{{ key }}:</strong> {{ value }}<br>
-                {% endif %}
-
-                {% if key == 'user' %}
-                <!-- <strong>{{ key }}:</strong> {{ value }}<br> -->
-                <strong>{{ key }}:</strong> {{ value['id_user'] }}<br>
-                <strong>{{ key }}:</strong> {{ value['email'] }}<br>
-                {% endif %}
-
-
-                {% if key == 'facility' %}
-                <strong>{{ key }}:</strong> {{ value }}<br>
-                {% endif %}
-            {% endfor %}
-        </li>
-        {% endif %}
-        {% endfor %}
-
-        <h2>Finished</h2>
-        {% for d in data %}
-        {% if d['status']['id_reservation_status'] == 1 %}
-        <li>
-            {% for key, value in d.items() %}
-            
-                {% if key != 'user' and key != 'facility' %}
-                <strong>{{ key }}:</strong> {{ value }}<br>
-                {% endif %}
-
-                {% if key == 'user' %}
-                <!-- <strong>{{ key }}:</strong> {{ value }}<br> -->
-                <strong>{{ key }}:</strong> {{ value['id_user'] }}<br>
-                <strong>{{ key }}:</strong> {{ value['email'] }}<br>
-                {% endif %}
-
-
-                {% if key == 'facility' %}
-                <strong>{{ key }}:</strong> {{ value }}<br>
-                {% endif %}
-            
-            {% endfor %}
-        </li>
-        {% endif %}
         {% endfor %}
     </ul>
 </div>
-
 
 {% endblock %}
