@@ -147,7 +147,7 @@ class CompanyCreate(BaseModel):
 class Image(BaseModel):
     id_image: int
     image_path: str
-    facility: FacilityNoImage
+    # facility: FacilityNoImage
 
 
 class ImageCreate(BaseModel):
