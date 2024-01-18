@@ -112,7 +112,7 @@ async def get_current_user(
     return user
 
 
-@app.put("/me/", response_model=schemas.User, tags=["Security"])
+@app.put("/me", response_model=schemas.User, tags=["Security"])
 def update_me(
     current_user: Annotated[
         schemas.User, Security(get_current_user, scopes=["user"])
