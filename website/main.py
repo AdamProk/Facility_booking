@@ -33,7 +33,7 @@ app.config["UPLOAD_FOLDER"] = images_handler.IMAGES_DIR
 # region HOME
 
 
-@app.route("/", methods=["GET"], redirect_url="/error")
+@app.route("/", methods=["GET"], logged_in=True, redirect_url="/login")
 def index():
     try:
         data = API.make_request(
@@ -47,7 +47,7 @@ def index():
     return render_template("home.html", data=data)
 
 
-@app.route("/search_facility", methods=["GET"])
+@app.route("/search_facility", methods=["GET"], logged_in=True)
 def search_facility():
     try:
         search_term = request.args.get('query', '')
@@ -111,20 +111,13 @@ app.user_data = user_data
 
 @app.route("/login", methods=["GET"])
 def login_site():
-    # CHECKER = CHECK_IF_NO_SESSION()
-    # if CHECKER:
-    #     return CHECKER
     return render_template("login.html")
 
 
-@app.route("/login", methods=["POST"])
+@app.route("/login", logged_in = False, redirect_url="/", methods=["POST"])
 def login():
-    CHECKER = CHECK_IF_NO_SESSION()
-    if CHECKER:
-        return CHECKER
     email = str(request.form.get("email"))
     password = str(request.form.get("password"))
-
     try:
         session["token"] = API.get_token(email, password)
     except API.APIError as e:
@@ -147,19 +140,13 @@ def logout():
 # region REGISTER
 
 
-@app.route("/register", methods=["GET"])
+@app.route("/register", methods=["GET"], logged_in = False, redirect_url="/")
 def register_site():
-    CHECKER = CHECK_IF_NO_SESSION()
-    if CHECKER:
-        return CHECKER
     return render_template("register.html")
 
 
-@app.route("/register", methods=["POST"])
+@app.route("/register", methods=["POST"], logged_in = False, redirect_url="/")
 def register():
-    CHECKER = CHECK_IF_NO_SESSION()
-    if CHECKER:
-        return CHECKER
     msg = ""
     email = str(request.form["email"])
     password = str(request.form["password"])
@@ -210,11 +197,8 @@ def register():
 # region FACILITY
 
 
-@app.route("/add_facility", methods=["GET"])
+@app.route("/add_facility", methods=["GET"], admin=True, redirect_url="/")
 def add_facility_site():
-    CHECKER = CHECK_IF_ADMIN_STATUS()
-    if CHECKER:
-        return CHECKER
     try:
         data = API.make_request(
             API.METHOD.GET,
@@ -226,11 +210,8 @@ def add_facility_site():
     return render_template("add_facility.html", data=data)
 
 
-@app.route("/add_facility", methods=["POST"])
+@app.route("/add_facility", methods=["POST"], admin=True, redirect_url="/")
 def add_facility():
-    CHECKER = CHECK_IF_ADMIN_STATUS()
-    if CHECKER:
-        return CHECKER
     try:
         facility_name = str(request.form.get("name"))
         description = str(request.form.get("description"))
@@ -287,11 +268,8 @@ def add_facility():
     return make_response(jsonify({"response": "success"}), 200)
 
 
-@app.route("/upload_facility_image", methods=["POST"])
+@app.route("/upload_facility_image", methods=["POST"], admin=True, redirect_url="/")
 def upload_facility_image():
-    CHECKER = CHECK_IF_ADMIN_STATUS()
-    if CHECKER:
-        return CHECKER
     LOGGER.error(request.files)
     id_facility = int(request.form.get("id_facility"))
     if "file" not in request.files:
@@ -328,11 +306,8 @@ def upload_facility_image():
     return redirect(url_for("index"))
 
 
-@app.route("/edit_facility", methods=["GET"])
+@app.route("/edit_facility", methods=["GET"], admin=True, redirect_url="/")
 def edit_facility_site():
-    CHECKER = CHECK_IF_ADMIN_STATUS()
-    if CHECKER:
-        return CHECKER
     try:
         id_facility = int(request.args.get("id_facility"))
         data = API.make_request(
@@ -350,11 +325,8 @@ def edit_facility_site():
     return render_template("edit_facility.html", data=data, data_fac_type=data_fac_type)
 
 
-@app.route("/edit_facility", methods=["POST"])
+@app.route("/edit_facility", methods=["POST"], admin=True, redirect_url="/")
 def edit_facility():
-    CHECKER = CHECK_IF_ADMIN_STATUS()
-    if CHECKER:
-        return CHECKER
     try:
         id_facility = int(request.form.get("id_facility"))
         facility_name = str(request.form.get("name"))
@@ -415,11 +387,8 @@ def edit_facility():
     return make_response(jsonify({"response": "success"}), 200)
 
 
-@app.route("/delete_facility", methods=["POST"])
+@app.route("/delete_facility", methods=["POST"], admin=True, redirect_url="/")
 def delete_facility():
-    CHECKER = CHECK_IF_ADMIN_STATUS()
-    if CHECKER:
-        return CHECKER
     id_facility = int(request.form.get("id_facility"))
     try:
         API.make_request(
@@ -443,18 +412,12 @@ def delete_facility():
 # region MY ACCOUNT
 
 
-@app.route("/my_account", methods=["GET"])
+@app.route("/my_account", methods=["GET"], logged_in=True, redirect_url="/")
 def my_account_site():
-    CHECKER = CHECK_IF_LOGGED_IN()
-    if CHECKER:
-        return CHECKER
     return render_template("my_account.html")
 
-@app.route("/edit_account_info", methods=["PUT"])
+@app.route("/edit_account_info", methods=["PUT"], logged_in=True, redirect_url="/")
 def edit_account_info():
-    CHECKER = CHECK_IF_LOGGED_IN()
-    if CHECKER:
-        return CHECKER
     try:
         name = str(request.form.get("name"))
         lastname = str(request.form.get("lastname"))
@@ -492,24 +455,19 @@ def edit_account_info():
 
 # region RESETTING PASSWORD
 
-@app.route("/reset_password", methods=["GET"])
+@app.route("/reset_password", methods=["GET"],  logged_in=True, redirect_url="/login")
 def reset_password_site():
-    CHECKER = CHECK_IF_LOGGED_IN()
-    if CHECKER:
-        return CHECKER
     return render_template("reset_password.html")
 
-@app.route("/reset_password", methods=["POST"])
+@app.route("/reset_password",methods=["POST"],  logged_in=True, redirect_url="/login")
 def reset_password():
-    CHECKER = CHECK_IF_LOGGED_IN()
-    if CHECKER:
-        return CHECKER
     try: 
         old_password = str(request.form.get("old_password"))
         new_password = str(request.form.get("new_password"))
         repeat_password = str(request.form.get("repeat_password"))
         if repeat_password != new_password:
             raise exc.UniqueConstraintViolated("Passwords don't match.")
+
     except exc.UniqueConstraintViolated as e:
         LOGGER.error(traceback.format_exc())
         return make_response(jsonify({"response": str(e)}), 500)
@@ -530,30 +488,21 @@ def reset_password():
 # region ADMIN PANEL
 
 
-@app.route("/admin_panel", methods=["GET"])
+@app.route("/admin_panel", methods=["GET"], admin=True, redirect_url="/")
 def admin_panel_site():
-    CHECKER = CHECK_IF_ADMIN_STATUS()
-    if CHECKER:
-        return CHECKER
     return render_template("admin_panel.html")
 
 
 # region EDIT SITE
 
 
-@app.route("/edit_site", methods=["GET"])
+@app.route("/edit_site", methods=["GET"], admin=True, redirect_url="/")
 def edit_site_site():
-    CHECKER = CHECK_IF_ADMIN_STATUS()
-    if CHECKER:
-        return CHECKER
     return render_template("edit_site.html")
 
 
-@app.route("/edit_site", methods=["POST"])
+@app.route("/edit_site", methods=["POST"], admin=True, redirect_url ="/")
 def edit_site():
-    CHECKER = CHECK_IF_ADMIN_STATUS()
-    if CHECKER:
-        return CHECKER
     try:
         company_name = str(request.form.get("name"))
         nip = str(request.form.get("nip"))
@@ -599,11 +548,8 @@ def edit_site():
     return make_response(jsonify({"response": "success"}), 200)
 
 
-@app.route("/upload_logo", methods=["POST"])
+@app.route("/upload_logo", methods=["POST"], admin=True, redirect_url="/")
 def upload_logo():
-    CHECKER = CHECK_IF_ADMIN_STATUS()
-    if CHECKER:
-        return CHECKER
     if "file" not in request.files:
         LOGGER.error("No file passed.")
         return make_response(jsonify({"response": "404"}), 404)
@@ -634,13 +580,32 @@ def upload_logo():
 # endregion ADMIN PANEL
 
 
+# region RESERVATIONS
+
+
+@app.route("/curr_reservations", methods=["GET"])
+def curr_reservations():
+    CHECKER = CHECK_IF_ADMIN_STATUS()
+    if CHECKER:
+        return CHECKER
+    try:
+        data = API.make_request(
+            API.METHOD.GET,
+            API.DATA_ENDPOINT.RESERVATION,
+        )
+    except API.APIError as e:
+        LOGGER.error(e)
+        data = []
+    return render_template("curr_reservations.html", data=data)
+
+
+# endregion RESERVATIONS
+
+
 # region ACTIONS
 
 
 def get_or_create_address(city_name, state_name, street_name, building_no, postal_code):
-    CHECKER = CHECK_IF_LOGGED_IN()
-    if CHECKER:
-        return CHECKER
     try:
         API.make_request(
             API.METHOD.POST, API.DATA_ENDPOINT.CITY, body={"name": city_name}
@@ -685,26 +650,6 @@ def get_or_create_address(city_name, state_name, street_name, building_no, posta
 
     return address
 
-def CHECK_IF_LOGGED_IN():
-    try:
-        if(session.get('token') is None):
-            return redirect(url_for("index"))
-    except Exception as e:
-        make_response(jsonify({"response": "Something went wrong with checking your logged in status. Error:" + str(e)}), 500)
-
-def CHECK_IF_ADMIN_STATUS():
-    try:
-        if(session.get('token') is None or user_data()['user_data']['user_role']['name'] != "Admin"):
-            return redirect(url_for("index"))
-    except Exception as e:
-        make_response(jsonify({"response": "Something went wrong with checking your admin privileges. Error:" + str(e)}), 500)
-
-def CHECK_IF_NO_SESSION(): 
-    try:
-        if(session.get("token") is not None):
-            return redirect(url_for("index"))
-    except Exception as e:
-        make_response(jsonify({"response": "Something went wrong with checking your logged out status. Error:" + str(e)}), 500)
 
 def get_or_create_open_hours(day_name, start_hour, end_hour):
     try:
