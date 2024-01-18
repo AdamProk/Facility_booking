@@ -237,7 +237,7 @@ def add_facility():
         sunday = get_or_create_open_hours("Sunday", str(request.form.get("sunday_start")), str(request.form.get("sunday_end")))
 
         try:
-            API.make_request(
+            fac = API.make_request(
                 API.METHOD.POST,
                 API.DATA_ENDPOINT.FACILITY,
                 body={
@@ -253,6 +253,45 @@ def add_facility():
         except exc.UniqueConstraintViolated as e:
             LOGGER.error("Can't add the facility")
             raise exc.UniqueConstraintViolated("Can't add the facility")
+        
+        
+        if "files" not in request.files or not request.files['files'].filename:
+            LOGGER.info("No images passed.")
+            return make_response(jsonify({"response": "success, no images added"}), 200)
+        
+        try:
+            files = request.files.getlist('files')
+            for file in files:
+                try:
+                    image_rel_path = images_handler.upload_image(file)
+
+                except images_handler.ImageHandlerError as e:
+                    LOGGER.error("Error uploading image: " + str(e))
+                    return redirect(url_for("index"))
+
+                try:
+                    API.make_request(
+                        API.METHOD.POST,
+                        API.DATA_ENDPOINT.IMAGE,
+                        body={
+                            "image_path": image_rel_path,
+                            "id_facility": fac['id_facility'],
+                        },
+                    )
+                except API.APIError as e:
+                    try:
+                        images_handler.remove_image(image_rel_path)
+                    except images_handler.ImageHandlerError:
+                        LOGGER.error("Failed to remove the image.")
+                    LOGGER.error(
+                        "Failed to put image in the database. It was removed from images folder."
+                        + str(e)
+                    )
+        except images_handler.ImageHandlerError as e:
+            LOGGER.error("Error uploading image: " + str(e))
+            LOGGER.error(traceback.format_exc())
+            return make_response(jsonify({"response": str(e)}), 500)
+
 
     except exc.UniqueConstraintViolated as e:
         LOGGER.error(traceback.format_exc())

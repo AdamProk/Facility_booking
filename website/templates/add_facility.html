@@ -9,7 +9,7 @@
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/add_facility.css') }}" />
 
 <div class="add-facility-container">
-    <form action="add_facility" method="POST">
+    <form action="/add_facility" method="POST" enctype="multipart/form-data">
         <label for="name">Nazwa placówki:</label>
         <input type="text" name="name" required>
         <br>
@@ -73,7 +73,11 @@
         do<input type="time" name="sunday_end" required>
         <br>
         <br>
-        
+        <label for="files">Dodaj zdjęcia:</label>
+        <input type="file" name="files" accept=".jpg, .jpeg, .png, .gif" multiple required>
+        <br>
+        <br>
+
         <button id="submit_facility" type="submit">Dodaj placówkę</button>
     </form>
 </div>
