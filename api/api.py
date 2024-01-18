@@ -146,7 +146,7 @@ def update_me(
     return results
 
 
-@app.delete("/me/delete_reservation/", tags=["Security"])
+@app.delete("/me", tags=["Security"])
 def delete_reservation(
     current_user: Annotated[
         schemas.User, Security(get_current_user, scopes=["user"])

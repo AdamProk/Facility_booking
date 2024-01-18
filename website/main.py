@@ -745,6 +745,25 @@ def delete_reservation():
     return redirect(url_for("curr_reservations"))
 
 
+@app.route("/delete_reservation_me", methods=["POST"], logged_in=True, redirect_url="/")
+def delete_reservation_me():
+    id_reservation = int(request.form.get("id_reservation"))
+    try:
+        API.make_request(
+            API.METHOD.DELETE,
+            API.DATA_ENDPOINT.ME,
+            query_params={"reservation_id": id_reservation},
+        )
+    except API.APIError as e:
+        LOGGER.info(e)
+        raise exc.UniqueConstraintViolated("Couldn't cancel the reservation")
+
+    except exc.UniqueConstraintViolated as e:
+        return make_response(jsonify({"response": str(e)}), 500)
+
+    return redirect(url_for("curr_reservations"))
+
+
 # endregion RESERVATIONS
 
 

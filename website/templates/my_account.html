@@ -61,7 +61,10 @@
                     {% endfor %}
     
                     {% if status_id in [2, 3] and d['date']|string_to_datetime > curr_date %}
-                        <button>Cancel Reservation</button>
+                    <form method="POST" action="/delete_reservation_me">
+                        <input type="submit" value="Cancel Reservation">
+                        <input type="hidden" name="id_reservation" value="{{d.id_reservation}}">
+                    </form>
                     {% endif %}
                 </li>
                 {% endif %}
