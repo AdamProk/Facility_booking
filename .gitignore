@@ -13,3 +13,5 @@ website/static/images/
 pk_venv/
 
 volumes/
+api/alembic/
+api/components/db_setup.py
