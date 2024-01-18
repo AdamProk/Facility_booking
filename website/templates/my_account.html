@@ -38,13 +38,11 @@
         <br>
         <h1>RESERVATIONS</h1>
         <ul id="reservation_list">
-
             {% set statuses = {'Pending': 2, 'Confirmed': 3, 'Finished': 1} %}
     
             {% for status_name, status_id in statuses.items() %}
             <h2>{{ status_name }}</h2>
-            {% for d in data %}
-                {% if d['user']['id_user'] == user_data['id_user'] %}
+            {% for d in data['reservations'] %}
                 {% if d['status']['id_reservation_status'] == status_id %}
                 <li>
                     {% for key, value in d.items() %}
@@ -66,7 +64,6 @@
                         <button>Cancel Reservation</button>
                     {% endif %}
                 </li>
-                {% endif %}
                 {% endif %}
             {% endfor %}
             {% endfor %}

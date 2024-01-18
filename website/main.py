@@ -457,7 +457,7 @@ def my_account_site():
     try:
         data = API.make_request(
             API.METHOD.GET,
-            API.DATA_ENDPOINT.RESERVATION,
+            API.DATA_ENDPOINT.ME,
         )
     except API.APIError as e:
         LOGGER.error(e)
