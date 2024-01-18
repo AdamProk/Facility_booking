@@ -6,8 +6,9 @@
 {% block content %}
 
 <!-- Edit content here -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/add_facility.css') }}" />
 
-<div class="container">
+<div class="add-facility-container">
     <form action="add_facility" method="POST">
         <label for="name">Nazwa placówki:</label>
         <input type="text" name="name" required>
