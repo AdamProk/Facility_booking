@@ -45,7 +45,7 @@ class DATA_ENDPOINT(Enum):
 
 class ACTION_ENDPOINT(Enum):
     def _generate_next_value_(name, start, count, last_values):
-        return "action/" + name.lower()
+        return "actions/" + name.lower()
 
     CHECK_AVAILABILITY = auto()
     RESERVE = auto()
@@ -54,7 +54,7 @@ class ACTION_ENDPOINT(Enum):
 
 class REQUEST_FORMAT(Enum):
     def _generate_next_value_(name, start, count, last_values):
-        return "action/" + name.lower()
+        return "actions/" + name.lower()
 
     JSON = auto()
     URL_ENDCODED = auto()
