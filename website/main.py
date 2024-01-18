@@ -22,7 +22,7 @@ from components import exceptions as exc
 import json
 import logging
 import traceback
-
+from datetime import date, datetime, timedelta
 
 LOGGER = logging.getLogger(__name__)
 
@@ -508,15 +508,25 @@ def edit_account_info():
 def reset_password_site():
     return render_template("reset_password.html")
 
-@app.route("/reset_password",methods=["POST"],  logged_in=True, redirect_url="/login")
+@app.route("/reset_password",methods=["PUT"],  logged_in=True, redirect_url="/login")
 def reset_password():
     try: 
         old_password = str(request.form.get("old_password"))
+        API.get_token(user_data()['user_data']['email'], old_password)
         new_password = str(request.form.get("new_password"))
         repeat_password = str(request.form.get("repeat_password"))
         if repeat_password != new_password:
             raise exc.UniqueConstraintViolated("Passwords don't match.")
-
+        try:
+            API.make_request(API.METHOD.PUT,
+                             API.DATA_ENDPOINT.ME,
+                             query_params={
+                                "password": new_password,
+                             },)
+        except API.APIError as e:
+            LOGGER.error(traceback.format_exc())
+            return make_response(jsonify({"response": "API_ERROR"}), 405)
+        
     except exc.UniqueConstraintViolated as e:
         LOGGER.error(traceback.format_exc())
         return make_response(jsonify({"response": str(e)}), 500)
@@ -525,11 +535,11 @@ def reset_password():
         return make_response(jsonify({"response": str(e)}), 404)
     except API.APIError as e:
         LOGGER.error(traceback.format_exc())
-        return make_response(jsonify({"response": "API ERROR"}), 500)
+        return make_response(jsonify({"response": "Incorrect old password inputted."}), 500)
     except ValueError as e:
         LOGGER.error(traceback.format_exc())
         return make_response(jsonify({"response": str(e)}), 500)
-    return make_response(jsonify({"response": "success"}), 200)
+    return make_response(jsonify({"response": "Successfully changed your password."}), 200)
 
 
 # endregion RESETTING PASSWORD
@@ -630,6 +640,77 @@ def upload_logo():
 
 
 # region RESERVATIONS
+
+@app.route("/reserve", methods=["GET"], logged_in=True, redirect_url="/")
+def reserve_site():
+    try:
+        id_facility = int(request.args.get("id_facility"))
+        data = API.make_request(
+            API.METHOD.GET,
+            API.DATA_ENDPOINT.FACILITY,
+            query_params={'id_facility': id_facility},
+        )
+    except API.APIError as e:
+        LOGGER.error(e)
+        data = []
+    return render_template("reserve.html", data=data)
+
+
+@app.route("/reserve", methods=["POST"], logged_in=True, redirect_url="/")
+def reserve():
+    try:
+        id_facility = int(request.form.get("id_facility"))
+        start_time = str(request.form.get("reservation_start_time"))
+        end_time = str(request.form.get("reservation_end_time"))
+        reservation_date = str(request.form.get("reservation_date"))
+        reservation_datetime =  datetime.strptime(reservation_date, "%Y-%m-%d").date()
+        start_hour = start_time.split(":", 1)
+        end_hour = end_time.split(":", 1)
+        today = date.today()
+        date_in2weeks = date.today() + timedelta(days=14)
+        if today > reservation_datetime or reservation_datetime > date_in2weeks:
+            raise ValueError("Wrong time interval inputted.") 
+        if start_hour[1] != end_hour[1]: # make sure the minute part of the hours are the same.
+            raise ValueError("Wrong time interval inputted.")
+        if start_hour[0] >= end_hour[0]: #make sure the hour part of start is lower than the end time. 
+            raise ValueError("Wrong time interval inputted.") 
+        if(start_hour[1] == "30" or start_hour[1] == "00"):
+            try:
+                if not API.make_request(API.METHOD.GET,
+                                 API.ACTION_ENDPOINT.CHECK_AVAILABILITY,
+                                 query_params={
+                                     "id_facility": id_facility,
+                                     "date": reservation_date,
+                                     "start_hour": start_time,
+                                     "end_hour": end_time,
+                                 },)['result']:
+                    raise ValueError("The date is unavailable.")
+                API.make_request(API.METHOD.GET,
+                                 API.ACTION_ENDPOINT.RESERVE,
+                                 query_params={
+                                     "id_facility": id_facility,
+                                     "id_user": user_data()['user_data']['id_user'],
+                                     "date": reservation_date,
+                                     "start_hour": start_time,
+                                     "end_hour": end_time,
+                                 },)
+            except API.APIError as e:
+                raise API.APIError("API ERROR")
+        else:
+            raise ValueError("Wrong time interval inputted.")       
+    except exc.UniqueConstraintViolated as e:
+        LOGGER.error(traceback.format_exc())
+        return make_response(jsonify({"response": str(e)}), 500)
+    except NoResultFound as e:
+        LOGGER.error(traceback.format_exc())
+        return make_response(jsonify({"response": str(e)}), 404)
+    except API.APIError as e:
+        LOGGER.error(traceback.format_exc())
+        return make_response(jsonify({"response": str(e)}), 500)
+    except ValueError as e:
+        LOGGER.error(traceback.format_exc())
+        return make_response(jsonify({"response": str(e)}), 500)
+    return make_response(jsonify({"response": "success"}), 200)
 
 
 @app.route("/curr_reservations", methods=["GET"], admin=True, redirect_url="/")

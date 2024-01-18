@@ -321,7 +321,7 @@ def get_users(
     return results
 
 
-@app.get("/action/check_if_email_exists", tags=["Actions"])
+@app.get("/actions/check_if_email_exists", tags=["Actions"])
 def check_if_username_in_db(
     email: str,
     db: Session = Depends(get_db),

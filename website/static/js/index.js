@@ -58,6 +58,7 @@ $("#edit_facility").submit(function (e) {
 });
 
 
+
 $("#submit_registration").submit(function (e) {
     e.preventDefault();
   
@@ -110,7 +111,7 @@ $("#submit_password_reset").submit(function (e) {
     var formData = $(this).closest('form').serialize();
   
     $.ajax({
-        type: "POST",
+        type: "PUT",
         url: "http://localhost:9000/reset_password",
         data: formData,
         success: function (response) {
@@ -118,6 +119,16 @@ $("#submit_password_reset").submit(function (e) {
         },
         error: function (xhr, status, error) {
         if (xhr.status === 500) {
+            var errorResponse = $.parseJSON(xhr.responseText);
+            $("#password_reset_response").html(errorResponse.response);
+            form[0].reset();
+        }
+        if (xhr.status === 404) {
+            var errorResponse = $.parseJSON(xhr.responseText);
+            $("#password_reset_response").html(errorResponse.response);
+            form[0].reset();
+        }
+        if (xhr.status === 405) {
             var errorResponse = $.parseJSON(xhr.responseText);
             $("#password_reset_response").html(errorResponse.response);
             form[0].reset();
@@ -203,6 +214,62 @@ $("#submit_logo").click(function (e) {
         if (xhr.status === 500) {
             var errorResponse = $.parseJSON(xhr.responseText);
             $("#edit_site_response").html(errorResponse.response);
+            form[0].reset();
+        }
+        }
+    });
+});
+
+
+$("#reserve").submit(function (e) {
+    e.preventDefault();
+  
+    var form = $(this).closest('form');
+    var formData = $(this).closest('form').serialize();
+  
+    $.ajax({
+        type: "GET",
+        url: "http://localhost:9000/reserve",
+        data: formData,
+        success: function (response) {
+            $("#fac_response").html(response["response"]);
+        },
+        error: function (xhr, status, error) {
+        if (xhr.status === 404) {
+            var errorResponse = $.parseJSON(xhr.responseText);
+            $("#fac_response").html(errorResponse.response);
+        }
+        if (xhr.status === 500) {
+            var errorResponse = $.parseJSON(xhr.responseText);
+            $("#fac_response").html(errorResponse.response);
+            form[0].reset();
+        }
+        }
+    });
+});
+
+
+$("#submit_reservation").submit(function (e) {
+    e.preventDefault();
+  
+    var form = $(this).closest('form');
+    var formData = $(this).closest('form').serialize();
+  
+    $.ajax({
+        type: "POST",
+        url: "http://localhost:9000/reserve",
+        data: formData,
+        success: function (response) {
+            $("#reservation_response").html(response["response"]);
+        },
+        error: function (xhr, status, error) {
+        if (xhr.status === 404) {
+            var errorResponse = $.parseJSON(xhr.responseText);
+            $("#reservation_response").html(errorResponse.response);
+        }
+        if (xhr.status === 500) {
+            var errorResponse = $.parseJSON(xhr.responseText);
+            $("#reservation_response").html(errorResponse.response);
             form[0].reset();
         }
         }
