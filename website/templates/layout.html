@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles2.css') }}" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <link rel="icon" href="{{ url_for('static', filename='/images/logo.png') }}">
@@ -16,6 +16,7 @@
 <body>
     {% if 'token' in session %}
     <nav class="navbar">
+        <a href="/#search-bar">Search &#128269</a>
         <a href="/">Home</a>
         <a href="/my_account">My Account</a>
         {% if user_data.user_role.id_user_role == 2 %}
