@@ -1,4 +1,33 @@
 
+/*************** N A V B A R - for home page only ***************/
+
+.navbar {
+    width: 100vw;
+    height: 8vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+
+    background-color: transparent; 
+}
+.navbar a {
+    padding: 15px;
+    margin: 5px;
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+}
+.navbar a:hover {
+    color: rgb(255, 255, 255);
+}
+
 /*************** M A I N  -  G R A P H I C (FOOTBALL PITCH) ***************/
 
 .main-graphic {
