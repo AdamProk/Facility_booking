@@ -1,0 +1,55 @@
+{% extends 'layout.html' %}
+
+{% block title %}Home{% endblock %}
+
+
+{% block content %}
+<!-- Edit content here -->
+<!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/home.css') }}" /> -->
+
+
+<!-- Include Scripts -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="{{ url_for('static', filename='js/datepicker_handler.js') }}"></script>
+<script src="{{ url_for('static', filename='js/navbar_opacity.js') }}"></script>
+<!-- Include jQuery UI -->
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+<div class="container" id="container">
+            {% for d in data %}
+            <div class="facil_info">
+                {% for key, value in d.items() %}
+                    <strong id="facil_name_strong"> {{key}}</strong> {{value}} <br>
+                    {% if d['images'] %}
+                        {% for img in data['images'] %}
+                                <img src="{{ url_for('static', filename='images/' + img['image_path']) }}">
+                                <!-- <img src="{{ url_for('static', filename='images/' + d['images'][0]['image_path']) }}"> -->
+                        {% endfor %}
+                    {% else %}
+                        <img src="{{ url_for('static', filename='images/no_image.jpg') }}" alt="no image available">
+                    {% endif %}
+                {% endfor %}
+                <form method="POST" action="/reserve" id="submit_reservation">
+                    <label for="reservation_date">Data:</label>
+                    <input type="date" name="reservation_date" id="datePickerId" required>
+                    <br>
+                    <label for="reservation_start_time">Godzina startowa:</label>
+                    <input type="time" name="reservation_start_time" step='1800' required>
+                    <br>
+                    <label for="reservation_end_time">Godzina końcowa:</label>
+                    <input type="time" name="reservation_end_time" step='1800' required>
+                    <br>
+                    <input type="submit" value="Reserve">
+                    <input type="hidden" name="id_facility" value="{{d.id_facility}}">
+                </form>
+                <h1 id="reservation_response"></h1>
+            </div>
+            {% endfor %}
+</div> 
+<script> datePickerId.min= new Date().toISOString().split("T")[0]; datePickerId.max = new Date(Date.now() + 12096e5).toISOString().split("T")[0]</script>
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+{% endblock %}
+
+
+
