@@ -1,4 +1,4 @@
-$("#submit_facility").click(function (e) {
+$("#submit_facility").submit(function (e) {
     e.preventDefault();
 
     var form = $(this).closest('form');

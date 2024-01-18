@@ -9,7 +9,7 @@
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/add_facility.css') }}" />
 
 <div class="add-facility-container">
-    <form action="/add_facility" method="POST" enctype="multipart/form-data">
+    <form id="submit_facility" action="/add_facility" method="POST" enctype="multipart/form-data">
         <label for="name">Nazwa placówki:</label>
         <input type="text" name="name" required>
         <br>
@@ -45,32 +45,32 @@
 
         <label for="time_open">Godziny otwarcia:</label><br>
         <label for="monday">Poniedziałek:</label>
-        od<input type="time" name="monday_start" required>
-        do<input type="time" name="monday_end" required>
+        od<input type="time" name="monday_start" step="1800" required>
+        do<input type="time" name="monday_end" step="1800" required>
         <br>
         <label for="tuesday">Wtorek:</label>
-        od<input type="time" name="tuesday_start" required>
-        do<input type="time" name="tuesday_end" required>
+        od<input type="time" name="tuesday_start" step="1800" required>
+        do<input type="time" name="tuesday_end" step="1800" required>
         <br>
         <label for="wednesday">Środa:</label>
-        od<input type="time" name="wednesday_start" required>
-        do<input type="time" name="wednesday_end" required>
+        od<input type="time" name="wednesday_start" step="1800" required>
+        do<input type="time" name="wednesday_end" step="1800" required>
         <br>
         <label for="thursday">Czwartek:</label>
-        od<input type="time" name="thursday_start" required>
-        do<input type="time" name="thursday_end" required>
+        od<input type="time" name="thursday_start" step="1800" required>
+        do<input type="time" name="thursday_end" step="1800" required>
         <br>
         <label for="friday">Piątek:</label>
-        od<input type="time" name="friday_start" required>
-        do<input type="time" name="friday_end" required>
+        od<input type="time" name="friday_start" step="1800" required>
+        do<input type="time" name="friday_end" step="1800" required>
         <br>
         <label for="saturday">Sobota:</label>
-        od<input type="time" name="saturday_start" required>
-        do<input type="time" name="saturday_end" required>
+        od<input type="time" name="saturday_start" step="1800" required>
+        do<input type="time" name="saturday_end" step="1800" required>
         <br>
         <label for="sunday">Niedziela:</label>
-        od<input type="time" name="sunday_start" required>
-        do<input type="time" name="sunday_end" required>
+        od<input type="time" name="sunday_start" step="1800" required>
+        do<input type="time" name="sunday_end" step="1800" required>
         <br>
         <br>
         <label for="files">Dodaj zdjęcia:</label>
@@ -78,7 +78,7 @@
         <br>
         <br>
 
-        <button id="submit_facility" type="submit">Dodaj placówkę</button>
+        <input id="submit_facility" type="submit" value="Dodaj placówkę"></input>
     </form>
 </div>
 

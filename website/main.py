@@ -716,34 +716,45 @@ def get_or_create_address(city_name, state_name, street_name, building_no, posta
     return address
 
 
-def get_or_create_open_hours(day_name, start_hour, end_hour):
-    try:
-        API.make_request(
-            API.METHOD.POST,
-            API.DATA_ENDPOINT.OPEN_HOUR,
-            body={
-                "day_name": day_name,
-                "start_hour": start_hour,
-                "end_hour": end_hour,
-            },
-        )
-    except API.APIError as e:
-        LOGGER.error("Hours already exists")
+def get_or_create_open_hours(day_name, start_hour2, end_hour2):
+    start_hour2 = start_hour2[:5]
+    end_hour2 = end_hour2[:5]
+    start_hour = start_hour2.split(":", 1)
+    end_hour = end_hour2.split(":", 1) 
+    
+    if start_hour[1] != end_hour[1]:
+        raise ValueError("Wrong time interval inputted.")
+    if start_hour[0] >= end_hour[0]:
+        raise ValueError("Wrong time interval inputted.") 
+    if(start_hour[1] == "30" or start_hour[1] == "00"):
+    
+        try: 
+            API.make_request(
+                API.METHOD.POST,
+                API.DATA_ENDPOINT.OPEN_HOUR,
+                body={
+                    "day_name": day_name,
+                    "start_hour": start_hour2,
+                    "end_hour": end_hour2,
+                },
+            )
+        except API.APIError as e:
+            LOGGER.error("Hours already exists")
 
-    try:
-        open_hours = API.make_request(
-            API.METHOD.GET,
-            API.DATA_ENDPOINT.OPEN_HOUR,
-            query_params={
-                "day_name": day_name,
-                "start_hour": start_hour,
-                "end_hour": end_hour,
-            },
-        )
-        if not open_hours:
-            raise ValueError("Inappropriate Hours")
-    except ValueError as e:
-        raise e
+        try:
+            open_hours = API.make_request(
+                API.METHOD.GET,
+                API.DATA_ENDPOINT.OPEN_HOUR,
+                query_params={
+                    "day_name": day_name,
+                    "start_hour": start_hour2,
+                    "end_hour": end_hour2,
+                },
+            )
+            if not open_hours:
+                raise ValueError("Inappropriate Hours")
+        except ValueError as e:
+            raise e
 
     return open_hours[0]["id_open_hours"]
 
