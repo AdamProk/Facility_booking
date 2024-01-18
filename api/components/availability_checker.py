@@ -30,10 +30,10 @@ def check_availability(db, id_facility, date, start_hour, end_hour, **kwargs):
     for reservation in facility.reservations:
         if (
             reservation.date == date and
-            (start_hour > reservation.start_hour and
-            start_hour < reservation.end_hour) or
-            (end_hour > reservation.start_hour and
-            end_hour < reservation.end_hour)
+            (start_hour >= reservation.start_hour and
+            start_hour <= reservation.end_hour) or
+            (end_hour >= reservation.start_hour and
+            end_hour <= reservation.end_hour)
         ):
             return False
 
