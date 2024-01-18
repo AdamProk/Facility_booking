@@ -1,0 +1,25 @@
+{% extends 'layout.html' %}
+
+{% block title %}Admin Panel{% endblock %}
+
+
+{% block content %}
+
+<!-- Edit content here -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/admin.css') }}" />
+
+<div class="admin-container">
+    <div>PLACEHOLDER ADMIN PANEL</div>
+    <br>
+
+    <a href="/add_facility">Add Facility</a>
+    <br>
+    <a href="/edit_site">Edit Site (logo + footer)</a>
+    <br>
+    <a href="/admin_panel">View Current Reservations(?)</a>
+    <br>
+
+</div>
+
+
+{% endblock %}

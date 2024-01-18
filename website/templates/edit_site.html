@@ -1,0 +1,55 @@
+{% extends 'layout.html' %}
+
+{% block title %}Edit Site{% endblock %}
+
+
+{% block content %}
+
+<!-- Edit content here -->
+
+<div class="container">
+    <form action="edit_site" method="POST">
+        <label for="name">Nazwa placówki:</label>
+        <input type="text" name="name" value="{{ footer_data[0].name }}">
+        <br>
+        <label for="description">NIP:</label>
+        <input type="text" name="nip" value="{{ footer_data[0].nip }}">
+        <br>
+        <label for="description">Numer telefonu:</label>
+        <input type="text" name="phone_number" value="{{ footer_data[0].phone_number }}">
+        <br>
+
+        <label for="city">Miasto:</label>
+        <input type="text" name="city" value="{{ footer_data[0].address.city.name }}">
+        <br>
+        <label for="state">Województwo:</label>
+        <input type="text" name="state" value="{{ footer_data[0].address.state.name }}">
+        <br>
+        <label for="street_name">Ulica:</label>
+        <input type="text" name="street_name" value="{{ footer_data[0].address.street_name }}">
+        <br>
+        <label for="building_number">Numer budynku:</label>
+        <input type="number" name="building_number" value="{{ footer_data[0].address.building_number }}">
+        <br>
+        <label for="postal_code">Kod pocztowy:</label>
+        <input type="text" name="postal_code" value="{{ footer_data[0].address.postal_code }}">
+        <br>
+        <button id="submit_edit" type="submit">Edytuj swoje informacje</button>
+    </form>
+
+    <br><br>
+
+    <form method="POST" action="/upload_logo" enctype="multipart/form-data">
+        <label for="file">Edycja Logo:</label><br>
+        <input type="file" name="file" accept=".jpg, .jpeg, .png">
+        <button id="submit_logo" type="submit">Edytuj Logo</button>
+    </form>
+</div>
+
+
+<h1 id="edit_site_response"></h1>
+
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+
+
+{% endblock %}

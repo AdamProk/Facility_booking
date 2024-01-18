@@ -1,0 +1,42 @@
+{% extends 'layout.html' %}
+
+{% block title %}My Account{% endblock %}
+
+
+{% block content %}
+
+<!-- Edit content here -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/my_account.css') }}" />
+
+
+<div class="my-account-container">
+    <div>PLACEHOLDER MY ACCOUNT</div>
+    <br>
+
+    <div>DISPLAY ACCOUNT INFO <br>
+    <strong>Email:</strong>     {{ user_data.email }} <br><br> 
+        <form action="/edit_account_info" method="POST">
+        <label for="name">Imie:</label>
+        <input type="text" name="name" value="{{ user_data.name }}">
+        <br>
+        <label for="description">Nazwisko:</label>
+        <input type="text" name="lastname" value="{{ user_data.lastname }}">
+        <br>
+        <label for="description">Numer telefonu:</label>
+        <input type="tel" name="phone_number" value="{{ user_data.phone_number }}">
+        <br>
+        <button id="submit_edit_account_info" type="submit">Edytuj swoje informacje</button>
+        </form>
+        <h1 id="edit_account_info_response"></h1>
+    </div>
+
+    <br>
+    <a href="/reset_password">Reset Password</a>
+    <br>
+    <a href="/my_account">View Reservation History (with option do cancel reservations)</a>
+    <br>
+</div>
+
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+
+{% endblock %}

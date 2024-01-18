@@ -1,0 +1,87 @@
+{% extends 'layout.html' %}
+
+{% block title %}Add Facility{% endblock %}
+
+
+{% block content %}
+
+<!-- Edit content here -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/add_facility.css') }}" />
+
+<div class="add-facility-container">
+    <form action="add_facility" method="POST">
+        <label for="name">Nazwa placówki:</label>
+        <input type="text" name="name" required>
+        <br>
+        <label for="description">Opis:</label>
+        <input type="text" name="description" required>
+        <br>
+
+        <label for="price_hourly">Cena za godzine wynajmu:</label>
+        <input type="number" name="price_hourly" required>
+        <br>
+        <label for="facility_type">Rodzaj placówki:</label>
+        <select name="id_facility_type" required>
+            {% for d in data %}
+            <option value="{{ d.id_facility_type }}"> {{ d.name }} </option>
+            {% endfor %}
+        </select>
+        <label for="city">Miasto:</label>
+        <input type="text" name="city" required>
+        <br>
+        <label for="state">Województwo:</label>
+        <input type="text" name="state" required>
+        <br>
+        <label for="street_name">Ulica:</label>
+        <input type="text" name="street_name" required>
+        <br>
+        <label for="building_number">Numer budynku:</label>
+        <input type="number" name="building_number" required>
+        <br>
+        <label for="postal_code">Kod pocztowy:</label>
+        <input type="text" name="postal_code" required>
+        <br>
+        <br>
+
+        <label for="time_open">Godziny otwarcia:</label><br>
+        <label for="monday">Poniedziałek:</label>
+        od<input type="time" name="monday_start" required>
+        do<input type="time" name="monday_end" required>
+        <br>
+        <label for="tuesday">Wtorek:</label>
+        od<input type="time" name="tuesday_start" required>
+        do<input type="time" name="tuesday_end" required>
+        <br>
+        <label for="wednesday">Środa:</label>
+        od<input type="time" name="wednesday_start" required>
+        do<input type="time" name="wednesday_end" required>
+        <br>
+        <label for="thursday">Czwartek:</label>
+        od<input type="time" name="thursday_start" required>
+        do<input type="time" name="thursday_end" required>
+        <br>
+        <label for="friday">Piątek:</label>
+        od<input type="time" name="friday_start" required>
+        do<input type="time" name="friday_end" required>
+        <br>
+        <label for="saturday">Sobota:</label>
+        od<input type="time" name="saturday_start" required>
+        do<input type="time" name="saturday_end" required>
+        <br>
+        <label for="sunday">Niedziela:</label>
+        od<input type="time" name="sunday_start" required>
+        do<input type="time" name="sunday_end" required>
+        <br>
+        <br>
+        
+        <button id="submit_facility" type="submit">Dodaj placówkę</button>
+    </form>
+</div>
+
+
+<h1 id="fac_response"></h1>
+
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+
+
+{% endblock %}

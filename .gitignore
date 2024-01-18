@@ -9,3 +9,7 @@ api/erd.png
 .vscode/
 
 website/static/images/
+
+pk_venv/
+
+volumes/
