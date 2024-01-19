@@ -27,6 +27,7 @@ class DATA_ENDPOINT(Enum):
         return name.lower()
 
     ME = auto()
+    DELETE_RESERVATION_ME = "me/delete_reservation"
     TOKEN = auto()
     USER_ROLE = auto()
     USER = auto()
@@ -50,6 +51,7 @@ class ACTION_ENDPOINT(Enum):
     CHECK_AVAILABILITY = auto()
     RESERVE = auto()
     CHECK_IF_EMAIL_EXISTS = auto()
+    RESERVED_FACILITY_HOURS = auto()
 
 
 class REQUEST_FORMAT(Enum):

@@ -5,6 +5,7 @@ import datetime
 from pydantic import Field
 
 UserReservation = ForwardRef("UserReservation")
+Reservation = ForwardRef("Reservation")
 Facility = ForwardRef("Facility")
 FacilityNoImage = ForwardRef("FacilityNoImage")
 
@@ -172,6 +173,8 @@ class Facility(BaseModel):
 
     images: list[Image]
 
+    reservations: list[Reservation]
+
 class FacilityNoImage(BaseModel):
     id_facility: int
 
@@ -229,7 +232,6 @@ class UserReservation(BaseModel):
 
     status: ReservationStatus
 
-
 class ReservationCreate(BaseModel):
     date: datetime.date
     start_hour: datetime.time
@@ -244,3 +246,4 @@ class ReservationCreate(BaseModel):
 User.model_rebuild()
 Facility.model_rebuild()
 FacilityNoImage.model_rebuild()
+Reservation.model_rebuild()

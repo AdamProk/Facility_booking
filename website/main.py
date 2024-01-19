@@ -751,7 +751,7 @@ def delete_reservation_me():
     try:
         API.make_request(
             API.METHOD.DELETE,
-            API.DATA_ENDPOINT.ME,
+            API.DATA_ENDPOINT.DELETE_RESERVATION_ME,
             query_params={"reservation_id": id_reservation},
         )
     except API.APIError as e:

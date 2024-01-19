@@ -74,7 +74,7 @@ def get_db(request: Request):
 # region SECURITY
 
 
-@app.get("/me", response_model=schemas.User, tags=['Security'])
+@app.get("/me", response_model=schemas.User, tags=["Security"])
 async def get_current_user(
     security_scopes: SecurityScopes,
     token: Annotated[str, Depends(oauth2_scheme)],
@@ -146,7 +146,7 @@ def update_me(
     return results
 
 
-@app.delete("/me", tags=["Security"])
+@app.delete("/me/delete_reservation", tags=["Security"])
 def delete_reservation(
     current_user: Annotated[
         schemas.User, Security(get_current_user, scopes=["user"])
@@ -155,18 +155,20 @@ def delete_reservation(
     db: Session = Depends(get_db),
 ):
     try:
-        user_reservation_ids = [r.id_reservation for r in current_user.reservations]
+        user_reservation_ids = [
+            r.id_reservation for r in current_user.reservations
+        ]
         if reservation_id not in user_reservation_ids:
-            raise NoResultFound("Reservation not found in user's reservations.")
+            raise NoResultFound(
+                "Reservation not found in user's reservations."
+            )
         crud.delete_reservation(db, reservation_id)
     except NoResultFound as e:
         raise HTTPException(status_code=404, detail=e.args[0])
     return JSONResponse({"result": True})
 
 
-
-
-@app.post("/token", response_model=schemas.Token, tags=['Security'])
+@app.post("/token", response_model=schemas.Token, tags=["Security"])
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Session = Depends(get_db),
@@ -1230,9 +1232,10 @@ def get_facilities(
     return results
 
 
-
 @app.get(
-    "/facility/search", response_model=list[schemas.Facility], tags=["Facilities"]
+    "/facility/search",
+    response_model=list[schemas.Facility],
+    tags=["Facilities"],
 )
 def search_facility(
     current_user: Annotated[
@@ -1396,6 +1399,36 @@ def update_reservation(
 
 
 # region ACTIONS
+
+
+@app.get(
+    "/actions/reserved_facility_hours/",
+    response_model=list[schemas.UserReservation],
+    tags=["Actions"],
+)
+def get_reserved_facility_hours(
+    current_user: Annotated[
+        schemas.User, Security(get_current_user, scopes=["user"])
+    ],
+    id_facility: int,
+    date: datetime.date,
+    db: Session = Depends(get_db),
+):
+    try:
+        del current_user
+        reservations = crud.get_reservations(db, id_facility=id_facility, date=date)
+        if not reservations:
+            raise NoResultFound(
+                "No reservations found."
+            )
+    except IntegrityError:
+        raise HTTPException(
+            status_code=500,
+            detail="Incorrect information. Unique constraint violated or one of the object ids not in the database.",
+        )
+    except NoResultFound as e:
+        raise HTTPException(status_code=404, detail=e.args[0])
+    return JSONResponse({"result": reservations})
 
 
 @app.get("/actions/check_availability/", tags=["Actions"])
