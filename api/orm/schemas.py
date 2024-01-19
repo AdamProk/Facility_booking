@@ -173,7 +173,7 @@ class Facility(BaseModel):
 
     images: list[Image]
 
-    reservations: list[Reservation]
+    # reservations: list[Reservation]
 
 class FacilityNoImage(BaseModel):
     id_facility: int
