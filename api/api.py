@@ -1424,7 +1424,7 @@ def get_reserved_facility_hours(
         )
     except NoResultFound as e:
         raise HTTPException(status_code=404, detail=e.args[0])
-    return JSONResponse({"result": reservations})
+    return reservations
 
 
 @app.get("/actions/check_availability/", tags=["Actions"])
