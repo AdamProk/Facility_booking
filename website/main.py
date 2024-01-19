@@ -1,3 +1,4 @@
+
 import requests
 import traceback
 from sqlalchemy.exc import NoResultFound
@@ -23,6 +24,7 @@ import json
 import logging
 import traceback
 from datetime import date, datetime, timedelta
+#from components import emails_handler
 
 LOGGER = logging.getLogger(__name__)
 
@@ -121,6 +123,7 @@ def login():
     password = str(request.form.get("password"))
     try:
         session["token"] = API.get_token(email, password)
+        #emails_handler.send()
     except API.APIError as e:
         LOGGER.info(e)
         LOGGER.error(traceback.format_exc())
@@ -648,12 +651,41 @@ def reserve_site():
         data = API.make_request(
             API.METHOD.GET,
             API.DATA_ENDPOINT.FACILITY,
-            query_params={'id_facility': id_facility},
+            query_params={
+                'id_facility': id_facility},
         )
     except API.APIError as e:
         LOGGER.error(e)
         data = []
-    return render_template("reserve.html", data=data)
+    return render_template("reserve.html", data=data, data2=[])
+
+@app.route("/check_reservations_on_date", methods=["POST"], logged_in=True, redirect_url="/")
+def check_reservations_on_date():
+    try:
+        id_facility = int(request.form.get("id_facility"))
+        reservation_date = str(request.form.get("reservation_date"))
+        if not reservation_date:
+            return make_response(jsonify({"response": "Please input a date to check."}), 500)
+        reserved_list = API.make_request(
+            API.METHOD.GET,
+            API.DATA_ENDPOINT.RESERVATION,
+            query_params={
+                'id_facility': id_facility,
+                'date': reservation_date,},
+        )
+    except exc.UniqueConstraintViolated as e:
+        LOGGER.error(traceback.format_exc())
+        return make_response(jsonify({"response": str(e)}), 500)
+    except NoResultFound as e:
+        LOGGER.error(traceback.format_exc())
+        return make_response(jsonify({"response": str(e)}), 404)
+    except API.APIError as e:
+        LOGGER.error(traceback.format_exc())
+        return make_response(jsonify({"response": str(e)}), 500)
+    except ValueError as e:
+        LOGGER.error(traceback.format_exc())
+        return make_response(jsonify({"response": str(e)}), 500)
+    return make_response(jsonify(reservation_list=reserved_list), 200)
 
 
 @app.route("/reserve", methods=["POST"], logged_in=True, redirect_url="/")
