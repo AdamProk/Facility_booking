@@ -198,6 +198,9 @@ class FacilityCreate(BaseModel):
 
     ids_open_hours: list[int]
 
+class FacilityShort(BaseModel):
+    id_facility: int
+    name: str
 
 class Reservation(BaseModel):
     id_reservation: int
@@ -222,7 +225,7 @@ class UserReservation(BaseModel):
     end_hour: datetime.time
     price_final: float
 
-    facility: Facility
+    facility: FacilityShort
 
     status: ReservationStatus
 

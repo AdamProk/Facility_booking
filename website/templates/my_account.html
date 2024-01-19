@@ -6,7 +6,7 @@
 {% block content %}
 
 <!-- Edit content here -->
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/my_account.css') }}" />
+<!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/my_account.css') }}" /> -->
 
 
 <div class="my-account-container">
@@ -33,10 +33,50 @@
     <br>
     <a href="/reset_password">Reset Password</a>
     <br>
-    <a href="/my_account">View Reservation History (with option do cancel reservations)</a>
+    
+    <div>
+        <br>
+        <h1>RESERVATIONS</h1>
+        <ul id="reservation_list">
+            {% set statuses = {'Pending': 2, 'Confirmed': 3, 'Finished': 1} %}
+    
+            {% for status_name, status_id in statuses.items() %}
+            <h2>{{ status_name }}</h2>
+            {% for d in data['reservations'] %}
+                {% if d['status']['id_reservation_status'] == status_id %}
+                <li>
+                    {% for key, value in d.items() %}
+                        {% if key not in ['user', 'facility'] %}
+                            <strong>{{ key }}:</strong> {{ value }}<br>
+                        {% endif %}
+    
+                        {% if key == 'user' %}
+                            <strong>{{ key }}:</strong> {{ value['id_user'] }}<br>
+                            <strong>{{ key }}:</strong> {{ value['email'] }}<br>
+                        {% endif %}
+    
+                        {% if key == 'facility' %}
+                            <strong>{{ key }}:</strong> {{ value }}<br>
+                        {% endif %}
+                    {% endfor %}
+    
+                    {% if status_id in [2, 3] and d['date']|string_to_datetime > curr_date %}
+                    <form method="POST" action="/delete_reservation_me">
+                        <input type="submit" value="Cancel Reservation">
+                        <input type="hidden" name="id_reservation" value="{{d.id_reservation}}">
+                    </form>
+                    {% endif %}
+                </li>
+                {% endif %}
+            {% endfor %}
+            {% endfor %}
+        </ul>
+    </div>
+
     <br>
 </div>
 
 <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+
 
 {% endblock %}

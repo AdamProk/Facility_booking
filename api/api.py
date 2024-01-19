@@ -112,7 +112,7 @@ async def get_current_user(
     return user
 
 
-@app.put("/me/", response_model=schemas.User, tags=["Security"])
+@app.put("/me", response_model=schemas.User, tags=["Security"])
 def update_me(
     current_user: Annotated[
         schemas.User, Security(get_current_user, scopes=["user"])
@@ -144,6 +144,26 @@ def update_me(
             status_code=404, detail="No occurence found in the database."
         )
     return results
+
+
+@app.delete("/me", tags=["Security"])
+def delete_reservation(
+    current_user: Annotated[
+        schemas.User, Security(get_current_user, scopes=["user"])
+    ],
+    reservation_id: int,
+    db: Session = Depends(get_db),
+):
+    try:
+        user_reservation_ids = [r.id_reservation for r in current_user.reservations]
+        if reservation_id not in user_reservation_ids:
+            raise NoResultFound("Reservation not found in user's reservations.")
+        crud.delete_reservation(db, reservation_id)
+    except NoResultFound as e:
+        raise HTTPException(status_code=404, detail=e.args[0])
+    return JSONResponse({"result": True})
+
+
 
 
 @app.post("/token", response_model=schemas.Token, tags=['Security'])
@@ -321,7 +341,7 @@ def get_users(
     return results
 
 
-@app.get("/action/check_if_email_exists", tags=["Actions"])
+@app.get("/actions/check_if_email_exists", tags=["Actions"])
 def check_if_username_in_db(
     email: str,
     db: Session = Depends(get_db),

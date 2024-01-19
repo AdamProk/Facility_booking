@@ -1,7 +1,6 @@
 function performSearch() {
     var query = document.getElementById("search").value.toLowerCase();
-    var facilityList = document.getElementById("facility_list");
-    var facilities = facilityList.getElementsByTagName("li");
+    var facilities = document.getElementsByClassName("facilities_id");
 
     for (var i = 0; i < facilities.length; i++) {
         var facilityName = facilities[i].textContent.toLowerCase();

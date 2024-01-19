@@ -164,7 +164,7 @@ def update_user(
     if user is None:
         raise NoResultFound("No user found with this id in the database.")
 
-    update_dict = locals()
+    update_dict = locals().copy()
     del update_dict["db"]
 
     for key, value in update_dict.items():
@@ -644,7 +644,7 @@ def update_open_hour(
             raise NoResultFound("No day with specified name in the database.")
         update_dict["id_day"] = days[0].id_day
 
-    del update_dict['day_name'] 
+    del update_dict["day_name"]
 
     for key, value in update_dict.items():
         if value is not None:
@@ -852,16 +852,19 @@ def delete_facility(db: Session, facility_id: int):
     query = db.query(models.Facility).filter(
         models.Facility.id_facility == facility_id
     )
-    if query.first() is None:
+    facility = query.first()
+
+    if facility is None:
         raise NoResultFound(
             "No occurence found with this id was found in the database."
         )
-    facility = query.first()
     facility.company.facilities.remove(facility)
     facility.facility_type.facilities.remove(facility)
     facility.address.facilities.remove(facility)
     for open_hour in facility.open_hours:
         open_hour.facilities.remove(facility)
+    facility.open_hours.clear()
+    db.commit()
     db.delete(facility)
 
     db.commit()
@@ -887,8 +890,9 @@ def update_facility(
     if facility is None:
         raise NoResultFound("No facility found with this id in the database.")
 
-    update_dict = locals()
+    update_dict = locals().copy()
     del update_dict["db"]
+    del update_dict["ids_open_hours"]
 
     for key, value in update_dict.items():
         if value is not None:
@@ -898,8 +902,9 @@ def update_facility(
         for open_hour in facility.open_hours:
             open_hour.facilities.remove(facility)
 
-        for open_hour in facility.open_hours:
-            facility.open_hours.remove(open_hour)
+        # for open_hour in facility.open_hours.copy():
+        #     facility.open_hours.remove(open_hour)
+        facility.open_hours.clear()
         for id_open_hour in ids_open_hours:
             results = get_open_hours(db, id_open_hours=id_open_hour)
             if len(results) < 1:
@@ -907,7 +912,7 @@ def update_facility(
                     "No open_hours with specified id in the database."
                 )
             facility.open_hours.append(results[0])
-
+        facility.ids_open_hours = ids_open_hours
     db.commit()
 
     return facility

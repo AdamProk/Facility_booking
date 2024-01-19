@@ -12,6 +12,7 @@
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="{{ url_for('static', filename='js/datepicker_handler.js') }}"></script>
 <script src="{{ url_for('static', filename='js/navbar_opacity.js') }}"></script>
+<script src="{{ url_for('static', filename='js/update_fac_list.js') }}"></script>
 <!-- Include jQuery UI -->
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
@@ -25,18 +26,18 @@
         </h1>
     </div>
 </div>
-
+{% if data %}
 <div class="search-bar-wrap" id="search-bar">
     <div class="search-bar">
-        <input type="text" placeholder="What are you looking for today ?...">
+        <input type="text" id="search" oninput="performSearch()" placeholder="What are you looking for today ?...">
         <!-- <input type="text" id="datepicker_1" placeholder="Select a date"> -->
-        <button>search</button>
+        <!-- <button>search</button> -->
     </div>
 </div>
 
 <div class="container" id="container">
     {% for d in data %}
-        <a href="/">
+        <a href="/" class="facilities_id">
             <div class="facilities">
                 <div class="facil_image">
                     {% if d['images'] %}
@@ -57,9 +58,12 @@
                         <output>{{ d['address']['street_name'] }} {{d['address']['building_number']}}</output>
                         <output>{{ d['address']['postal_code'] }}, {{ d['address']['state']['name'] }}</output>
                 </div>
-
+                <form method="GET" action="/reserve">
+                    <input type="submit" value="Reserve">
+                    <input type="hidden" name="id_facility" value="{{d.id_facility}}">
+                </form>
                 {% if user_data.user_role.id_user_role == 2 %}
-                <div class="reserve-btn">RESERVE</div>
+                <!-- <div class="reserve-btn">RESERVE</div> -->
                 <form method="POST" action="/upload_facility_image" enctype="multipart/form-data">
                     <input type="file" name="file" accept=".jpg, .jpeg, .png, .gif">
                     <input type="submit" value="Upload">
@@ -79,6 +83,7 @@
     {% endfor %}
 </div> 
 
+{% endif %}
 {% endblock %}
 
 

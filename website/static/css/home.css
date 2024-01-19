@@ -140,6 +140,7 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     width: 80vw;
     min-width: 21em;
+    min-height: 50vh;
     border-radius: 5px;
     display: flex;
     flex-wrap: wrap;
