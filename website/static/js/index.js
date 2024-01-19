@@ -164,7 +164,47 @@ $("#submit_edit_account_info").click(function (e) {
         }
     });
 });
-
+$(document).ready(function(e) {
+    $("#checkDate").click(function (e) {
+        e.preventDefault();
+        var reservation_date = $('#datePickerId').val();
+        var id_facility = $('#id_facility').val();
+        $.ajax({
+            type: "POST",
+            url: "http://localhost:9000/check_reservations_on_date",
+            data: {reservation_date: reservation_date, id_facility: id_facility},
+            success: function (response) {
+                // Clear existing content
+                $("#dynamicContent").empty();
+                $("#checkdate_response").empty();
+                // Check if reservation_list is not empty
+                if (response.reservation_list && response.reservation_list.length > 0) {
+                    // Iterate through the list and append data to dynamicContent
+                    $.each(response.reservation_list, function(index, reservation) {
+                        var reservationHtml = '';
+                        $.each(reservation, function(key, value) {
+                            reservationHtml += '<strong>' + key + '</strong>' + value + ' ';
+                        });
+                        $("#dynamicContent").append('<div>' + reservationHtml + '</div>');
+                    });
+                } else {
+                    // Display a message if the list is empty
+                    $("#checkdate_response").html("No reservations on this day");
+                }
+            },
+            error: function (xhr, status, error) {
+            if (xhr.status === 404) {
+                var errorResponse = $.parseJSON(xhr.responseText);
+                $("#checkdate_response").html(errorResponse.response);
+            }
+            if (xhr.status === 500) {
+                var errorResponse = $.parseJSON(xhr.responseText);
+                $("#checkdate_response").html(errorResponse.response);
+            }
+            }
+        });
+    });
+});
 
 $("#submit_edit").click(function (e) {
     e.preventDefault();
@@ -232,16 +272,16 @@ $("#reserve").submit(function (e) {
         url: "http://localhost:9000/reserve",
         data: formData,
         success: function (response) {
-            $("#fac_response").html(response["response"]);
+            $("#reservation_response").html(response["response"]);
         },
         error: function (xhr, status, error) {
         if (xhr.status === 404) {
             var errorResponse = $.parseJSON(xhr.responseText);
-            $("#fac_response").html(errorResponse.response);
+            $("#reservation_response").html(errorResponse.response);
         }
         if (xhr.status === 500) {
             var errorResponse = $.parseJSON(xhr.responseText);
-            $("#fac_response").html(errorResponse.response);
+            $("#reservation_response").html(errorResponse.response);
             form[0].reset();
         }
         }
