@@ -19,7 +19,7 @@
 
 
 <div class="main-graphic" id="main-graphic">
-    <img src="{{ url_for('static', filename='images/football_pitch_dark.jpg') }}", alt="Client main site image"/>
+    <img src="{{ url_for('static', filename='assets/football_pitch_dark.jpg') }}", alt="Client main site image"/>
     <div class="img-overlay">
         <h1>
             reserve your time.
@@ -37,19 +37,21 @@
 
 <div class="container" id="container">
     {% for d in data %}
-        <a href="/" class="facilities_id">
+        <a class="facilities_id" onclick="reserveFacility('{{d.id_facility}}')">
+            <form id="reserveForm" method="GET" action="/reserve">
+                <input type="hidden" name="id_facility" value="{{d.id_facility}}">
+            </form>
+            <script>
+                function reserveFacility(id) {
+                    window.location.href = "/reserve?id_facility=" + id;
+                }
+            </script>
             <div class="facilities">
                 <div class="facil_image">
                     {% if d['images'] %}
-                        {% for img in d['images'] %}
-
-                                <img src="{{ url_for('static', filename='images/' + img['image_path']) }}">
-                                <!-- <img src="{{ url_for('static', filename='images/' + d['images'][0]['image_path']) }}"> -->
-                                
-
-                        {% endfor %}
+                        <img src="{{ url_for('static', filename='images/' + d['images'][0]['image_path']) }}">
                     {% else %}
-                        <img src="{{ url_for('static', filename='images/no_image.jpg') }}" alt="no image available">
+                        <img src="{{ url_for('static', filename='assets/no_image.jpg') }}" alt="no image available">
                     {% endif %}
                 </div>
                 <div class="facil_info">
@@ -58,12 +60,7 @@
                         <output>{{ d['address']['street_name'] }} {{d['address']['building_number']}}</output>
                         <output>{{ d['address']['postal_code'] }}, {{ d['address']['state']['name'] }}</output>
                 </div>
-                <form method="GET" action="/reserve">
-                    <input type="submit" value="Reserve">
-                    <input type="hidden" name="id_facility" value="{{d.id_facility}}">
-                </form>
                 {% if user_data.user_role.id_user_role == 2 %}
-                <!-- <div class="reserve-btn">RESERVE</div> -->
                 <form method="POST" action="/upload_facility_image" enctype="multipart/form-data">
                     <input type="file" name="file" accept=".jpg, .jpeg, .png, .gif">
                     <input type="submit" value="Upload">

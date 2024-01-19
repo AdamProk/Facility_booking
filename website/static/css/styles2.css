@@ -15,6 +15,7 @@ body {
     background-color: #f2f2f2;
 
     overflow-x: hidden;
+
 }
 
 
@@ -51,8 +52,24 @@ body {
 /*************** F O O T E R ***************/
 
 
-.footer {
+footer {
+    width: 100vw;
+    height: 20vh;
+    margin-top: 3vh;
+    padding: 1vw;
+
+    background-color: #969696;
+
     text-align: center;
-    padding: 10px;
-    width: 100%;
+    font-size: large;
+    color: #000000;
+
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+footer div {
+    min-width: 10vw;   
+
 }

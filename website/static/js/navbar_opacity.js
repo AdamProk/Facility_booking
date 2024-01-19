@@ -12,7 +12,7 @@ function main() {
           var header = document.querySelector("nav");
           scrollPosition = window.scrollY;
         
-          fade = (/*document.body.scrollHeight*/ this.window.innerHeight - scrollPosition) / (scrollPosition * 0.05);
+          fade = (/*document.body.scrollHeight*/ (this.window.innerHeight * 0.8) - scrollPosition) / (scrollPosition * 0.05);
           solidFade = fade / 3;
           
           // Ensure transparency stays between 0 and 100
