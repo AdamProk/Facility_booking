@@ -6,28 +6,30 @@
 {% block content %}
 
 <!-- Edit content here -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/register.css') }}" />
 
 <div class="container">
+    <h1 id="SignUpText">SIGN UP</h1>
     <form action="/register" method="post" id="submit_registration">
-        <label for="email"> Email:</label>
-        <input type="email" name="email" required>
+        <!--<label for="email"> Email:</label>-->
+        <input type="email" name="email" required placeholder="Email">
         <br>
-        <label for="password">Password:</label>
-        <input type="password" name="password" required>
+        <!--<label for="password">Password:</label>-->
+        <input type="password" name="password" required placeholder="password">
         <br>
         <br>
         <div>
             USER INFORMATION
         </div>
-        <label for="username">Username:</label>
-        <input type="text" name="username" required>
-        <label for="lastname">Lastname:</label>
-        <input type="text" name="lastname" required>
+        <!--<label for="username">Username:</label>-->
+        <input type="text" name="name" required placeholder="Name">
+        <!--<label for="lastname">Lastname:</label>-->
+        <input type="text" name="lastname" required placeholder="Surname">
         <br>
-        <label for="lastname">Phone Number:</label>
-        <input type="tel" name="phone_number" required>
+        <!--<label for="lastname">Phone Number:</label>-->
+        <input type="tel" name="phone_number" required placeholder="Phone Number">
         <br>
-        <button type="submit">Stwórz konto</button>
+        <button type="submit">Sign up</button>
         <h1 id="register_response"></h1>
     </form>
     <br>

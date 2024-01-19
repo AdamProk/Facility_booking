@@ -31,8 +31,12 @@
                     {% endif %}
                 {% endfor %}
                 <form method="POST" action="/reserve" id="submit_reservation">
+                    <input type="hidden" id="id_facility" name="id_facility" value="{{d.id_facility}}">
                     <label for="reservation_date">Data:</label>
                     <input type="date" name="reservation_date" id="datePickerId" required>
+                    <button type="button" id="checkDate">check reservations on this day</button>
+                    <p id="checkdate_response"></p>
+                    <div id="dynamicContent"></div>
                     <br>
                     <label for="reservation_start_time">Godzina startowa:</label>
                     <input type="time" name="reservation_start_time" step='1800' required>
@@ -41,7 +45,6 @@
                     <input type="time" name="reservation_end_time" step='1800' required>
                     <br>
                     <input type="submit" value="Reserve">
-                    <input type="hidden" name="id_facility" value="{{d.id_facility}}">
                 </form>
                 <h1 id="reservation_response"></h1>
             </div>
