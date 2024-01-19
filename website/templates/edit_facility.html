@@ -6,20 +6,25 @@
 {% block content %}
 
 <!-- Edit content here -->
-
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/edit_facility.css') }}" />
 <div class="container">
+    <h1 id="ChangeFacilityInfoText">EDIT INFORMATIONS</h1>
     <form id="edit_facility" action="edit_facility" method="POST">
-        <label for="name">Nazwa placówki:</label>
+        <div class="info">
+        <div class="input">
+        <label for="name">Facility name</label>
         <input type="text" name="name" value="{{ data[0].name }}">
-        <br>
-        <label for="description">Opis:</label>
+        </div>
+        <div class="input">
+        <label for="description">Description</label>
         <input type="text" name="description" value="{{ data[0].description }}">
-        <br>
-
-        <label for="price_hourly">Cena za godzine wynajmu:</label>
+        </div>
+        <div class="input">
+        <label for="price_hourly">Price hourly</label>
         <input type="number" name="price_hourly" value="{{ data[0].price_hourly }}">
-        <br>
-        <label for="facility_type">Rodzaj placówki:</label>
+        </div>
+        <div class="input">
+        <label for="facility_type">Facility type</label>
         <select name="id_facility_type">
             {% for d in data_fac_type %}
             {%if d.id_facility_type == data[0].facility_type.id_facility_type %}
@@ -29,56 +34,73 @@
             {% endif %}
             {% endfor %}
         </select>
-        <label for="city">Miasto:</label>
+        </div>
+        <div class="input">
+        <label for="city">City</label>
         <input type="text" name="city" value="{{ data[0].address.city.name }}">
-        <br>
-        <label for="state">Województwo:</label>
+        </div>
+        <div class="input">
+        <label for="state">State</label>
         <input type="text" name="state" value="{{ data[0].address.state.name }}">
-        <br>
-        <label for="street_name">Ulica:</label>
+        </div>
+        <div class="input">
+        <label for="street_name">Street</label>
         <input type="text" name="street_name" value="{{ data[0].address.street_name }}">
-        <br>
-        <label for="building_number">Numer budynku:</label>
+        </div>
+        <div class="input">
+        <label for="building_number">Building number</label>
         <input type="number" name="building_number" value="{{ data[0].address.building_number }}">
-        <br>
-        <label for="postal_code">Kod pocztowy:</label>
+        </div>
+        <div class="input">
+        <label for="postal_code">Zip code</label>
         <input type="text" name="postal_code" value="{{ data[0].address.postal_code }}">
+        </div>
+        </div>
         <br>
+        <br>
+        
+        <div class="open_hours">
+        <label for="time_open">OPENING HOURS</label><br>
+        <div class="hours">
+        <label for="monday">Monday:</label>
+        form<input type="time" name="monday_start" value="{{ data[0].open_hours[0].start_hour }}" step="1800">
+        to<input type="time" name="monday_end" value="{{ data[0].open_hours[0].end_hour }}" step="1800">
+        </div>
+        <div class="hours">
+        <label for="tuesday">Tuesday:</label>
+        from<input type="time" name="tuesday_start" value="{{ data[0].open_hours[1].start_hour }}" step="1800">
+        to<input type="time" name="tuesday_end" value="{{ data[0].open_hours[1].end_hour }}" step="1800">
+        </div>
+        <div class="hours">
+        <label for="wednesday">Wednesday:</label>
+        from<input type="time" name="wednesday_start" value="{{ data[0].open_hours[2].start_hour }}" step="1800">
+        to<input type="time" name="wednesday_end" value="{{ data[0].open_hours[2].end_hour }}" step="1800">
+        </div>
+        <div class="hours">
+        <label for="thursday">Thursday:</label>
+        from<input type="time" name="thursday_start" value="{{ data[0].open_hours[3].start_hour }}" step="1800">
+        to<input type="time" name="thursday_end" value="{{ data[0].open_hours[3].end_hour }}" step="1800">
+        </div>
+        <div class="hours">
+        <label for="friday">Friday:</label>
+        from<input type="time" name="friday_start" value="{{ data[0].open_hours[4].start_hour }}" step="1800">
+        to<input type="time" name="friday_end" value="{{ data[0].open_hours[4].end_hour }}" step="1800">
+        </div>
+        <div class="hours">
+        <label for="saturday">Saturday:</label>
+        form<input type="time" name="saturday_start" value="{{ data[0].open_hours[5].start_hour }}" step="1800">
+        to<input type="time" name="saturday_end" value="{{ data[0].open_hours[5].end_hour }}" step="1800">
+        </div>
+        <div class="hours">
+        <label for="sunday">Sunday:</label>
+        from<input type="time" name="sunday_start" value="{{ data[0].open_hours[6].start_hour }}" step="1800">
+        to<input type="time" name="sunday_end" value="{{ data[0].open_hours[6].end_hour }}" step="1800">
+        </div>
         <br>
 
-        <label for="time_open">Godziny otwarcia:</label><br>
-        <label for="monday">Poniedziałek:</label>
-        od<input type="time" name="monday_start" value="{{ data[0].open_hours[0].start_hour }}" step="1800">
-        do<input type="time" name="monday_end" value="{{ data[0].open_hours[0].end_hour }}" step="1800">
-        <br>
-        <label for="tuesday">Wtorek:</label>
-        od<input type="time" name="tuesday_start" value="{{ data[0].open_hours[1].start_hour }}" step="1800">
-        do<input type="time" name="tuesday_end" value="{{ data[0].open_hours[1].end_hour }}" step="1800">
-        <br>
-        <label for="wednesday">Środa:</label>
-        od<input type="time" name="wednesday_start" value="{{ data[0].open_hours[2].start_hour }}" step="1800">
-        do<input type="time" name="wednesday_end" value="{{ data[0].open_hours[2].end_hour }}" step="1800">
-        <br>
-        <label for="thursday">Czwartek:</label>
-        od<input type="time" name="thursday_start" value="{{ data[0].open_hours[3].start_hour }}" step="1800">
-        do<input type="time" name="thursday_end" value="{{ data[0].open_hours[3].end_hour }}" step="1800">
-        <br>
-        <label for="friday">Piątek:</label>
-        od<input type="time" name="friday_start" value="{{ data[0].open_hours[4].start_hour }}" step="1800">
-        do<input type="time" name="friday_end" value="{{ data[0].open_hours[4].end_hour }}" step="1800">
-        <br>
-        <label for="saturday">Sobota:</label>
-        od<input type="time" name="saturday_start" value="{{ data[0].open_hours[5].start_hour }}" step="1800">
-        do<input type="time" name="saturday_end" value="{{ data[0].open_hours[5].end_hour }}" step="1800">
-        <br>
-        <label for="sunday">Niedziela:</label>
-        od<input type="time" name="sunday_start" value="{{ data[0].open_hours[6].start_hour }}" step="1800">
-        do<input type="time" name="sunday_end" value="{{ data[0].open_hours[6].end_hour }}" step="1800">
-        <br>
-        <br>
-
-        <button type="submit">Edytuj placówkę</button>
+        <button type="submit">Edit Facility</button>
         <input type="hidden" name="id_facility" value="{{data[0].id_facility}}">
+        </div>
     </form>
 </div>
 

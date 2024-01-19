@@ -8,54 +8,55 @@
 <!-- Edit content here -->
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/edit_site.css') }}" />
 <div class="container">
-    <form action="edit_site" method="POST">
-        <label for="name">Nazwa placówki:</label>
-        <br>
+    <h1 id="ChangeFacilityInfoText">EDIT INFORMATIONS</h1>
+    <form action="edit_site" method="POST" id="info">
+        <div class="input">
+        <label for="name">Facility name</label>
         <input type="text" name="name" value="{{ footer_data[0].name }}">
-        <br>
-        <label for="description">NIP:</label>
-        <br>
+        </div>
+        <div class="input">
+        <label for="description">NIP</label>
         <input type="text" name="nip" value="{{ footer_data[0].nip }}">
-        <br>
-        <label for="description">Numer telefonu:</label>
-        <br>
+        </div>
+        <div class="input">
+        <label for="description">Phone number</label>
         <input type="text" name="phone_number" value="{{ footer_data[0].phone_number }}">
-        <br>
-
-        <label for="city">Miasto:</label>
-        <br>
+        </div>
+        <div class="input"> 
+        <label for="city">City</label>
         <input type="text" name="city" value="{{ footer_data[0].address.city.name }}">
-        <br>
-        <label for="state">Województwo:</label>
-        <br>
+        </div>
+        <div class="input">
+        <label for="state">State</label>
         <input type="text" name="state" value="{{ footer_data[0].address.state.name }}">
-        <br>
-        <label for="street_name">Ulica:</label>
-        <br>
+        </div>  
+        <div class="input">
+        <label for="street_name">Street</label>
         <input type="text" name="street_name" value="{{ footer_data[0].address.street_name }}">
-        <br>
-        <label for="building_number">Numer budynku:</label>
-        <br>
+        </div>
+        <div class="input">
+        <label for="building_number">Building number</label>
         <input type="number" name="building_number" value="{{ footer_data[0].address.building_number }}">
-        <br>
-        <label for="postal_code">Kod pocztowy:</label>
-        <br>
+        </div>
+        <div class="input">
+        <label for="postal_code">Zip code</label>
         <input type="text" name="postal_code" value="{{ footer_data[0].address.postal_code }}">
+        </div>
         <br>
-        <button id="submit_edit" type="submit">Edytuj swoje informacje</button>
     </form>
-
+    <button id="submit_edit" type="submit">Edit informations</button>
     <br><br>
 
-    <form method="POST" action="/upload_logo" enctype="multipart/form-data">
-        <label for="file">Edycja Logo:</label><br>
+    <form method="POST" action="/upload_logo" enctype="multipart/form-data" class="logo">
+        <label for="file">Logo editing:</label><br>
         <input type="file" name="file" accept=".jpg, .jpeg, .png">
-        <button id="submit_logo" type="submit">Edytuj Logo</button>
+        <br>
+        <button id="submit_logo" type="submit">Edit logo</button>
+        <h1 id="edit_site_response"></h1>
     </form>
 </div>
 
 
-<h1 id="edit_site_response"></h1>
 
 <script src="{{ url_for('static', filename='js/index.js') }}"></script>
 
