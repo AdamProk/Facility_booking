@@ -1417,10 +1417,6 @@ def get_reserved_facility_hours(
     try:
         del current_user
         reservations = crud.get_reservations(db, id_facility=id_facility, date=date)
-        if not reservations:
-            raise NoResultFound(
-                "No reservations found."
-            )
     except IntegrityError:
         raise HTTPException(
             status_code=500,
