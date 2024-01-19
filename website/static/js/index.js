@@ -180,11 +180,10 @@ $(document).ready(function(e) {
                 // Check if reservation_list is not empty
                 if (response.reservation_list && response.reservation_list.length > 0) {
                     // Iterate through the list and append data to dynamicContent
+                    $("#dynamicContent").append('<div>' + "<strong>Reserved:</strong><br><br>" + '</div>');
                     $.each(response.reservation_list, function(index, reservation) {
                         var reservationHtml = '';
-                        $.each(reservation, function(key, value) {
-                            reservationHtml += '<strong>' + key + '</strong>' + value + ' ';
-                        });
+                        reservationHtml += `<strong> date: ${reservation['date']} </strong> ${reservation['start_hour']} - ${reservation['end_hour']}`
                         $("#dynamicContent").append('<div>' + reservationHtml + '</div>');
                     });
                 } else {

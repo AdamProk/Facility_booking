@@ -60,7 +60,7 @@ def search_facility():
             query_params = {'name': search_term}
         results  = API.make_request(
             API.METHOD.GET,
-            API.DATA_ENDPOINT.FACILITY,
+            API.ACTION_ENDPOINT.SEARCH_FACILITY,
             query_params=query_params
         )
     except API.APIError as e:
@@ -668,11 +668,15 @@ def check_reservations_on_date():
             return make_response(jsonify({"response": "Please input a date to check."}), 500)
         reserved_list = API.make_request(
             API.METHOD.GET,
-            API.DATA_ENDPOINT.RESERVATION,
+            API.ACTION_ENDPOINT.RESERVED_FACILITY_HOURS,
             query_params={
                 'id_facility': id_facility,
-                'date': reservation_date,},
+                'date': reservation_date,
+                },
         )
+        if not reserved_list:
+            raise NoResultFound("No reservations on this day")
+        
     except exc.UniqueConstraintViolated as e:
         LOGGER.error(traceback.format_exc())
         return make_response(jsonify({"response": str(e)}), 500)
