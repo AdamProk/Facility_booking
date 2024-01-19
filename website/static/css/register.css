@@ -1,6 +1,4 @@
-
-
-.login-container {
+.container {
     width: 100vw;
     height: 100vh;
 
@@ -11,10 +9,8 @@
 
     text-align: center;
 
-
 }
-
-.login-container input{
+.container input{
     text-align: center;
     width: 15em;
     height: 2.5em;
@@ -26,39 +22,18 @@
     background-color: #cecece;
     box-shadow: 0 0 10px #40fcbc; 
 }
-#LogInText{
+.container div{
     color: rgba(0,0,0, .6);
     font-size: 2em;
-    margin-bottom: 1em;
-}
-#submit_login button {
-    height: 2.5em;
-    width: 6em;
     margin: 0.5em;
-    margin-top: 1.5em;
-
-    border-radius: 2em;
-    color: black;
-    font-size: large;
-    text-align: center;
-
-    background-color: #40fcbc;
-    border-style: none;
-
-    cursor: pointer;
+    font-weight: bold;
 }
-#submit_login button:hover {
-    color: white;
-}
-#login_response{
-    color: rgba(255,0,0, .6);
-    font-size: 0.75em;
-    margin: 0.5em;
-}
-.register button{
+.container button{
     height: 2.5em;
     width: 12em;
     margin: 0.5em;
+    margin-top: 1em;
+
     border-radius: 2em;
     color: black;
     font-size: large;
@@ -69,8 +44,16 @@
 
     cursor: pointer;
 }
-
-.register button:hover{
+.container button:hover{
     color: white;
 }
-
+.container h1{
+    color: rgba(0,0,0, .6);
+    margin: 0.5em;
+    font-size: 1.5em;
+} 
+#SignUpText{
+    color: rgba(0,0,0, .6);
+    font-size: 2.5em;
+    margin-bottom: 1em;
+}
