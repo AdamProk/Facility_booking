@@ -5,53 +5,128 @@
 
 {% block content %}
 <!-- Edit content here -->
-<!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/home.css') }}" /> -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/reserve.css') }}" />
 
 
 <!-- Include Scripts -->
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="{{ url_for('static', filename='js/datepicker_handler.js') }}"></script>
 <script src="{{ url_for('static', filename='js/navbar_opacity.js') }}"></script>
+
+
 <!-- Include jQuery UI -->
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
-<div class="container" id="container">
-            {% for d in data %}
-            <div class="facil_info">
-                {% for key, value in d.items() %}
-                    <strong id="facil_name_strong"> {{key}}</strong> {{value}} <br>
+
+
+<div class="reserve-container" id="reserve-container">
+        {% for d in data %}
+            <!-- Main Graphic -->
+            <div class="main-graphic">
+                {% if d['images'] %}
+                    <img src="{{ url_for('static', filename='images/' + d['images'][0]['image_path']) }}">
+                {% else %}
+                    <img src="{{ url_for('static', filename='assets/no_image.jpg') }}" alt="no image available">
+                {% endif %}
+            </div>
+        
+            <!-- Main Graphic Overlay -->
+            <div class="img-overlay">
+                <output id="facil_name">{{ d['name'] }}</output>
+                <output id="facil_type">{{ d['facility_type']['name'] }}</output>
+            </div>
+
+            <!-- Local Menu -->
+            <div class="menu-wrapper">
+                <div class="menu" id="menu">
+                    <button onclick="scrollToDiv('reserve')">Reserve</button>
+                    <button onclick="scrollToDiv('location')">Location</button>
+                    <button onclick="scrollToDiv('about')">About</button>
+                    <button onclick="scrollToDiv('image_slider')">Gallery</button>
+                </div>
+            </div>
+
+            <!-- Main Container -->
+            <div class="facil_info" id="facil_info">
+
+                <!-- Make a reservation -->
+                <div class="reserve" id="reserve">
+                    <div id="price">
+                        <output>Price: {{ d['price_hourly'] }}$ /1h</output>
+                    </div>
+
+                    <div>
+                        <form method="POST" action="/reserve" id="submit_reservation">
+                            <input type="hidden" name="id_facility" id="id_facility" value="{{d.id_facility}}">
+                            <label for="reservation_date">Date:</label>
+                            <input type="date" name="reservation_date" id="datePickerId" required>
+                            <button type="button" id="checkDate">check reservations on this day</button>
+                            <p id="checkdate_response"></p>
+                            <div id="dynamicContent"></div>
+                            <br>
+                            <label for="reservation_start_time">Starting hour:</label>
+                            <input type="time" name="reservation_start_time" step='1800' required>
+                            <br>
+                            <label for="reservation_end_time">Ending hour:</label>
+                            <input type="time" name="reservation_end_time" step='1800' required>
+                            <br>
+                            <input id="uniq_reserve" type="submit" value="Reserve">
+                        </form>
+                    </div>
+                </div>
+                <h1 id="reservation_response"></h1>
+
+                <!-- Open Days -->
+                <strong>Days open:</strong><br>
+                {% for open_info in d['open_hours'] %}
+                    <div class="facil_info_open_info">
+                        <output id="open_day">{{ open_info['day']['day'] }}</output>
+                        <output id="open_hour">{{ open_info['start_hour'] }} - {{ open_info['end_hour'] }}</output>
+                    </div>
+                {% endfor %}
+
+            </div>
+
+            <!-- Facility Location -->
+            <div class="location" id="location">
+                <strong>Location</strong>
+                <output>{{ d['address']['city']['name'] }}, {{ d['address']['street_name'] }} {{ d['address']['building_number'] }}</output>
+                <output>{{ d['address']['postal_code'] }}, {{ d['address']['state']['name'] }}</output>
+            </div>
+
+            <!-- About Facility -->
+            <div class="about" id="about">
+                <strong>About</strong>
+                <output>{{ d['description'] }}</output>
+            </div>
+
+            <!-- Gallery -->
+            <div class="image_slider" id="image_slider">
+                <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
                     {% if d['images'] %}
-                        {% for img in data['images'] %}
+                        {% for img in d['images'] %}
+                        <div class="facil_image">
                                 <img src="{{ url_for('static', filename='images/' + img['image_path']) }}">
-                                <!-- <img src="{{ url_for('static', filename='images/' + d['images'][0]['image_path']) }}"> -->
+                        </div>
                         {% endfor %}
                     {% else %}
+                    <div class="facil_image">
                         <img src="{{ url_for('static', filename='images/no_image.jpg') }}" alt="no image available">
+                    </div>
                     {% endif %}
-                {% endfor %}
-                <form method="POST" action="/reserve" id="submit_reservation">
-                    <input type="hidden" id="id_facility" name="id_facility" value="{{d.id_facility}}">
-                    <label for="reservation_date">Data:</label>
-                    <input type="date" name="reservation_date" id="datePickerId" required>
-                    <button type="button" id="checkDate">check reservations on this day</button>
-                    <p id="checkdate_response"></p>
-                    <div id="dynamicContent"></div>
-                    <br>
-                    <label for="reservation_start_time">Godzina startowa:</label>
-                    <input type="time" name="reservation_start_time" step='1800' required>
-                    <br>
-                    <label for="reservation_end_time">Godzina końcowa:</label>
-                    <input type="time" name="reservation_end_time" step='1800' required>
-                    <br>
-                    <input type="submit" value="Reserve">
-                </form>
-                <h1 id="reservation_response"></h1>
+                <a class="next" onclick="plusSlides(1)">&#10095;</a>
             </div>
-            {% endfor %}
+
+        {% endfor %}
+
 </div> 
 <script> datePickerId.min= new Date().toISOString().split("T")[0]; datePickerId.max = new Date(Date.now() + 12096e5).toISOString().split("T")[0]</script>
 <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+<script src="{{ url_for('static', filename='js/image_slider.js') }}"></script>
+<script src="{{ url_for('static', filename='js/scroll_to_div.js') }}"></script>
+
+
 {% endblock %}
 
 

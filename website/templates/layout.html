@@ -16,6 +16,7 @@
 <body>
     {% if 'token' in session %}
     <nav class="navbar">
+        <a href="/#search-bar">Search</a>
         <a href="/">Home</a>
         <a href="/my_account">My Account</a>
         {% if user_data %}
@@ -37,10 +38,21 @@
 
     {% if 'token' in session %}
     <footer class="footer">
-        <div>
-            Info about Owner/Company
+        <div class="hq-location">
+            <strong>Find us:</strong><br><br>
+            <output>{{ footer_data[0]['address']['city']['name'] }}, {{ footer_data[0]['address']['street_name'] }} {{ footer_data[0]['address']['building_number'] }}</output>
             <br>
-            {{ footer_data[0] }}
+            <output>{{ footer_data[0]['address']['postal_code'] }}, {{ footer_data[0]['address']['state']['name'] }}</output>
+        </div>
+        <div class="hq-name">
+            <output>{{ footer_data[0]['name'] }}</output>
+            <br><br>
+            <output>nip: {{ footer_data[0]['nip'] }}</output>
+        </div>
+        <div class="hq-nip">
+            <strong>Contact us:</strong>
+            <br><br>
+            <output>&#9990;: {{ footer_data[0]['phone_number'] }}</output>
         </div>
     </footer>
     {% endif %}

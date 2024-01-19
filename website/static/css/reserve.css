@@ -1,0 +1,286 @@
+* {
+    box-sizing:border-box
+}
+
+.body {
+    background-color: white;
+}
+
+.navbar {
+    background-color: transparent;
+}
+
+/***************** M a i n *****************/
+.reserve-container {
+    width: 100vw;
+    height: auto;
+    display: flex;
+    
+    flex-direction: column;
+    align-items: center;
+}
+
+/***************** M a i n  -  G r a p h i c *****************/
+.main-graphic {
+    width: 100vw;
+    height: 60vh;
+}
+
+.main-graphic img {
+    width: 100%;
+    height: 100%;
+    object-fit:cover;
+}
+
+/***************** M a i n  -  G r a p h i c  -  O v e r l a y *****************/
+ 
+.img-overlay { 
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 60vh;
+
+    display: flex;
+    align-items: flex-start; /* Align items at the start of the cross axis (left) */
+    justify-content: flex-end; /* Align items at the end of the main axis (bottom) */
+
+    flex-direction: column;
+}
+
+.img-overlay #facil_name { 
+    margin: 0 0 0 5vw;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 5vw;
+} 
+
+.img-overlay #facil_type { 
+    margin: 0 0 1vw 5vw;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 2vw;
+} 
+
+/***************** L o c a l  -  M e n u *****************/
+
+.menu-wrapper {
+    width: 100vw;
+    height: 5vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    position: sticky;
+    top: 8vh;
+
+    background-color: whitesmoke;
+
+    border-bottom: 1px solid black;
+}
+
+.menu {
+    width: 60vw;
+    height: 5vh;
+    display: flex;
+}
+
+.menu button {
+    padding: 0 1vw 0 1vw;
+
+    height: 100%;
+    text-decoration: none;
+    background-color: transparent;
+    cursor: pointer;
+    border-style: none;
+
+}
+
+.menu button:hover {
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+}
+
+
+/***************** M a i n  -  C o n t a i n e r *****************/
+
+
+.facil_info {
+    margin-top: 10vh;
+
+    width: 40vw;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    background-color: rgb(236, 236, 236);
+    text-align: center;
+    padding-bottom: 3vw;
+}
+
+/***************** M a k e - A - R e s e r v a t i o n *****************/
+.reserve {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.reserve > * {
+    margin: 1vw;
+}
+
+.reserve output {
+    height: 5vh;
+    font-size: large;
+    padding: 0.5vw;
+    
+    border-bottom: 2px solid #40fcbc; 
+}
+
+
+.facil_info label, input {
+    margin: 0.5vw;
+    font: black;
+    font-size: large;
+    
+}
+
+.facil_info input {
+    border-style: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.facil_info #uniq_reserve {
+    background-color: #40fcbc;
+}
+
+.facil_info #uniq_reserve:hover {
+    box-shadow: 0 0 20px #40fcbc;
+    
+}
+
+.facil_info_open_info #open_hour {
+    font-style: italic;
+}
+
+/***************** L o c a t i o n *****************/
+
+.location {
+    width: 40vw;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    margin-top: 3vw;
+
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    background-color: rgb(236, 236, 236);
+    text-align: center;
+    padding-bottom: 3vw;
+}
+
+.location > * {
+    margin: 1em;
+}
+
+/***************** A b o u t *****************/
+
+.about {
+    width: 40vw;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    margin-top: 3vw;
+
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    background-color: rgb(236, 236, 236);
+    text-align: center;
+    padding-bottom: 3vw;
+}
+
+.about > * {
+    margin: 1em;
+}
+
+
+
+/***************** G a l l e r y *****************/
+
+
+.image_slider {
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+
+    width: 40vw;
+    height: 50vh;
+    margin-top: 3vw;
+}
+
+/* Hide the images by default */
+.facil_image {
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+
+.facil_image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Next & previous buttons */
+.prev, .next {
+    position: relative;
+    top: 0;
+    left: 0;
+    cursor: pointer;
+    padding: 10% 2% 10% 2%;
+    color: #40fcbc;
+    font-weight: bold;
+    font-size: 18px;
+    transition: 0.6s ease;
+    border-radius: 3px 0 0 3px;
+    user-select: none;
+}
+
+/* Position the "next button" to the right */
+.next {
+  right: 0;
+  border-radius: 0 3px 3px 0;
+}
+
+.prev:hover, .next:hover {
+  background-color: rgba(0,0,0,0.8);
+}
+
+
+
+/***************** M e d i a  -  Q u e r y *****************/
+
+@media (max-width: 900px) {
+    .facil_info label, input {
+        margin: 1vw;
+        
+    }
+    .reserve-container {
+        margin-top: 10vh;
+    }
+    .image_slider, .facil_info {
+        width: 100%; 
+        margin: 1em;
+    }
+}

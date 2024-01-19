@@ -193,10 +193,12 @@ $(document).ready(function(e) {
             },
             error: function (xhr, status, error) {
             if (xhr.status === 404) {
+                $("#dynamicContent").empty();
                 var errorResponse = $.parseJSON(xhr.responseText);
                 $("#checkdate_response").html(errorResponse.response);
             }
             if (xhr.status === 500) {
+                $("#dynamicContent").empty();
                 var errorResponse = $.parseJSON(xhr.responseText);
                 $("#checkdate_response").html(errorResponse.response);
             }
