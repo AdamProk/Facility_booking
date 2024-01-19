@@ -6,32 +6,40 @@
 {% block content %}
 
 <!-- Edit content here -->
-
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/edit_site.css') }}" />
 <div class="container">
     <form action="edit_site" method="POST">
         <label for="name">Nazwa placówki:</label>
+        <br>
         <input type="text" name="name" value="{{ footer_data[0].name }}">
         <br>
         <label for="description">NIP:</label>
+        <br>
         <input type="text" name="nip" value="{{ footer_data[0].nip }}">
         <br>
         <label for="description">Numer telefonu:</label>
+        <br>
         <input type="text" name="phone_number" value="{{ footer_data[0].phone_number }}">
         <br>
 
         <label for="city">Miasto:</label>
+        <br>
         <input type="text" name="city" value="{{ footer_data[0].address.city.name }}">
         <br>
         <label for="state">Województwo:</label>
+        <br>
         <input type="text" name="state" value="{{ footer_data[0].address.state.name }}">
         <br>
         <label for="street_name">Ulica:</label>
+        <br>
         <input type="text" name="street_name" value="{{ footer_data[0].address.street_name }}">
         <br>
         <label for="building_number">Numer budynku:</label>
+        <br>
         <input type="number" name="building_number" value="{{ footer_data[0].address.building_number }}">
         <br>
         <label for="postal_code">Kod pocztowy:</label>
+        <br>
         <input type="text" name="postal_code" value="{{ footer_data[0].address.postal_code }}">
         <br>
         <button id="submit_edit" type="submit">Edytuj swoje informacje</button>

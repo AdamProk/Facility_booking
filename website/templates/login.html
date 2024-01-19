@@ -8,20 +8,20 @@
 <!-- Edit content here -->
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/login.css') }}" />
 
-
 <div class="login-container">
+    <h1 id="LogInText">LOG IN</h1>
     <form action="/login" method="post" id="submit_login">
-        <label for="email">Email:</label>
-        <input type="email" name="email" required>
+        <!--<label for="email">Email:</label>-->
+        <input type="email" name="email" required placeholder="Email">
         <br>
-        <label for="password">Password:</label>
-        <input type="password" name="password" required>
+        <!--<label for="password">Password:</label>-->
+        <input type="password" name="password" required placeholder="password">
         <br>
-        <button type="submit">Login</button>
         <h1 id="login_response"></h1>
+        <button type="submit">Login</button>
     </form>
     <br>
-    <form action="/register" method="get">
+    <form action="/register" method="get" class="register">
         <button type="submit">Register a new account</button>
     </form>
 </div>

@@ -1,11 +1,5 @@
-
-
-
-
-.admin-container {
-    width: 100vw;
-    height: 100vh;
-
+.admin-container{
+    margin-top: 25%;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -13,4 +7,29 @@
 
     text-align: center;
 }
+.admin-container a{
+    height: 2.5em;
+    width: 18em;
+    margin: 0.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    border-radius: 2em;
+    color: black;
+    font-size: large;
 
+    background-color: #40fcbc;
+    border-style: none;
+
+    cursor: pointer;
+}
+.admin-container a:hover{
+    color:white;
+}
+
+#AdminPanelText{
+    color: rgba(0,0,0, .6);
+    font-size: 2em;
+    margin-bottom: 1em;
+}
