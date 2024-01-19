@@ -52,6 +52,7 @@ class ACTION_ENDPOINT(Enum):
     RESERVE = auto()
     CHECK_IF_EMAIL_EXISTS = auto()
     RESERVED_FACILITY_HOURS = auto()
+    SEARCH_FACILITY = "facility/search_facility"
 
 
 class REQUEST_FORMAT(Enum):

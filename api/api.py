@@ -1232,28 +1232,6 @@ def get_facilities(
     return results
 
 
-@app.get(
-    "/facility/search",
-    response_model=list[schemas.Facility],
-    tags=["Facilities"],
-)
-def search_facility(
-    current_user: Annotated[
-        schemas.User, Security(get_current_user, scopes=["user"])
-    ],
-    name: str = Query(None),
-    description: str = Query(None),
-    db: Session = Depends(get_db),
-):
-    try:
-        del current_user
-        results = crud.search_facilities(**locals())
-    except NoResultFound:
-        raise HTTPException(
-            status_code=404, detail="No occurence found in the database."
-        )
-    return results
-
 
 @app.put(
     "/facility/", response_model=schemas.FacilityCreate, tags=["Facilities"]
@@ -1399,6 +1377,29 @@ def update_reservation(
 
 
 # region ACTIONS
+
+
+@app.get(
+    "/actions/search_facility",
+    response_model=list[schemas.Facility],
+    tags=["Actions"],
+)
+def search_facility(
+    current_user: Annotated[
+        schemas.User, Security(get_current_user, scopes=["user"])
+    ],
+    name: str = Query(None),
+    description: str = Query(None),
+    db: Session = Depends(get_db),
+):
+    try:
+        del current_user
+        results = crud.search_facilities(**locals())
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404, detail="No occurence found in the database."
+        )
+    return results
 
 
 @app.get(

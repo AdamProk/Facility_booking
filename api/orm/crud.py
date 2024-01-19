@@ -21,7 +21,7 @@ def dict_query_and(model, query_dict, db=None, exact=True):
             )
         else:
             q = db.query(model).filter(
-                and_(
+                or_(
                     *(
                         getattr(model, key).like(f"%{value}%")
                         for key, value in query_dict.items()
