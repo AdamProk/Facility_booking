@@ -6,43 +6,42 @@
 {% block content %}
 
 <!-- Edit content here -->
-
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/curr_reservations.css') }}" />
 <div class="container">
-    <ul id="reservation_list">
+    {% set statuses = {'Pending': 2, 'Confirmed': 3, 'Finished': 1} %}
+    {% for status_name, status_id in statuses.items() %}
+    <h2>{{ status_name }}</h2>
+    <div class="reservations">
+    {% for d in data %}
+        {% if d['status']['id_reservation_status'] == status_id %}
+            <div class="reservations_details">
+            {% for key, value in d.items() %}
+                {% if key == 'id_reservation' %}
+                <output id="facility_name">{{ d['facility'].name }}</output><br><br>
+                {% elif key == 'date'%}
+                    <output id="date"><strong>Date: </strong>{{ value }}</output><br>
+                {% elif key == 'start_hour'%}
+                    <output id="start_hour"><strong>{{ value }}</strong></output> 
+                {% elif key == 'end_hour'%}
+                    <output id="end_hour"><strong>- {{ value }}</strong></output><br>
+                {% endif %}
 
-        {% set statuses = {'Pending': 2, 'Confirmed': 3, 'Finished': 1} %}
-
-        {% for status_name, status_id in statuses.items() %}
-        <h2>{{ status_name }}</h2>
-        {% for d in data %}
-            {% if d['status']['id_reservation_status'] == status_id %}
-            <li>
-                {% for key, value in d.items() %}
-                    {% if key not in ['user', 'facility'] %}
-                        <strong>{{ key }}:</strong> {{ value }}<br>
-                    {% endif %}
-
-                    {% if key == 'user' %}
-                        <strong>{{ key }}:</strong> {{ value['id_user'] }}<br>
-                        <strong>{{ key }}:</strong> {{ value['email'] }}<br>
-                    {% endif %}
-
-                    {% if key == 'facility' %}
-                        <strong>{{ key }}:</strong> {{ value }}<br>
-                    {% endif %}
-                {% endfor %}
+                {% if key == 'user' %}
+                    <strong>{{ key }}:</strong> {{ value['email'] }}<br><br>
+                {% endif %}
+            {% endfor %}
 
                 {% if status_id in [2, 3] and d['date']|string_to_datetime > curr_date %}
                     <form method="POST" action="/delete_reservation_admin">
-                        <input type="submit" value="Delete Reservation">
+                        <input type="submit" value="DELETE RESERVATION">
                         <input type="hidden" name="id_reservation" value="{{d.id_reservation}}">
                     </form>
-                {% endif %}
-            </li>
+                {% endif %}         
+            </div>
             {% endif %}
         {% endfor %}
         {% endfor %}
-    </ul>
+    </div>
 </div>
 
 

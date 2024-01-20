@@ -1,0 +1,56 @@
+.main_content{
+    padding-top: 10%;
+}
+
+.container {
+    
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: rgba(0,0,0,0.6);
+}
+
+.reservations {
+    width: 100%;
+    flex:1;
+}
+
+.reservations_details {
+
+    width: 100%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    background-color: rgb(255, 255, 255);
+    padding-top:1em;
+    margin-top: 1.5em;
+
+}
+.reservations_details form{
+    width: 100%;
+}
+
+.reservations_details form input{
+    height: 2.5em;
+    width: 12em;
+
+    width: 100%;
+    color: rgba(0,0,0,0.6);
+    font-size: large;
+    text-align: center;
+
+    background-color: #40fcbc;
+    border-style: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+.reservations_details form input:hover{
+    color: white;
+}
+#facility_name{
+    font-size: 1.5em;
+    font-weight: bold;
+}
