@@ -148,13 +148,14 @@
     justify-content: space-around;
 }
 
-.container a {
+.facilities_id {
     text-decoration: none;
     color: #000000;
     width: 20em;
     min-width: 20em;
 
     margin: 2em 1em 2em 1em;
+    cursor: pointer;
 }
 .container a:hover #facil_name_strong {
     animation: colorChange 0.5s forwards;

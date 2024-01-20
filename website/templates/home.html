@@ -37,48 +37,50 @@
 
 <div class="container" id="container">
     {% for d in data %}
-        <a class="facilities_id" onclick="reserveFacility('{{d.id_facility}}')">
-            <form id="reserveForm" method="GET" action="/reserve">
+        <div class="facilities_id" >
+            <a onclick="reserveFacility('{{d.id_facility}}')">
+                <form id="reserveForm" method="GET" action="/reserve">
+                    <input type="hidden" name="id_facility" value="{{d.id_facility}}">
+                </form>
+                <script>
+                    function reserveFacility(id) {
+                        window.location.href = "/reserve?id_facility=" + id;
+                    }
+                </script>
+                <div class="facilities">
+                    <div class="facil_image">
+                        {% if d['images'] %}
+                            <img src="{{ url_for('static', filename='images/' + d['images'][0]['image_path']) }}">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='assets/no_image.jpg') }}" alt="no image available">
+                        {% endif %}
+                    </div>
+                    <div class="facil_info">
+                            <strong id="facil_name_strong">{{ d['name'] }}</strong>
+                            <output>{{ d['address']['city']['name'] }}</output>
+                            <output>{{ d['address']['street_name'] }} {{d['address']['building_number']}}</output>
+                            <output>{{ d['address']['postal_code'] }}, {{ d['address']['state']['name'] }}</output>
+                    </div>
+            </a>
+            {% if user_data %}
+                {% if user_data.user_role.id_user_role == 2 %}
+            <form method="POST" action="/upload_facility_image" enctype="multipart/form-data">
+                <input type="file" name="file" accept=".jpg, .jpeg, .png, .gif">
+                <input type="submit" value="Upload">
                 <input type="hidden" name="id_facility" value="{{d.id_facility}}">
             </form>
-            <script>
-                function reserveFacility(id) {
-                    window.location.href = "/reserve?id_facility=" + id;
-                }
-            </script>
-            <div class="facilities">
-                <div class="facil_image">
-                    {% if d['images'] %}
-                        <img src="{{ url_for('static', filename='images/' + d['images'][0]['image_path']) }}">
-                    {% else %}
-                        <img src="{{ url_for('static', filename='assets/no_image.jpg') }}" alt="no image available">
-                    {% endif %}
-                </div>
-                <div class="facil_info">
-                        <strong id="facil_name_strong">{{ d['name'] }}</strong>
-                        <output>{{ d['address']['city']['name'] }}</output>
-                        <output>{{ d['address']['street_name'] }} {{d['address']['building_number']}}</output>
-                        <output>{{ d['address']['postal_code'] }}, {{ d['address']['state']['name'] }}</output>
-                </div>
-                {% if user_data %}
-                    {% if user_data.user_role.id_user_role == 2 %}
-                <form method="POST" action="/upload_facility_image" enctype="multipart/form-data">
-                    <input type="file" name="file" accept=".jpg, .jpeg, .png, .gif">
-                    <input type="submit" value="Upload">
-                    <input type="hidden" name="id_facility" value="{{d.id_facility}}">
-                </form>
-                <form method="GET" action="/edit_facility">
-                    <input type="submit" value="Edit">
-                    <input type="hidden" name="id_facility" value="{{d.id_facility}}">
-                </form>
-                <form method="POST" action="/delete_facility">
-                    <input type="submit" value="Delete">
-                    <input type="hidden" name="id_facility" value="{{d.id_facility}}">
-                </form>
-                    {% endif %}
+            <form method="GET" action="/edit_facility">
+                <input type="submit" value="Edit">
+                <input type="hidden" name="id_facility" value="{{d.id_facility}}">
+            </form>
+            <form method="POST" action="/delete_facility">
+                <input type="submit" value="Delete">
+                <input type="hidden" name="id_facility" value="{{d.id_facility}}">
+            </form>
                 {% endif %}
+            {% endif %}
             </div>
-        </a>
+        </div>
     {% endfor %}
 </div> 
 
