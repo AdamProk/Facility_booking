@@ -6,77 +6,91 @@
 {% block content %}
 
 <!-- Edit content here -->
-<!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/my_account.css') }}" /> -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/my_account.css') }}" />
 
+<script src="{{ url_for('static', filename='js/scroll_to_div.js') }}"></script>
 
+<!-- Main Container -->
 <div class="my-account-container">
-    <div>PLACEHOLDER MY ACCOUNT</div>
-    <br>
+        <!-- User Data -->
+        <div class="data-container">
+            <strong>Email:</strong>     {{ user_data.email }} <br><br> 
+            <form action="/edit_account_info" method="POST">
+                <input type="text" name="name" value="{{ user_data.name }}">
+                <label for="name">Name</label>
+                <br>
+                <input type="text" name="lastname" value="{{ user_data.lastname }}">
+                <label for="description">Surname</label>
+                <br>
+                <input type="tel" name="phone_number" value="{{ user_data.phone_number }}">
+                <label for="description">Phone number</label>
+                <br>
+                <button id="submit_edit_account_info" type="submit">Save your edit</button>
+            </form>
+            <h1 id="edit_account_info_response"></h1>
+            <br>
+            <a href="/reset_password">Reset Password</a>
+            <br>
+            <button id="history" onclick="scrollToDiv('reservation_list')">see reservation history</button>
+        </div>
 
-    <div>DISPLAY ACCOUNT INFO <br>
-    <strong>Email:</strong>     {{ user_data.email }} <br><br> 
-        <form action="/edit_account_info" method="POST">
-        <label for="name">Imie:</label>
-        <input type="text" name="name" value="{{ user_data.name }}">
-        <br>
-        <label for="description">Nazwisko:</label>
-        <input type="text" name="lastname" value="{{ user_data.lastname }}">
-        <br>
-        <label for="description">Numer telefonu:</label>
-        <input type="tel" name="phone_number" value="{{ user_data.phone_number }}">
-        <br>
-        <button id="submit_edit_account_info" type="submit">Edytuj swoje informacje</button>
-        </form>
-        <h1 id="edit_account_info_response"></h1>
-    </div>
+        <div class="spacer" style="width: 100vw; height: 30vh;"></div>
 
-    <br>
-    <a href="/reset_password">Reset Password</a>
-    <br>
-    
-    <div>
-        <br>
         <h1>RESERVATIONS</h1>
-        <ul id="reservation_list">
-            {% set statuses = {'Pending': 2, 'Confirmed': 3, 'Finished': 1} %}
-    
-            {% for status_name, status_id in statuses.items() %}
-            <h2>{{ status_name }}</h2>
+        
+        {% set statuses = {'Pending': 2, 'Confirmed': 3, 'Finished': 1} %}
+        
+        {% for status_name, status_id in statuses.items() %}
+        
+        <!-- Reservations -->
+        <h2>{{ status_name }}</h2>
+        <div class="reservation_list" id="reservation_list">
             {% for d in data['reservations'] %}
-                {% if d['status']['id_reservation_status'] == status_id %}
-                <li>
-                    {% for key, value in d.items() %}
-                        {% if key not in ['user', 'facility'] %}
-                            <strong>{{ key }}:</strong> {{ value }}<br>
-                        {% endif %}
+            {% if d['status']['id_reservation_status'] == status_id %}
+                <div class="reservation_details">
+                        {% for key, value in d.items() %}
+                                {% if key == 'facility' %}
+                                    <output>{{ value['name'] }}</output>
+                                {% elif key == 'date'%}
+                                    <output id="date">{{ value }}</output><br>
+                                {% elif key == 'start_hour'%}
+                                    <output id="start_hour">start: {{ value }}</output>
+                                {% elif key == 'end_hour'%}
+                                    <output id="end_hour">end: {{ value }}</output><br>
+                                {% endif %}
     
-                        {% if key == 'user' %}
-                            <strong>{{ key }}:</strong> {{ value['id_user'] }}<br>
-                            <strong>{{ key }}:</strong> {{ value['email'] }}<br>
+                            {% if key == 'user' %}
+                                <strong>{{ key }}:</strong> {{ value['id_user'] }}<br>
+                                <strong>{{ key }}:</strong> {{ value['email'] }}<br>
+                            {% endif %}
+
+                            {% if key == 'facility'%}
+                                <button onclick="reserveFacility('{{value['id_facility']}}')">see facility</button>
+                                <script>
+                                    function reserveFacility(id) {
+                                        window.location.href = "/reserve?id_facility=" + id;
+                                    }
+                                </script>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if status_id in [2, 3] and d['date']|string_to_datetime > curr_date %}
+                        <form method="POST" action="/delete_reservation_me">
+                            <input id="uniq_cancel" type="submit" value="Cancel Reservation">
+                            <input type="hidden" name="id_reservation" value="{{d.id_reservation}}">
+                        </form>
                         {% endif %}
-    
-                        {% if key == 'facility' %}
-                            <strong>{{ key }}:</strong> {{ value }}<br>
-                        {% endif %}
-                    {% endfor %}
-    
-                    {% if status_id in [2, 3] and d['date']|string_to_datetime > curr_date %}
-                    <form method="POST" action="/delete_reservation_me">
-                        <input type="submit" value="Cancel Reservation">
-                        <input type="hidden" name="id_reservation" value="{{d.id_reservation}}">
-                    </form>
-                    {% endif %}
-                </li>
+                </div>
                 {% endif %}
             {% endfor %}
-            {% endfor %}
-        </ul>
-    </div>
+        </div>
+        {% endfor %}
 
-    <br>
+
 </div>
 
 <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+
 
 
 {% endblock %}
