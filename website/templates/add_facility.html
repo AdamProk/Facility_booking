@@ -10,75 +10,108 @@
 
 <div class="add-facility-container">
     <form id="submit_facility" action="/add_facility" method="POST" enctype="multipart/form-data">
-        <label for="name">Nazwa placówki:</label>
-        <input type="text" name="name" required>
-        <br>
-        <label for="description">Opis:</label>
-        <input type="text" name="description" required>
-        <br>
+        <!-- Physical Data -->
+        <div class="physical_data">
+            <input type="text" name="name" required>
+            <label for="name">Facility Name</label>
+            <br>
+            <br>
+            <input type="text" name="description" required>
+            <label for="description">Description</label>
+            <br>
+            <br>
+            <input type="number" name="price_hourly" required>
+            <label for="price_hourly">Price for lease per hour</label>
+            <br>
+            <br>
+            <select name="id_facility_type" required>
+                {% for d in data %}
+                    <option value="{{ d.id_facility_type }}"> {{ d.name }} </option>
+                {% endfor %}
+            </select>
+            <label for="facility_type">Facility type</label>
+            <br>
+            <br>
+            <input type="text" name="city" required>
+            <label for="city">City</label>
+            <br>
+            <br>
+            <input type="text" name="state" required>
+            <label for="state">State</label>
+            <br>
+            <br>
+            <input type="text" name="street_name" required>
+            <label for="street_name">Street</label>
+            <br>
+            <br>
+            <input type="number" name="building_number" required>
+            <label for="building_number">Building number</label>
+            <br>
+            <br>
+            <input type="text" name="postal_code" required>
+            <label for="postal_code">Postal code</label>
+            <br>
+            <br>
+        </div>
+        <!-- Time Data -->
+        <div class="time_data">
+            <label for="time_open">Open hours:</label><br>
+            <div>
+                from<input type="time" name="monday_start" step="1800" required>
+                to<input type="time" name="monday_end" step="1800" required>
+            </div>
+            <label for="monday">Monday</label>
+            <br>
+            <br>
+            <div>
+                from<input type="time" name="tuesday_start" step="1800" required>
+                to<input type="time" name="tuesday_end" step="1800" required>
+            </div>
+            <label for="tuesday">Thuesday</label>
+            <br>
+            <br>
+            <div>
+                from<input type="time" name="wednesday_start" step="1800" required>
+                to<input type="time" name="wednesday_end" step="1800" required>
+            </div>
+            <label for="wednesday">Wednesday</label>
+            <br>
+            <br>
+            <div>
+                from<input type="time" name="thursday_start" step="1800" required>
+                to<input type="time" name="thursday_end" step="1800" required>
+            </div>
+            <label for="thursday">Thursday</label>
+            <br>
+            <br>
+            <div>
+                from<input type="time" name="friday_start" step="1800" required>
+                to<input type="time" name="friday_end" step="1800" required>
+            </div>
+            <label for="friday">Friday</label>
+            <br>
+            <br>
+            <div>
+                from<input type="time" name="saturday_start" step="1800" required>
+                to<input type="time" name="saturday_end" step="1800" required>
+            </div>
+            <label for="saturday">Saturday</label>
+            <br>
+            <br>
+            <div>
+                from<input type="time" name="sunday_start" step="1800" required>
+                to<input type="time" name="sunday_end" step="1800" required>
+            </div>
+            <label for="sunday">Sunday</label>
+            <br>
+            <br>
+            <label for="files">Add image:</label>
+            <input type="file" name="files" accept=".jpg, .jpeg, .png, .gif" multiple required>
+            <br>
+            <br>
 
-        <label for="price_hourly">Cena za godzine wynajmu:</label>
-        <input type="number" name="price_hourly" required>
-        <br>
-        <label for="facility_type">Rodzaj placówki:</label>
-        <select name="id_facility_type" required>
-            {% for d in data %}
-            <option value="{{ d.id_facility_type }}"> {{ d.name }} </option>
-            {% endfor %}
-        </select>
-        <label for="city">Miasto:</label>
-        <input type="text" name="city" required>
-        <br>
-        <label for="state">Województwo:</label>
-        <input type="text" name="state" required>
-        <br>
-        <label for="street_name">Ulica:</label>
-        <input type="text" name="street_name" required>
-        <br>
-        <label for="building_number">Numer budynku:</label>
-        <input type="number" name="building_number" required>
-        <br>
-        <label for="postal_code">Kod pocztowy:</label>
-        <input type="text" name="postal_code" required>
-        <br>
-        <br>
-
-        <label for="time_open">Godziny otwarcia:</label><br>
-        <label for="monday">Poniedziałek:</label>
-        od<input type="time" name="monday_start" step="1800" required>
-        do<input type="time" name="monday_end" step="1800" required>
-        <br>
-        <label for="tuesday">Wtorek:</label>
-        od<input type="time" name="tuesday_start" step="1800" required>
-        do<input type="time" name="tuesday_end" step="1800" required>
-        <br>
-        <label for="wednesday">Środa:</label>
-        od<input type="time" name="wednesday_start" step="1800" required>
-        do<input type="time" name="wednesday_end" step="1800" required>
-        <br>
-        <label for="thursday">Czwartek:</label>
-        od<input type="time" name="thursday_start" step="1800" required>
-        do<input type="time" name="thursday_end" step="1800" required>
-        <br>
-        <label for="friday">Piątek:</label>
-        od<input type="time" name="friday_start" step="1800" required>
-        do<input type="time" name="friday_end" step="1800" required>
-        <br>
-        <label for="saturday">Sobota:</label>
-        od<input type="time" name="saturday_start" step="1800" required>
-        do<input type="time" name="saturday_end" step="1800" required>
-        <br>
-        <label for="sunday">Niedziela:</label>
-        od<input type="time" name="sunday_start" step="1800" required>
-        do<input type="time" name="sunday_end" step="1800" required>
-        <br>
-        <br>
-        <label for="files">Dodaj zdjęcia:</label>
-        <input type="file" name="files" accept=".jpg, .jpeg, .png, .gif" multiple required>
-        <br>
-        <br>
-
-        <input id="submit_facility" type="submit" value="Dodaj placówkę"></input>
+            <input id="submit_facility" type="submit" value="Add facility"></input>
+        </div>
     </form>
 </div>
 

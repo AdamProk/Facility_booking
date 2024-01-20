@@ -1,18 +1,97 @@
 
-
-
+/*************************** M a i n  -  C o n t a i n e r ***************************/
 
 .add-facility-container {
     width: 100vw;
-    height: 100vh;
-
+    
     display: flex;
+
     flex-direction: column;
     justify-content: center;
     align-items: center;
 
     text-align: center;
+
+}
+
+.add-facility-container form {
+    margin-top: 10vh;
+
+    width: 60vw;
+    height: auto;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    background-color: rgb(255, 255, 255);
+    text-align: center;
+    padding-bottom: 3vw;
+    padding-top: 3vw;
+}
+
+/*************************** P h y s i c a l  -  D a t a ***************************/
+
+.physical_data {
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+.physical_data input, select {
+    outline-color: #40fcbc;
+    border-style: none;
+    padding-bottom: 0.5em;
+    background-color: transparent;
+    border-bottom: 2px solid #40fcbc;
+}
+
+.physical_data select {
+    width: 100%;
+}
+
+/*************************** T i m e  -  D a t a ***************************/
+
+.time_data {
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.time_data input {
+    outline-color: #40fcbc;
+    border-style: none;
+    padding-bottom: 0.5em;
+    background-color: transparent;
+    border-bottom: 2px solid #40fcbc; 
 }
 
 
 
+.time_data #submit_facility {
+    border-style: none;
+    text-decoration: none;
+    padding: 0.5em;
+    background-color: #ffffff00;
+    box-shadow: 0 0 5px #40fcbc; 
+    border-radius: 100em;
+}
+
+.time_data #submit_facility:hover {
+    background-color: #40fcbc;
+}
+
+
+/*************************** M e d i a ***************************/
+
+@media (max-width: 900px) {
+    .add-facility-container form {
+        width: 90vw;
+    } 
+}
