@@ -69,7 +69,7 @@
 /*************** S E A R C H  -  B A R ***************/
 
 .search-bar {
-    width: 60%;
+    width: 30vw;
     height: 6vh;
     margin: 5vh 0vw 5vh 0vw;
 
@@ -213,6 +213,7 @@
 .container form input {
     border-style: none;
     text-decoration: none;
+    
     margin: 0.3em;
     padding: 0.5em;
     background-color: #40fcbc;
@@ -228,6 +229,8 @@
 .form-wrap {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
+    padding-bottom: 0.5em;
 }
 
 .reserve-btn {
@@ -242,4 +245,21 @@
     cursor: pointer;
 }
 
+.flaga{
+    width:12em;
+}
+#flaga2{
+    background-color: red;
+    width:12em;
+}
+#flaga3{
+    text-align: center;
+}
 
+.input-container i {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    transform: translateY(-50%);
+    color: #555; /* Adjust the color as needed */
+  }

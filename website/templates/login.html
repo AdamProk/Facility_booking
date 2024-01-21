@@ -9,6 +9,9 @@
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/login.css') }}" />
 
 <div class="login-container">
+    <div class="logo">
+        <img src="{{ url_for('static', filename='assets/logo.png') }}", alt="Site logo"/>
+    </div>
     <h1 id="LogInText">LOG IN</h1>
     <form action="/login" method="post" id="submit_login">
         <!--<label for="email">Email:</label>-->
@@ -18,11 +21,11 @@
         <input type="password" name="password" required placeholder="password">
         <br>
         <h1 id="login_response"></h1>
-        <button type="submit">login</button>
+        <button type="submit">Login</button>
     </form>
     <br>
     <form action="/register" method="get" class="register">
-        <button type="submit">register</button>
+        <button type="submit">Register</button>
     </form>
 </div>
 <script src="{{ url_for('static', filename='js/index.js') }}"></script>

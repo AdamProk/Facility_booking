@@ -113,6 +113,12 @@ footer {
 }
 
 footer div {
-    min-width: 10vw;   
+    min-width: 10vw;
+    max-width: 20vw;
+    max-height: 20vh;   
+}
+.logo img{
+    max-width:25%;
 
+    object-fit: contain
 }

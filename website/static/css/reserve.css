@@ -163,9 +163,15 @@
     box-shadow: 0 0 20px #40fcbc;
     
 }
-
+.facil_info_open_info{
+    text-align: right;
+    width: 15em;
+}
 .facil_info_open_info #open_hour {
     font-style: italic;
+}
+.facil_info_open_info #open_day{
+    font-weight: bold;
 }
 
 /***************** L o c a t i o n *****************/

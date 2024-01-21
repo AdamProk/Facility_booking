@@ -134,6 +134,8 @@
 .reservation_details button {
     margin: 1em 0 1em 0;
     padding: 0.5em;
+    height: 2em;
+    width: 12em;
     border-style: none;
     border-radius: 5px;
     cursor: pointer;
@@ -149,6 +151,8 @@
 .reservation_details #uniq_cancel {
     margin: 1em 0 1em 0;
     border-style: solid;
+    height: 2em;
+    width: 12em;
     border-radius: 5px;
     cursor: pointer;
     border-color: #e93351;

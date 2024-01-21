@@ -10,7 +10,8 @@
     <link rel="icon" href="{{ url_for('static', filename='/assets/logo.png') }}">
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="{{ url_for('static', filename='js/navbar_response.js') }}"></script>
-    <title>Facility Booking</title>
+    <script src="https://kit.fontawesome.com/7627ee8849.js" crossorigin="anonymous"></script>
+    <title>TennisCompany</title>
 </head>
 
 
@@ -23,21 +24,21 @@
             </a>
         </div>
         <div class="options">
-            <a href="/#search-bar" onclick="navResponse()">Search</a>
-            <a href="/" onclick="navResponse()">Home</a>
-            <a href="/my_account" onclick="navResponse()">My Account</a>
+            <a href="/#search-bar" class="fa-solid fa-magnifying-glass" onclick="navResponse()"></a>
+            <a href="/" class="fa-solid fa-house" onclick="navResponse()">  Home</a>
+            <a href="/my_account" class="fa-solid fa-user" onclick="navResponse()"> My Account</a>
             {% if user_data %}
             {% if user_data.user_role.id_user_role == 2 %}
-            <a href="/admin_panel" onclick="navResponse()">Admin Panel</a>
+            <a href="/admin_panel" class="fa-solid fa-gears" onclick="navResponse()"> Panel</a>
             {% endif %}
             {% endif %}
-            <a href="/logout" onclick="navResponse()">logout</a>
+            <a href="/logout" class="fa-solid fa-door-open" onclick="navResponse()">  Logout</a>
         </div>
     </nav>
     {% else %}
-    <!-- <nav class="navbar">
+     <nav class="navbar">
         <a href="/login">login</a>
-    </nav> -->
+    </nav> 
     {% endif %}
 
     <div class="main_content">
@@ -46,6 +47,9 @@
 
 {% if 'token' in session %}
     <footer class="footer">
+        <div class="logo">
+                <img src="{{ url_for('static', filename='assets/logo.png') }}", alt="Site logo"/>
+            </div>
         <div class="hq-location">
             <strong>Find us:</strong><br><br>
             <output>{{ footer_data[0]['address']['city']['name'] }}, {{ footer_data[0]['address']['street_name'] }} {{ footer_data[0]['address']['building_number'] }}</output>

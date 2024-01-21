@@ -8,7 +8,7 @@
 <!-- Edit content here -->
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/curr_reservations.css') }}" />
 <div class="container">
-    {% set statuses = {'Pending': 2, 'Confirmed': 3, 'Finished': 1} %}
+    {% set statuses = { 'Confirmed': 3, 'Finished': 1} %}
     {% for status_name, status_id in statuses.items() %}
     <h2>{{ status_name }}</h2>
     <div class="reservations">

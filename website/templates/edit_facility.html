@@ -20,7 +20,7 @@
         <input type="text" name="description" value="{{ data[0].description }}">
         </div>
         <div class="input">
-        <label for="price_hourly">Price hourly</label>
+        <label for="price_hourly">Price/hour</label>
         <input type="number" name="price_hourly" value="{{ data[0].price_hourly }}">
         </div>
         <div class="input">
@@ -97,7 +97,7 @@
         to<input type="time" name="sunday_end" value="{{ data[0].open_hours[6].end_hour }}" step="1800">
         </div>
         <br>
-
+        <h1 id="fac_response"></h1>
         <button type="submit">Edit Facility</button>
         <input type="hidden" name="id_facility" value="{{data[0].id_facility}}">
         </div>
@@ -105,7 +105,6 @@
 </div>
 
 
-<h1 id="fac_response"></h1>
 
 <script src="{{ url_for('static', filename='js/index.js') }}"></script>
 

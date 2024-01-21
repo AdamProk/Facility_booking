@@ -25,20 +25,20 @@
                 <input type="tel" name="phone_number" value="{{ user_data.phone_number }}">
                 <label for="description">Phone number</label>
                 <br>
-                <button id="submit_edit_account_info" type="submit">Save your edit</button>
+                <button id="submit_edit_account_info" type="submit">Save changes</button>
             </form>
             <h1 id="edit_account_info_response"></h1>
             <br>
             <a href="/reset_password">Reset Password</a>
             <br>
-            <button id="history" onclick="scrollToDiv('reservation_list')">see reservation history</button>
+            <button id="history" onclick="scrollToDiv('reservation_list')">See reservation history</button>
         </div>
 
         <div class="spacer" style="width: 100vw; height: 30vh;"></div>
 
         <h1>RESERVATIONS</h1>
         
-        {% set statuses = {'Pending': 2, 'Confirmed': 3, 'Finished': 1} %}
+        {% set statuses = { 'Confirmed': 3, 'Finished': 1} %}
         
         {% for status_name, status_id in statuses.items() %}
         

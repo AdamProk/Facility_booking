@@ -84,16 +84,23 @@
     border-style: none;
     text-decoration: none;
     padding: 0.5em;
+    width: 12em;
+    height: 2em;
     background-color: #40fcbc;
     box-shadow: 0 0 5px #40fcbc; 
     border-radius: 100em;
+    font-size: 1em;
 }
 
 .submit_fac_butt:hover {
     color: white;
     cursor: pointer;
 }
-
+#fac_response{
+    color: rgba(255,0,0, .6);
+    font-size: 0.75em;
+    margin: 0.5em;
+}
 
 /*************************** M e d i a ***************************/
 

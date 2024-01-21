@@ -22,7 +22,7 @@
     <img src="{{ url_for('static', filename='assets/football_pitch_dark.jpg') }}", alt="Client main site image"/>
     <div class="img-overlay">
         <h1>
-            reserve your time.
+            Reserve your time
         </h1>
     </div>
 </div>
@@ -31,7 +31,8 @@
 <div class="search-bar-wrap" id="search-bar">
     <form id="search-form" method="GET">
         <div class="search-bar">
-            <input type="text" id="search" name="search" placeholder="What are you looking for today ?...">
+            <i class="fas fa-search"></i>
+            <input type="text" id="search" name="search" placeholder="Search facilities...">
         </div>
     </form>
 </div>
@@ -66,17 +67,20 @@
             <div class="form-wrap">
                 {% if user_data %}
                     {% if user_data.user_role.id_user_role == 2 %}
-                <form method="POST" action="/upload_facility_image" enctype="multipart/form-data">
-                    <input type="file" name="file" accept=".jpg, .jpeg, .png, .gif">
-                    <input type="submit" value="Upload">
+                <form id="flaga3" method="POST" action="/upload_facility_image" enctype="multipart/form-data">
+                    <label for="fileInput" class="custom-file-input">
+                        <i class="fa-solid fa-upload"></i>
+                    </label>
+                    <input type="file" id="fileInput" name="file" accept=".jpg, .jpeg, .png, .gif" style="display:none;">
+                    <input class="flaga" type="submit" value="Upload">
                     <input type="hidden" name="id_facility" value="{{d.id_facility}}">
                 </form>
                 <form method="GET" action="/edit_facility">
-                    <input type="submit" value="Edit">
+                    <input class="flaga" type="submit" value="Edit">
                     <input type="hidden" name="id_facility" value="{{d.id_facility}}">
                 </form>
                 <form method="POST" action="/delete_facility">
-                    <input type="submit" value="Delete">
+                    <input id="flaga2" type="submit" value="DELETE">
                     <input type="hidden" name="id_facility" value="{{d.id_facility}}">
                 </form>
                     {% endif %}
@@ -86,6 +90,15 @@
         </div>
     {% endfor %}
 </div> 
+<script>
+    // JavaScript to handle file selection and display the file name (optional)
+    const fileInput = document.getElementById('fileInput');
+    const fileNameDisplay = document.getElementById('fileName');
+    fileInput.addEventListener('change', function() {
+      // Display the selected file name (optional)
+      fileNameDisplay.textContent = this.files[0].name;
+    });
+</script>
 
 {% endif %}
 {% endblock %}
