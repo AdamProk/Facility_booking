@@ -28,7 +28,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
+    /* overflow: hidden; */
 
     position: fixed;
     top: 0;
@@ -48,6 +48,49 @@ body {
     color: rgb(255, 255, 255);
 }
 
+/* responsivity */
+
+.navbar .icon {
+    justify-content: flex-end;
+    align-items: center;
+    flex-grow: 1;
+    display: none;
+    color: #000000;
+}
+
+@media screen and (max-width: 900px) {
+    .navbar .options {
+        display: none;
+    }
+    .navbar .icon {
+        display: flex;
+        margin-right: 5%;
+    }
+    .navbar .icon a {
+        font-size: 48px;
+    }
+}
+  
+@media screen and (max-width: 900px) {
+    .navbar.responsive .options {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        flex-direction: column;        
+        position: absolute;
+        top: 100%;
+        width: 100vw;
+        height: auto;
+    }
+    .navbar.responsive .options a {
+        display: block;
+        width: 90vw;
+        height: auto;
+        border-radius: 100em;
+        border-bottom: 2px solid #40fcbc;
+        background-color: rgba(163, 163, 163, 1);
+    }
+}
 
 /*************** F O O T E R ***************/
 
