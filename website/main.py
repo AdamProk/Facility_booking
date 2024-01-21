@@ -53,17 +53,23 @@ def index():
 @app.route("/search_facility", methods=["GET"], logged_in=True)
 def search_facility():
     try:
-        results = API.make_request(
+        query = request.args.get("query")
+        LOGGER.error(query)
+        if not query:
+            query_params = None
+        else:
+            query_params = {'name': query,
+                            'description': query}
+        results  = API.make_request(
             API.METHOD.GET,
             API.ACTION_ENDPOINT.SEARCH_FACILITY,
-            query_params={"name": request.args.get("query", "")},
+            query_params=query_params
         )
     except API.APIError as e:
         LOGGER.error(e)
-        results = []
+        results  = []
 
     return render_template("search_results.html", results=results)
-
 
 # endregion HOME
 
@@ -686,6 +692,20 @@ def edit_site():
                 "Couldn't edit site info. Try again."
             )
 
+        if "file" not in request.files or not request.files['file'].filename:
+            LOGGER.info("No images passed.")
+            return make_response(jsonify({"response": "success, logo wasn't changed."}), 200)
+        
+        try:
+            file = request.files["file"]
+            images_handler.upload_logo(file)
+
+        except images_handler.ImageHandlerError as e:
+            LOGGER.error("Error uploading image: " + str(e))
+            LOGGER.error(traceback.format_exc())
+            return make_response(jsonify({"response": str(e)}), 500)
+
+
     except exc.UniqueConstraintViolated as e:
         LOGGER.error(traceback.format_exc())
         return make_response(jsonify({"response": str(e)}), 500)
@@ -699,35 +719,6 @@ def edit_site():
         LOGGER.error(traceback.format_exc())
         return make_response(jsonify({"response": str(e)}), 500)
     return make_response(jsonify({"response": "success"}), 200)
-
-
-@app.route("/upload_logo", methods=["POST"], admin=True, redirect_url="/")
-def upload_logo():
-    if "file" not in request.files:
-        LOGGER.error("No file passed.")
-        return make_response(jsonify({"response": "404"}), 404)
-
-    try:
-        file = request.files["file"]
-        if file.filename == "":
-            raise images_handler.ImageHandlerError("Please upload an image")
-        else:
-            file.filename = "logo.png"
-    except images_handler.ImageHandlerError as e:
-        LOGGER.error(traceback.format_exc())
-        return make_response(jsonify({"response": str(e)}), 500)
-
-    try:
-        images_handler.upload_image(file)
-
-    except images_handler.ImageHandlerError as e:
-        LOGGER.error("Error uploading image: " + str(e))
-        LOGGER.error(traceback.format_exc())
-        return make_response(jsonify({"response": str(e)}), 500)
-
-    return make_response(
-        jsonify({"response": "Logo Uploaded Successfully"}), 200
-    )
 
 
 # endregion EDIT SITE

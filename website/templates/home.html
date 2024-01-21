@@ -27,12 +27,13 @@
     </div>
 </div>
 {% if data %}
+
 <div class="search-bar-wrap" id="search-bar">
-    <div class="search-bar">
-        <input type="text" id="search" oninput="performSearch()" placeholder="What are you looking for today ?...">
-        <!-- <input type="text" id="datepicker_1" placeholder="Select a date"> -->
-        <!-- <button>search</button> -->
-    </div>
+    <form id="search-form" method="GET">
+        <div class="search-bar">
+            <input type="text" id="search" name="search" placeholder="What are you looking for today ?...">
+        </div>
+    </form>
 </div>
 
 <div class="container" id="container">

@@ -9,7 +9,7 @@
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/edit_site.css') }}" />
 <div class="container">
     <h1 id="ChangeFacilityInfoText">EDIT INFORMATIONS</h1>
-    <form action="edit_site" method="POST" id="info">
+    <form action="edit_site" method="POST" id="info" enctype="multipart/form-data">
         <div class="input">
         <label for="name">Facility name</label>
         <input type="text" name="name" value="{{ footer_data[0].name }}">
@@ -43,19 +43,16 @@
         <input type="text" name="postal_code" value="{{ footer_data[0].address.postal_code }}">
         </div>
         <br>
-    </form>
-    <button id="submit_edit" type="submit">Edit informations</button>
-    <br><br>
-
-    <form method="POST" action="/upload_logo" enctype="multipart/form-data" class="logo">
         <label for="file">Logo editing:</label><br>
         <input type="file" name="file" accept=".jpg, .jpeg, .png">
         <br>
-        <button id="submit_logo" type="submit">Edit logo</button>
-        <h1 id="edit_site_response"></h1>
+        <br>
+        <button id="submit_edit" type="submit">Edit informations</button>
     </form>
-</div>
+    <br><br>
 
+    <h1 id="edit_site_response"></h1>
+</div>
 
 
 <script src="{{ url_for('static', filename='js/index.js') }}"></script>

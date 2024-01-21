@@ -1,13 +1,18 @@
-function performSearch() {
-    var query = document.getElementById("search").value.toLowerCase();
-    var facilities = document.getElementsByClassName("facilities_id");
+$(document).ready(function() {   
+    $("#search").on("input", function() {
+        var query = $(this).val();
+        console.log(query);
 
-    for (var i = 0; i < facilities.length; i++) {
-        var facilityName = facilities[i].textContent.toLowerCase();
-        if (facilityName.includes(query)) {
-            facilities[i].style.display = "block";
-        } else {
-            facilities[i].style.display = "none";
-        }
-    }
-}
+        $.ajax({
+            url: "http://localhost:9000/search_facility",
+            method: "GET",
+            data: { query: query },
+            success: function(data) {
+                $("#container").html(data);
+            },
+            error: function(error) {
+                console.log(error);
+            }
+        });
+    });
+});

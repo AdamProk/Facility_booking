@@ -66,41 +66,41 @@ $("#submit_registration").submit(function (e) {
     var formData = $(this).closest('form').serialize();
   
     $.ajax({
-      type: "POST",
-      url: "http://localhost:9000/register",
-      data: formData,
-      success: function (response) {
+        type: "POST",
+        url: "http://localhost:9000/register",
+        data: formData,
+        success: function (response) {
         $("#register_response").html(response["response"]);
         form[0].reset();
-      },
-      error: function (xhr, status, error) {
+        },
+        error: function (xhr, status, error) {
         console.error(xhr.responseText);
-      }
+        }
     });
-  });
+});
 
 
 $("#submit_login").submit(function (e) {
-  e.preventDefault();
+    e.preventDefault();
 
-  var form = $(this).closest('form');
-  var formData = $(this).closest('form').serialize();
+    var form = $(this).closest('form');
+    var formData = $(this).closest('form').serialize();
 
-  $.ajax({
-    type: "POST",
-    url: "http://localhost:9000/login", 
-    data: formData,
-    success: function (response) {
-      $("#login_response").html(response["response"]);
-      window.location.href = "/";
-    },
-    error: function (xhr, status, error) {
-      if (xhr.status === 401) {
-        var errorResponse = $.parseJSON(xhr.responseText);
-        $("#login_response").html(errorResponse.response);
-        form[0].reset();
-    }
-  }});
+    $.ajax({
+        type: "POST",
+        url: "http://localhost:9000/login", 
+        data: formData,
+        success: function (response) {
+        $("#login_response").html(response["response"]);
+        window.location.href = "/";
+        },
+        error: function (xhr, status, error) {
+        if (xhr.status === 401) {
+            var errorResponse = $.parseJSON(xhr.responseText);
+            $("#login_response").html(errorResponse.response);
+            form[0].reset();
+        }
+    }});
 });
 
 
@@ -164,6 +164,8 @@ $("#submit_edit_account_info").click(function (e) {
         }
     });
 });
+
+
 $(document).ready(function(e) {
     $("#checkDate").click(function (e) {
         e.preventDefault();
@@ -174,12 +176,9 @@ $(document).ready(function(e) {
             url: "http://localhost:9000/check_reservations_on_date",
             data: {reservation_date: reservation_date, id_facility: id_facility},
             success: function (response) {
-                // Clear existing content
                 $("#dynamicContent").empty();
                 $("#checkdate_response").empty();
-                // Check if reservation_list is not empty
                 if (response.reservation_list && response.reservation_list.length > 0) {
-                    // Iterate through the list and append data to dynamicContent
                     $("#dynamicContent").append('<div>' + "<strong>Reserved:</strong><br><br>" + '</div>');
                     $.each(response.reservation_list, function(index, reservation) {
                         var reservationHtml = '';
@@ -187,7 +186,6 @@ $(document).ready(function(e) {
                         $("#dynamicContent").append('<div>' + reservationHtml + '</div>');
                     });
                 } else {
-                    // Display a message if the list is empty
                     $("#checkdate_response").html("No reservations on this day");
                 }
             },
@@ -207,16 +205,19 @@ $(document).ready(function(e) {
     });
 });
 
+
 $("#submit_edit").click(function (e) {
     e.preventDefault();
   
     var form = $(this).closest('form');
-    var formData = $(this).closest('form').serialize();
+    var formData = new FormData(form[0]);
   
     $.ajax({
         type: "POST",
         url: "http://localhost:9000/edit_site",
         data: formData,
+        processData: false,
+        contentType: false,
         success: function (response) {
             $("#edit_site_response").html(response["response"]);
         },
