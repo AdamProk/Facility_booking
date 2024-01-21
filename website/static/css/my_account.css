@@ -56,14 +56,15 @@
     border-style: none;
     text-decoration: none;
     padding: 0.5em;
-    background-color: #ffffff00;
+    background-color: #40fcbc;
     box-shadow: 0 0 5px #40fcbc; 
     border-radius: 100em;
-
+    color: black;
 }
 
 .data-container a:hover, #submit_edit_account_info:hover {
     background-color: #40fcbc;
+    color: white;
 }
 
 .data-container #history {
@@ -75,7 +76,7 @@
 }
 
 .data-container #history:hover {
-    box-shadow: 0 4px 2px -2px #40fcbc; 
+    box-shadow: 0 4px 2px -2px #40fcbc;
 }
 
 /*************************** R e s e r v a t i o n s ***************************/
@@ -132,6 +133,7 @@
 
 .reservation_details button {
     margin: 1em 0 1em 0;
+    padding: 0.5em;
     border-style: none;
     border-radius: 5px;
     cursor: pointer;
@@ -141,6 +143,7 @@
 
 .reservation_details button:hover {
     box-shadow: 0 0 20px #40fcbc;
+    color: white;
 }
 
 .reservation_details #uniq_cancel {

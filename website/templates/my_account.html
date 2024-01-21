@@ -65,7 +65,7 @@
                             {% endif %}
 
                             {% if key == 'facility'%}
-                                <button onclick="reserveFacility('{{value['id_facility']}}')">see facility</button>
+                                <button onclick="reserveFacility('{{value['id_facility']}}')">See Facility</button>
                                 <script>
                                     function reserveFacility(id) {
                                         window.location.href = "/reserve?id_facility=" + id;

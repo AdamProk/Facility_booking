@@ -3,25 +3,20 @@
 
 .add-facility-container {
     width: 100vw;
-    
     display: flex;
-
     flex-direction: column;
     justify-content: center;
     align-items: center;
 
     text-align: center;
-
 }
 
 .add-facility-container form {
-    margin-top: 10vh;
-
     width: 60vw;
     height: auto;
     display: flex;
     flex-wrap: wrap;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
     justify-content: space-evenly;
 
@@ -31,6 +26,18 @@
     text-align: center;
     padding-bottom: 3vw;
     padding-top: 3vw;
+}
+
+.form-sub-wrap {
+    margin-top: 10vh;
+
+    width: 60vw;
+    height: auto;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
 }
 
 /*************************** P h y s i c a l  -  D a t a ***************************/
@@ -73,18 +80,18 @@
 }
 
 
-
-.time_data #submit_facility {
+.submit_fac_butt {
     border-style: none;
     text-decoration: none;
     padding: 0.5em;
-    background-color: #ffffff00;
+    background-color: #40fcbc;
     box-shadow: 0 0 5px #40fcbc; 
     border-radius: 100em;
 }
 
-.time_data #submit_facility:hover {
-    background-color: #40fcbc;
+.submit_fac_butt:hover {
+    color: white;
+    cursor: pointer;
 }
 
 

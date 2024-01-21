@@ -12,17 +12,17 @@
     <h1 id="LogInText">LOG IN</h1>
     <form action="/login" method="post" id="submit_login">
         <!--<label for="email">Email:</label>-->
-        <input type="email" name="email" required placeholder="Email">
+        <input type="email" name="email" required placeholder="email">
         <br>
         <!--<label for="password">Password:</label>-->
         <input type="password" name="password" required placeholder="password">
         <br>
         <h1 id="login_response"></h1>
-        <button type="submit">Login</button>
+        <button type="submit">login</button>
     </form>
     <br>
     <form action="/register" method="get" class="register">
-        <button type="submit">Register a new account</button>
+        <button type="submit">register</button>
     </form>
 </div>
 <script src="{{ url_for('static', filename='js/index.js') }}"></script>
