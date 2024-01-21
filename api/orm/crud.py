@@ -23,7 +23,7 @@ def dict_query_and(model, query_dict, db=None, exact=True):
             q = db.query(model).filter(
                 or_(
                     *(
-                        getattr(model, key).like(f"%{value}%")
+                        getattr(model, key).ilike(f"%{value}%")
                         for key, value in query_dict.items()
                     )
                 )

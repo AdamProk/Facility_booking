@@ -223,7 +223,7 @@ class Facility(Base):
 
     images = relationship("Image", back_populates="facility")
 
-    @validates("name", "description")
+    @validates("name")
     def convert_upper(self, key, value):
         return value.capitalize()
 
