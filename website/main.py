@@ -1,4 +1,3 @@
-import requests
 import traceback
 from sqlalchemy.exc import NoResultFound
 from flask import (
@@ -23,8 +22,7 @@ import json
 import logging
 import traceback
 from datetime import date, datetime, timedelta
-
-# from components import emails_handler
+from components import email_handler
 
 LOGGER = logging.getLogger(__name__)
 
@@ -125,7 +123,6 @@ def login():
     password = str(request.form.get("password"))
     try:
         session["token"] = API.get_token(email, password)
-        # emails_handler.send()
     except API.APIError as e:
         LOGGER.info(e)
         LOGGER.error(traceback.format_exc())
@@ -155,7 +152,6 @@ def register_site():
 
 @app.route("/register", methods=["POST"], logged_in=False, redirect_url="/")
 def register():
-    msg = ""
     email = str(request.form["email"])
     password = str(request.form["password"])
     username = str(request.form["username"])
@@ -189,14 +185,20 @@ def register():
                 },
                 get_token_from_session=False,
             )
-            msg = "You have successfully registered!"
         except API.APIError as e:
             LOGGER.info(e)
-            return make_response(jsonify({"response": str(e)}), 500)
+            return make_response(jsonify({"response": "API_ERROR"}), 500)
     else:
         LOGGER.info("No parameter found..")
-        msg = "Account already exists!"
-    return make_response(jsonify({"response": msg}), 200)
+        return make_response(jsonify({"response": "Such account already exists!"}), 200)
+    
+    email_data={
+        "title": "Facility Booking - Registration of your account",
+        "body": "Welcome " + username + "<br><br>Thanks for registering to our website!",
+    }
+    email_handler.send_notification(email_data)
+    return make_response(jsonify({"response": "You have successfully registered!"}), 200)
+
 
 
 # endregion REGISTER
@@ -787,6 +789,7 @@ def check_reservations_on_date():
 @app.route("/reserve", methods=["POST"], logged_in=True, redirect_url="/")
 def reserve():
     try:
+        e_data={}
         id_facility = int(request.form.get("id_facility"))
         start_time = str(request.form.get("reservation_start_time"))
         end_time = str(request.form.get("reservation_end_time"))
@@ -835,6 +838,13 @@ def reserve():
                         "end_hour": end_time,
                     },
                 )
+                e_data = API.make_request(
+                    API.METHOD.GET,
+                    API.DATA_ENDPOINT.FACILITY,
+                    query_params = {
+                        "id_facility": id_facility
+                    }
+                )[0]
             except API.APIError as e:
                 raise API.APIError("API ERROR")
         else:
@@ -851,6 +861,11 @@ def reserve():
     except ValueError as e:
         LOGGER.error(traceback.format_exc())
         return make_response(jsonify({"response": str(e)}), 500)
+    email_data={
+        "title": "Facility Booking - We have confirmed your reservation",
+        "body": "Hi " + user_data()['user_data']['name'] + ",<br>Here are the details of your reservation:<br><br>Reservation place: " + e_data['name'] + "<br>Reservation date: " + reservation_date + "<br>Start hour: " + start_time + "<br>End time: " + end_time
+    }
+    email_handler.send_notification(email_data)
     return make_response(jsonify({"response": "success"}), 200)
 
 
@@ -870,11 +885,20 @@ def curr_reservations():
 
 
 @app.route(
-    "/delete_reservation_admin", methods=["POST"], admin=True, redirect_url="/"
+    "/delete_reservation_admin", 
+    methods=["POST"], 
+    admin=True, 
+    redirect_url="/"
 )
 def delete_reservation():
     id_reservation = int(request.form.get("id_reservation"))
+    e_data={}
     try:
+        e_data = API.make_request(
+            API.METHOD.GET,
+            API.DATA_ENDPOINT.RESERVATION,
+            query_params={"reservation_id": id_reservation},
+        )[0]
         API.make_request(
             API.METHOD.DELETE,
             API.DATA_ENDPOINT.RESERVATION,
@@ -886,19 +910,23 @@ def delete_reservation():
 
     except exc.UniqueConstraintViolated as e:
         return make_response(jsonify({"response": str(e)}), 500)
-
+    email_data={
+        "title": "Facility Booking - We have cancelled your reservation",
+        "body": "Hi " + user_data()['user_data']['name'] + ",<br>Below reservation has been cancelled by our admin.<br><br><strong>Cancelled Reservation details</strong>:<br>" + "Reservation Place: " + e_data['facility']['name'] + "<br>Reservation date: " + e_data['date'] + "<br>Hours: " + e_data['start_hour'] + " - " + e_data['end_hour'] +"<br><br>Please check your reservation site for more details",
+    }
+    email_handler.send_notification(email_data)
     return redirect(url_for("curr_reservations"))
 
 
-@app.route(
-    "/delete_reservation_me",
-    methods=["POST"],
-    logged_in=True,
-    redirect_url="/",
-)
+@app.route("/delete_reservation_me",methods=["POST"],logged_in=True,redirect_url="/",)
 def delete_reservation_me():
     id_reservation = int(request.form.get("id_reservation"))
+    e_data={}
     try:
+        for item in user_data()['user_data']['reservations']:
+            if item['id_reservation'] == id_reservation:
+                e_data=item
+
         API.make_request(
             API.METHOD.DELETE,
             API.DATA_ENDPOINT.DELETE_RESERVATION_ME,
@@ -910,8 +938,12 @@ def delete_reservation_me():
 
     except exc.UniqueConstraintViolated as e:
         return make_response(jsonify({"response": str(e)}), 500)
-
-    return redirect(url_for("curr_reservations"))
+    email_data={
+        "title": "Facility Booking - Reservation cancellation request confirmed",
+        "body": "Hi " + user_data()['user_data']['name'] +"<br>By your request, below reservation has been cancelled.<br><br><strong>Cancelled Reservation details:</strong><br>" + "Reservation Place: " + e_data["facility"]["name"] + "<br>Reservation date: " + e_data['date'] + "<br>Hours: " + e_data['start_hour'] + " - " + e_data['end_hour'] +"<br><br>Please check your reservation site for more details",
+    }
+    email_handler.send_notification(email_data)
+    return redirect(url_for("my_account"))
 
 
 # endregion RESERVATIONS
@@ -920,9 +952,7 @@ def delete_reservation_me():
 # region ACTIONS
 
 
-def get_or_create_address(
-    city_name, state_name, street_name, building_no, postal_code
-):
+def get_or_create_address(city_name, state_name, street_name, building_no, postal_code):
     try:
         API.make_request(
             API.METHOD.POST, API.DATA_ENDPOINT.CITY, body={"name": city_name}
