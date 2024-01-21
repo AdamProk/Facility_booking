@@ -31,7 +31,7 @@
                 {% endif %}
             {% endfor %}
 
-                {% if status_id in [2, 3] and d['date']|string_to_datetime > curr_date %}
+                {% if status_id in [2, 3] and d['date']|string_to_datetime >= curr_date %}
                     <form method="POST" action="/delete_reservation_admin">
                         <input type="submit" value="DELETE RESERVATION">
                         <input type="hidden" name="id_reservation" value="{{d.id_reservation}}">
