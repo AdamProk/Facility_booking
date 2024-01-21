@@ -1037,9 +1037,9 @@ def delete_company(
 
 @app.get("/company/", response_model=list[schemas.Company], tags=["Companies"])
 def get_companies(
-    current_user: Annotated[
-        schemas.User, Security(get_current_user, scopes=["user"])
-    ],
+    # current_user: Annotated[
+    #     schemas.User, Security(get_current_user, scopes=["user"])
+    # ],
     id_company: int = Query(None),
     name=Query(None),
     nip=Query(None),
@@ -1048,7 +1048,7 @@ def get_companies(
     db: Session = Depends(get_db),
 ):
     try:
-        del current_user
+        # del current_user
         results = crud.get_companies(**locals())
     except NoResultFound:
         raise HTTPException(

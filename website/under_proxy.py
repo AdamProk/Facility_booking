@@ -1,5 +1,6 @@
 from flask import Flask, session, make_response, jsonify, redirect, url_for
 from functools import wraps
+from components import api_requests as API
 import logging
 
 import os
@@ -35,6 +36,7 @@ def get_flask_app():
             @wraps(f)
             def wrapped_function(*function_args, **function_kwargs):
                 if admin:
+                    API.make_request(API.METHOD.GET,API.DATA_ENDPOINT.ME)
                     try:
                         # No admin priveledges: redirect
                         if (
@@ -54,6 +56,7 @@ def get_flask_app():
                         # Not logged in: redirect
                         if session.get("token") is None:
                             return redirect(redirect_url)
+                        API.make_request(API.METHOD.GET,API.DATA_ENDPOINT.ME)
                     except Exception as e:
                         LOGGER.error("Something went wrong with checking user's logged in status. Error:"+ str(e))
                         return redirect(redirect_url)
