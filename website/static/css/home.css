@@ -148,6 +148,10 @@
     justify-content: space-around;
 }
 
+.facilities_id a {
+    cursor: pointer;
+}
+
 .facilities_id {
     text-decoration: none;
     color: #000000;
@@ -155,7 +159,6 @@
     min-width: 20em;
 
     margin: 2em 1em 2em 1em;
-    cursor: pointer;
 }
 .container a:hover #facil_name_strong {
     animation: colorChange 0.5s forwards;
@@ -205,6 +208,26 @@
     flex-direction: column;
 
     margin-bottom: 1vh;
+}
+
+.container form input {
+    border-style: none;
+    text-decoration: none;
+    margin: 0.3em;
+    padding: 0.5em;
+    background-color: #40fcbc;
+    box-shadow: 0 0 5px #40fcbc; 
+    border-radius: 100em;
+}
+
+.container form input:hover {
+    cursor: pointer;
+    color: white;
+}
+
+.form-wrap {
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .reserve-btn {

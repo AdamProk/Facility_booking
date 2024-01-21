@@ -11,6 +11,7 @@
 <div class="add-facility-container">
     <form id="submit_facility" action="/add_facility" method="POST" enctype="multipart/form-data">
         <!-- Physical Data -->
+        <div class="form-sub-wrap">
         <div class="physical_data">
             <input type="text" name="name" required>
             <label for="name">Facility Name</label>
@@ -21,7 +22,7 @@
             <br>
             <br>
             <input type="number" name="price_hourly" required>
-            <label for="price_hourly">Price for lease per hour</label>
+            <label for="price_hourly">Price per hour</label>
             <br>
             <br>
             <select name="id_facility_type" required>
@@ -51,11 +52,11 @@
             <input type="text" name="postal_code" required>
             <label for="postal_code">Postal code</label>
             <br>
-            <br>
+            <br> 
         </div>
         <!-- Time Data -->
         <div class="time_data">
-            <label for="time_open">Open hours:</label><br>
+            <label for="time_open">Open hours</label><br>
             <div>
                 from<input type="time" name="monday_start" step="1800" required>
                 to<input type="time" name="monday_end" step="1800" required>
@@ -105,18 +106,19 @@
             <label for="sunday">Sunday</label>
             <br>
             <br>
-            <label for="files">Add image:</label>
+            <label for="files">Add Image:</label>
             <input type="file" name="files" accept=".jpg, .jpeg, .png, .gif" multiple required>
             <br>
             <br>
 
-            <input id="submit_facility" type="submit" value="Add facility"></input>
+            <h1 id="fac_response"></h1>
         </div>
+    </div>
+        <input class="submit_fac_butt" id="submit_facility" type="submit" value="Add Facility"></input>
     </form>
 </div>
 
 
-<h1 id="fac_response"></h1>
 
 <script src="{{ url_for('static', filename='js/index.js') }}"></script>
 
