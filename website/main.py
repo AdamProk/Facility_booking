@@ -789,6 +789,7 @@ def check_reservations_on_date():
 @app.route("/reserve", methods=["POST"], logged_in=True, redirect_url="/")
 def reserve():
     try:
+        e_data={}
         id_facility = int(request.form.get("id_facility"))
         start_time = str(request.form.get("reservation_start_time"))
         end_time = str(request.form.get("reservation_end_time"))
@@ -837,6 +838,13 @@ def reserve():
                         "end_hour": end_time,
                     },
                 )
+                e_data = API.make_request(
+                    API.METHOD.GET,
+                    API.DATA_ENDPOINT.FACILITY,
+                    query_params = {
+                        "id_facility": id_facility
+                    }
+                )[0]
             except API.APIError as e:
                 raise API.APIError("API ERROR")
         else:
@@ -855,7 +863,7 @@ def reserve():
         return make_response(jsonify({"response": str(e)}), 500)
     email_data={
         "title": "Facility Booking - We have confirmed your reservation",
-        "body": "The details of your reservation:<br><br>Reservation date: " + reservation_date + "<br>Start hour: " + start_time + "<br>End time: " + end_time
+        "body": "Hi " + user_data()['user_data']['name'] + ",<br>Here are the details of your reservation:<br><br>Reservation place: " + e_data['name'] + "<br>Reservation date: " + reservation_date + "<br>Start hour: " + start_time + "<br>End time: " + end_time
     }
     email_handler.send_notification(email_data)
     return make_response(jsonify({"response": "success"}), 200)
@@ -884,7 +892,13 @@ def curr_reservations():
 )
 def delete_reservation():
     id_reservation = int(request.form.get("id_reservation"))
+    e_data={}
     try:
+        e_data = API.make_request(
+            API.METHOD.GET,
+            API.DATA_ENDPOINT.RESERVATION,
+            query_params={"reservation_id": id_reservation},
+        )[0]
         API.make_request(
             API.METHOD.DELETE,
             API.DATA_ENDPOINT.RESERVATION,
@@ -898,7 +912,7 @@ def delete_reservation():
         return make_response(jsonify({"response": str(e)}), 500)
     email_data={
         "title": "Facility Booking - We have cancelled your reservation",
-        "body": "Your reservation has been cancelled. <br><br>Please check your reservation site for more details",
+        "body": "Hi " + user_data()['user_data']['name'] + ",<br>Below reservation has been cancelled by our admin.<br><br><strong>Cancelled Reservation details</strong>:<br>" + "Reservation Place: " + e_data['facility']['name'] + "<br>Reservation date: " + e_data['date'] + "<br>Hours: " + e_data['start_hour'] + " - " + e_data['end_hour'] +"<br><br>Please check your reservation site for more details",
     }
     email_handler.send_notification(email_data)
     return redirect(url_for("curr_reservations"))
@@ -907,7 +921,12 @@ def delete_reservation():
 @app.route("/delete_reservation_me",methods=["POST"],logged_in=True,redirect_url="/",)
 def delete_reservation_me():
     id_reservation = int(request.form.get("id_reservation"))
+    e_data={}
     try:
+        for item in user_data()['user_data']['reservations']:
+            if item['id_reservation'] == id_reservation:
+                e_data=item
+
         API.make_request(
             API.METHOD.DELETE,
             API.DATA_ENDPOINT.DELETE_RESERVATION_ME,
@@ -921,10 +940,10 @@ def delete_reservation_me():
         return make_response(jsonify({"response": str(e)}), 500)
     email_data={
         "title": "Facility Booking - Reservation cancellation request confirmed",
-        "body": "By your request, the reservation has been cancelled.<br><br>Please check your reservation site for more details",
+        "body": "Hi " + user_data()['user_data']['name'] +"<br>By your request, below reservation has been cancelled.<br><br><strong>Cancelled Reservation details:</strong><br>" + "Reservation Place: " + e_data["facility"]["name"] + "<br>Reservation date: " + e_data['date'] + "<br>Hours: " + e_data['start_hour'] + " - " + e_data['end_hour'] +"<br><br>Please check your reservation site for more details",
     }
     email_handler.send_notification(email_data)
-    return redirect(url_for("curr_reservations"))
+    return redirect(url_for("my_account"))
 
 
 # endregion RESERVATIONS
