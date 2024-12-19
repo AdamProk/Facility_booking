@@ -53,10 +53,10 @@ Rezerwacje
 ![image](https://github.com/user-attachments/assets/4247f0f2-43db-489d-9b9f-da80bac57cf1)
 
 ## Członkowie projektu
-*Krystian Pielat 
-*Domenico Martyński 
-*Filip Mysior
-*Adam Prokop
-*Aleksander Pasich
+* Krystian Pielat 
+* Domenico Martyński 
+* Filip Mysior
+* Adam Prokop
+* Aleksander Pasich
 
 
